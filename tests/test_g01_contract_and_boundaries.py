@@ -4,17 +4,19 @@ import ast
 from pathlib import Path
 import unittest
 
-from graphium.product import VERSION, WORK_ITEM, WORK_ITEM_DESCRIPTION
 
 ROOT = Path(__file__).resolve().parents[1]
 CANON = ROOT / "docs" / "canonical"
 
 
 class G01ContractAndBoundaryTests(unittest.TestCase):
-    def test_runtime_identity_is_g01(self):
-        self.assertEqual(WORK_ITEM, "G01")
-        self.assertEqual(WORK_ITEM_DESCRIPTION, "Document Identity / Load / Serialize Foundation")
-        self.assertTrue(VERSION.endswith("-g01"))
+    def test_published_g01_runtime_modules_remain_present_as_regression_authority(self):
+        for rel in (
+            "graphium/domain/document_identity.py",
+            "graphium/domain/document_serialization.py",
+            "graphium/infrastructure/document_loader.py",
+        ):
+            self.assertTrue((ROOT / rel).is_file(), rel)
 
     def test_g01_modules_are_gtk_free(self):
         rels = (

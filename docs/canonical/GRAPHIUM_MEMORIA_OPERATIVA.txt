@@ -470,3 +470,331 @@ Finalization routing:
   strict gates and the 44-test suite must pass again against that exact final tree;
   only the user may execute Git stage/commit/push on the T480;
   no desktop validation is required because G01 contains no GTK product UI.
+
+================================================================================
+ENTRY G01-008 — 2026-08-14 — G01 FINAL PUBLICATION PASS
+================================================================================
+
+User executed the fail-closed G01 finalizer on the T480.
+
+Observed finalization/publication result:
+  STRICT_GATES=PASS
+  TESTS=44/44_PASS
+  GTK_DESKTOP_VALIDATION=N/A
+  FINAL_CANDIDATE_TREE=2334e0c71f01a1b0a30bcb9298911c7c0cafe042
+  STAGED_TREE=PASS
+  COMMIT=bf7878c3cdc5cf895b0ffba86b854860c34936a4
+  SUBJECT=G01: add document identity load serialize foundation
+  HEAD=bf7878c3cdc5cf895b0ffba86b854860c34936a4
+  ORIGIN_MAIN=bf7878c3cdc5cf895b0ffba86b854860c34936a4
+  REMOTE_MAIN=bf7878c3cdc5cf895b0ffba86b854860c34936a4
+  TREE=2334e0c71f01a1b0a30bcb9298911c7c0cafe042
+  WORKTREE=CLEAN
+  CANONICAL_DOCS=3
+  FINAL_PHASE=G01_PUBLICATION_PASS
+  RUNNER_RC=0
+
+Final classification:
+  G01_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  G01_PRODUCT_FAILS=0
+  G01_DESKTOP_VALIDATION=N/A
+  G02_STARTED=NO
+
+Published repository:
+  local: /home/luciano/Projects/graphium-work
+  remote: https://github.com/leviagravia/graphium.git
+  branch: main
+
+The permanent canonical-document cap remains:
+  CANONICAL_DOCUMENT_COUNT=3
+  CANONICAL_DOCUMENT_CAP=3
+
+================================================================================
+ENTRY G01-009 — 2026-08-14 — GUI / HELP / SHORTCUT / DEAD-CODE MEMORANDUM
+================================================================================
+
+User requested that the following product-development memorandum be retained in the
+incremental Graphium MO for routing into the appropriate future work items.
+
+A. OPTIONAL ICON TOOLBAR / VISIBILITY
+-------------------------------------
+Evaluate a small native GTK toolbar (user wording: "icon bar") as a convenience layer,
+not as a second command authority.
+
+Required design questions for the future GTK-shell audit:
+  1. Should View expose a checked item such as:
+       [x] Toolbar
+     so the toolbar can be shown/hidden without affecting menu command availability?
+  2. Should toolbar visibility persist across restarts through Graphium preferences?
+  3. Which commands deserve toolbar space without undermining Graphium's
+     FAST + SIMPLE positioning?
+
+Provisional product direction, NOT YET CONTRACT-FROZEN:
+  - use the standard product term "Toolbar" unless mature-source audit gives a better reason;
+  - one checked View menu item should control visibility;
+  - hiding the toolbar must never hide/disable the corresponding menu commands;
+  - visibility should be persistable once the preferences authority exists;
+  - keep the toolbar deliberately small.
+
+Provisional icon candidates for mature-source comparison:
+  PRIMARY:
+    New
+    Open
+    Save
+    Undo
+    Redo
+    Find
+  POSSIBLE:
+    Print
+  GENERALLY AVOID IN THE FIRST TOOLBAR UNLESS AUDIT JUSTIFIES:
+    Save As
+    Save a Copy
+    Save Version Copy
+    Cut
+    Copy
+    Paste
+    text transformations
+    preferences
+    help
+
+Reason:
+  Graphium targets quick-edit users of Leafpad/L3afpad and the quick-edit segment of
+  Mousepad. A crowded toolbar would conflict with the SIMPLE requirement.
+  The exact icon set is explicitly deferred to direct mature-source audit when the GTK
+  shell/view work item reaches this concern.
+
+B. HIGH-QUALITY OFFLINE HELP
+----------------------------
+Graphium must have a good offline Help/User Guide rather than a token About dialog.
+
+Future Help requirements:
+  - explain core workflows in plain language;
+  - document file-safety behavior, Saved/Modified state, external-change handling,
+    encoding/BOM/EOL, printing, search/replace and preferences when those features exist;
+  - document keyboard shortcuts from the same current command authority where practical,
+    so Help does not silently drift away from the product;
+  - update Help in the same candidate whenever a visible user-facing function is added
+    or materially changed;
+  - remain offline: no webview, cloud dependency or embedded browser;
+  - dormant Help code/content must stay off the startup critical path.
+
+C. KEYBOARD SHORTCUT COLLISION POLICY — LINUX MINT
+---------------------------------------------------
+Before freezing any new Graphium accelerator, audit likely Linux Mint / Cinnamon desktop
+collisions and mature-editor conventions.
+
+Permanent safety/usability rule:
+  GRAPHIUM_SHORTCUT_COLLISION_WITH_LINUX_MINT=FORBIDDEN
+
+Operational requirement:
+  - do not assign shortcuts merely because they are unused inside Graphium;
+  - compare against Linux Mint/Cinnamon global shortcuts on the T480 before desktop freeze;
+  - prefer established text-editor conventions where they do not conflict;
+  - menu access must remain possible even when no safe accelerator exists;
+  - record intentional omissions where a desirable shortcut is reserved globally.
+
+Known project-history warning:
+  Ctrl+Alt+L is reserved by Linux Mint in the user's environment and must not be reused
+  as a Graphium accelerator.
+
+D. DEAD-CODE / UNUSED-CODE CLEANUP
+----------------------------------
+Graphium should remain small by removing dead or obsolete code when evidence shows that it
+is truly unused.
+
+Permanent cleanup discipline:
+  - no speculative deletion based only on text search;
+  - confirm call/import/reference reachability with static audit and tests;
+  - distinguish compatibility/provenance helpers from genuinely dead code;
+  - cleanup must preserve product behavior and architectural boundaries;
+  - when cleanup is material, run full non-desktop tests and strict gates again;
+  - do not accumulate unused Calamus-derived compatibility surfaces "just in case";
+  - avoid cosmetic refactoring that increases churn without reducing real complexity.
+
+Routing guidance:
+  toolbar visibility/icon selection:
+    route to first suitable GTK shell/view/preferences work item after mature-source audit;
+  Help:
+    build incrementally alongside visible features, with final closure at G12;
+  shortcut collision audit:
+    apply to every GTK work item that introduces or changes accelerators;
+  dead-code cleanup:
+    continuous audit obligation, with explicit cleanup when verified and low-risk.
+
+No implementation is authorized merely by this memorandum.
+No new canonical document is created.
+G02 remains unopened by this entry.
+
+================================================================================
+ENTRY G02-001 — 2026-08-14 — G02 AUTHORIZATION / TARGET USER FREEZE
+================================================================================
+
+User authorized G02 — History / Editor Transaction / Savepoint Session on the published
+G01 baseline:
+  commit=bf7878c3cdc5cf895b0ffba86b854860c34936a4
+  tree=2334e0c71f01a1b0a30bcb9298911c7c0cafe042
+
+User also explicitly froze the Graphium target as:
+  users of Leafpad, L3afpad and Mousepad, and more generally the same quick-edit class
+  of users who value a simple, fast, immediate and reliable Linux text editor.
+
+Product consequence:
+  G02 history/savepoint sophistication must be invisible maturity, not visible bloat.
+  No history panel, timeline, persistent-undo subsystem, tabs or session complexity is
+  admitted by G02.
+
+Methodology consequence:
+  implementation is authorized without another permission request;
+  direct mature-source audit precedes freeze/implementation;
+  full non-desktop tests + strict gates + source/MO bundle are required;
+  G02 is headless, so desktop validation is expected to be N/A if no GTK need emerges.
+
+================================================================================
+ENTRY G02-002 — 2026-08-14 — DIRECT SOURCE + MATURE-SOURCE AUDIT
+================================================================================
+
+Exact Calamus W116 published source was inspected directly for selective extraction:
+  calamus_history.py
+  calamus_editor_transaction.py
+  calamus_document_session.py
+  calamus_document_session_controller.py
+  calamus_history_runtime.py
+  calamus_editor_buffer_adapter.py
+
+Key W116 lessons retained:
+  - stable non-reused editor-state IDs;
+  - caret/selection snapshot separate from text dirty identity;
+  - branch after Undo discards redo without reusing identity;
+  - transaction checkpoint/rollback across buffer/history/session;
+  - GTK adapters remain outside domain/application authority.
+
+Mature sources already present in the source corpus were re-read for G02-specific behavior.
+No new upload is required.
+
+Scintilla UndoHistory:
+  - explicit savePoint compared with currentAction;
+  - branching before the save point invalidates the old positional save point;
+  - BeginUndoAction/EndUndoAction group compound user operations.
+  Decision: ADOPT savepoint relation and grouping semantics; ADAPT to stable Graphium
+  identities rather than exposing Scintilla stack-position identity.
+
+GNOME Text Editor / GtkTextBuffer client:
+  - modified state remains distinct from externally-modified state;
+  - insert and selection-bound marks are explicitly saved/restored around lifecycle work.
+  Decision: ADOPT exact caret/selection restoration and separate dirty/external-change
+  concepts; GTK mechanics remain deferred to G04.
+
+gedit:
+  - GtkSourceBuffer owns bounded undo and GtkTextBuffer user-action grouping;
+  - document code uses begin/end user action instead of treating each low-level mutation
+  as an independent command.
+  Decision: ADOPT grouped-edit boundary as the future G04 adapter contract.
+
+Geany / Scintilla family:
+  - Scintilla savepoint is set after synchronization/load/save boundaries;
+  - application metadata undo is layered separately from core text undo.
+  Decision: ADOPT the saved-state boundary; REJECT adding metadata/history complexity to G02.
+
+Existing Calamus W113 mature audit corroborates the same contract across Vim, Emacs,
+GtkSourceView clients, Geany/Scintilla and other editors: Saved/Modified is a relation to
+an exact historical state, not a sticky boolean or a text digest.
+
+================================================================================
+ENTRY G02-003 — 2026-08-14 — CONTRACT FREEZE / IMPLEMENTATION
+================================================================================
+
+G02 contract is frozen:
+  G02_CONTRACT=FROZEN
+  G02_SCOPE=HISTORY_TRANSACTION_SAVEPOINT_SESSION
+  G02_GTK_REQUIRED=NO
+  G02_PHYSICAL_WRITER=FORBIDDEN
+  G02_DIRTY_AUTHORITY=EDITOR_STATE_ID_RELATION
+
+Implementation authorities:
+  graphium/domain/history.py
+    bounded full-text HistoryState snapshots;
+    monotonic positive state IDs, never reused;
+    caret/selection refresh preserves state identity;
+    branch-after-Undo receives fresh IDs;
+    checkpoint/restore;
+    large-document identity retained while multi-snapshot Undo is disabled.
+
+  graphium/application/document_session.py
+    one active session;
+    one accepted G01 DocumentFileState;
+    current_editor_state_id + saved_editor_state_id;
+    Modified derived only from their relation;
+    pending native text is dirty;
+    exact older-state late save cannot clean newer current state;
+    no filesystem write.
+
+  graphium/application/editor_transaction.py
+    GTK-free buffer port;
+    New/Open history initialization;
+    native-group reconciliation/commit;
+    one logical programmatic transaction -> one Undo state;
+    exact buffer/history/session rollback on failure;
+    Undo/Redo restore text + insertion + selection bound.
+
+Dead-code audit decision executed in G02:
+  remove obsolete current-work-item verifiers VERIFY_G00.py and VERIFY_G01.py and the
+  obsolete bin/graphium-g00-selftest launcher;
+  retain all G00/G01 regression tests and historical evidence;
+  replace work-item-specific current verification with one VERIFY_GRAPHIUM.py authority.
+
+No G03 writer and no G04 GTK buffer adapter is implemented by G02.
+
+================================================================================
+ENTRY G02-004 — 2026-08-14 — COMPLETE HEADLESS VALIDATION / FINALIZATION READY
+================================================================================
+
+Final G02 non-desktop validation on the assembled source tree:
+  TESTS=81/81 PASS
+  PY_COMPILE=PASS
+  CANONICAL_DOCUMENT_CAP=PASS count=3
+  G02_RUNTIME_IDENTITY=PASS
+  NO_CALAMUS_RUNTIME_IMPORTS=PASS
+  GTK_BOUNDARY=PASS
+  LAYER_BOUNDARIES=PASS
+  G02_ANTI_SCOPE=PASS
+  DEAD_CODE_CURRENT_VERIFIER_CLEANUP=PASS
+  W116_PROVENANCE=PASS files=6
+  MATURE_SOURCE_AUDIT=PASS
+  G02_CONTRACT_MARKERS=PASS
+  G02_TARGET_USER_MARKERS=PASS
+  STRICT_GATES=PASS
+  GTK_DESKTOP_VALIDATION=N/A
+  FINAL_PHASE=G02_HEADLESS_VERIFIED
+
+Focused behavior certified by tests includes:
+  - state IDs positive, monotonic and never reused after branch, pruning or rollback;
+  - caret/selection-only refresh preserves text-state identity and selection direction;
+  - Save A -> edit AB -> Undo A = Saved -> Redo AB = Modified;
+  - Save AB -> Undo A = Modified -> Redo AB = Saved;
+  - a new branch recreating identical text receives a different identity and stays Modified;
+  - pending native text is immediately Modified before group commit and can reconcile cleanly
+    if it nets back to the committed text;
+  - late save of an older state does not clean a newer current state;
+  - programmatic edit failure rolls buffer/history/session back;
+  - history/session authorities still roll back if concrete-buffer rollback itself fails;
+  - failed Undo restore returns all authorities to the pre-operation checkpoint;
+  - Open replacement is not an undoable user edit;
+  - large-document history remains bounded while current state identity and saving remain valid.
+
+Dead-code cleanup completed:
+  removed VERIFY_G00.py
+  removed VERIFY_G01.py
+  removed bin/graphium-g00-selftest
+  retained all G00/G01 regression tests and historical evidence
+  current strict verifier is now VERIFY_GRAPHIUM.py
+
+G02 contains no GTK product UI and no physical writer. Under the Graphium methodology,
+desktop validation is therefore not applicable to G02. The work item may proceed directly to
+fail-closed Git finalization/publication by the user after exact-tree packaging/selftest.
+
+State before Git finalization:
+  G02_STATUS=OPEN/FINALIZATION_READY
+  COMMIT_CREATED=NO
+  PUSH_ATTEMPTED=NO
+  G03_STARTED=NO
+

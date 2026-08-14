@@ -1,1 +1,1 @@
-"""Graphium application package — G00 bootstrap boundary."""
+"""Graphium application layer — GTK-free use cases and controllers."""

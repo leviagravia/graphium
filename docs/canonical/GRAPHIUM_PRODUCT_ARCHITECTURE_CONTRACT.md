@@ -2,8 +2,8 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Status: **G00 CLOSED / CERTIFIED / PUBLISHED; G01 OPEN / CONTRACT FROZEN / HEADLESS VALIDATED / FINALIZATION READY**.
-Published G00 baseline: `1e9db0eed37d0c860c36c1e07c0dc77bbf59ff95` / tree `2023683019894366729e3ddc5f3652dbe9d5d0c2`.
+Status: **G00-G01 CLOSED / CERTIFIED / PUBLISHED; G02 OPEN / CONTRACT FROZEN / HEADLESS VALIDATED / FINALIZATION READY**.
+Published G01 baseline: `bf7878c3cdc5cf895b0ffba86b854860c34936a4` / tree `2334e0c71f01a1b0a30bcb9298911c7c0cafe042`.
 
 ## 1. Product identity
 
@@ -352,3 +352,89 @@ Noise must be handled by rerunning the complete series, not by selecting favorab
 Features not needed to make the first document editable must not be eagerly initialized on the startup critical path. In particular, Print/Preview/Page Setup, Help, optional spellcheck and other dormant subsystems should be lazy where technically reasonable. Recent-file maintenance or live-monitor setup must not delay the editor becoming usable unless required for correctness.
 
 Performance optimizations may never weaken G01-G03 document safety, savepoint semantics, encoding/EOL correctness or guarded-write guarantees. Safety is a product invariant, not a benchmark toggle.
+
+
+## 13. G02 — History / Editor Transaction / Savepoint Session
+
+Freeze: 2026-08-14.
+
+`G02_CONTRACT=FROZEN`
+`G02_SCOPE=HISTORY_TRANSACTION_SAVEPOINT_SESSION`
+`G02_GTK_REQUIRED=NO`
+`G02_DIRTY_AUTHORITY=EDITOR_STATE_ID_RELATION`
+`G02_PHYSICAL_WRITER=FORBIDDEN`
+`G02_TARGET_USERS=Leafpad,L3afpad,Mousepad_quick_edit`
+
+### 13.1 Target-user consequence
+
+G02 serves Leafpad/L3afpad/Mousepad-style quick-edit users by making Undo/Redo and Saved/Modified behavior trustworthy **without adding visible workflow complexity**. History sophistication is an internal safety/maturity mechanism, not a reason to add timelines, persistent undo, history panels or session machinery to the UI.
+
+The user-facing mental model remains simple:
+
+- type -> Modified;
+- save -> Saved;
+- Undo/Redo may naturally return to the exact saved state;
+- opening or creating a document does not create fake undo steps.
+
+### 13.2 Stable editor-state identity
+
+Every committed text state owned by `TextHistory` receives a positive monotonically increasing `state_id`. State identities are **never reused** during one history lifetime, including after pruning or after a new branch discards redo history.
+
+Caret/selection-only refreshes preserve the current text-state identity. The current insertion position and selection-bound position remain part of the restorable history snapshot, including selection direction, but they do not make a clean text state dirty by themselves.
+
+A new branch after Undo receives a fresh identity even when its text happens to equal text that existed on the discarded branch. Therefore text equality or content digest equality may never be used as the Saved/Modified authority.
+
+### 13.3 Savepoint-aware DocumentSession
+
+The one active `DocumentSession` owns:
+
+- current LF-normalized text;
+- at most one accepted G01 `DocumentFileState`;
+- `current_editor_state_id`;
+- `saved_editor_state_id`.
+
+`modified` is derived only from the relation:
+
+```text
+current_editor_state_id == saved_editor_state_id != None  -> Saved
+otherwise                                                   -> Modified
+```
+
+Pending native text that has not yet been committed to history has no stable current state ID and is therefore Modified. If a native edit nets back to the already committed current text before the group is committed, the existing stable identity may be reconciled immediately.
+
+A **late save** completion may mark only the exact editor-state identity whose bytes were actually accepted by the future G03 writer. If the current editor has already advanced to a newer state, accepting the older saved identity must leave the document Modified.
+
+External-file changed/deleted/replaced state is not the dirty-state authority and remains a separate concern for G11.
+
+### 13.4 Transaction grouping and rollback
+
+`EditorTransactionController` is GTK-free. It coordinates a buffer port, `TextHistory`, and `DocumentSession`.
+
+Required semantics:
+
+- one logical programmatic edit becomes at most one committed Undo step;
+- nested programmatic transactions are rejected;
+- failed programmatic actions restore visible buffer, history and session exactly;
+- Undo/Redo restoration includes text, insertion offset and selection-bound offset;
+- a failed Undo/Redo buffer restore must roll history/session/buffer back to the pre-operation checkpoint;
+- New/Open replacement is not an ordinary edit and resets history rather than becoming Undoable document content;
+- actual Gtk.TextBuffer `begin-user-action` / `end-user-action` signal wiring and native debounce timing are deferred to G04, where the GTK adapter must call this headless authority rather than duplicate it.
+
+### 13.5 Bounded history / large-document policy
+
+Graphium uses bounded full-text snapshots in G02 because they are simple, predictable and appropriate to the quick-edit target. Default policy:
+
+- 100 history steps;
+- 750,000 characters maximum per snapshot for Undo history;
+- 2,500,000 characters approximate aggregate snapshot budget.
+
+When a document exceeds the per-snapshot threshold, Graphium keeps a current stable state identity but disables multi-snapshot Undo for that document state instead of multiplying large copies in memory. Saving remains possible. G04/G12 performance evidence may tighten this policy but may not substitute a more complex engine without explicit architecture review.
+
+### 13.6 G02/G03/G04 boundary
+
+G02 performs **no physical write** and imports no GTK/Gio. `accept_saved_state()` is only a state-transition hook for G03: it may be called after G03 has successfully written and accepted the corresponding state.
+
+G03 owns the guarded physical writer and Save/Save As orchestration.
+G04 owns the Gtk.TextBuffer adapter, native user-action events, debounce/timing policy and visual Saved/Modified projection.
+
+G02 must not pre-implement either layer.

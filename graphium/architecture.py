@@ -1,4 +1,4 @@
-"""Machine-readable G00 architecture boundaries."""
+"""Machine-readable permanent Graphium architecture boundaries."""
 from __future__ import annotations
 
 CANONICAL_DOCUMENTS = (

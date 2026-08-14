@@ -49,16 +49,19 @@ Certified tree: `2023683019894366729e3ddc5f3652dbe9d5d0c2`
 Freeze product identity, Python/GTK technology, package boundaries, XDG isolation, one-document/one-writer authority rules, W116 selective-extraction policy, canonical-document cap and architectural gates. No feature implementation and no desktop attempt.
 
 ### G01 — Document Identity / Load / Serialize Foundation
-Status: **OPEN / CONTRACT FROZEN / HEADLESS VALIDATED — FINALIZATION READY**
+Status: **CLOSED / CERTIFIED / PUBLISHED**
+
+Published commit: `bf7878c3cdc5cf895b0ffba86b854860c34936a4`
+Certified tree: `2334e0c71f01a1b0a30bcb9298911c7c0cafe042`
 
 Extract/adapt W116 document identity, stable loader and serializer into Graphium namespace. Freeze general-purpose filename/encoding/BOM/EOL semantics. Headless only unless a GTK need is discovered and justified.
 
 G01 also records the target-user research and freezes the permanent Performance & Perceived Latency Budget; this changes no G01 runtime scope and requires no GTK benchmark yet.
 
 ### G02 — History / Editor Transaction / Savepoint Session
-Status: PENDING
+Status: **OPEN / CONTRACT FROZEN / HEADLESS VALIDATED / FINALIZATION READY**
 
-Port history, editor transaction and single-document savepoint-aware session. Preserve state-ID dirty semantics across Undo/Redo. Keep the headless core free from startup-expensive desktop dependencies.
+Port/adapt bounded history, editor transaction and single-document savepoint-aware session. Preserve monotonic non-reused state-ID dirty semantics across Undo/Redo, exact rollback, caret/selection restoration and late-save correctness. Keep the headless core completely GTK-free and write-free. G02 intentionally adds no visible complexity for Leafpad/L3afpad/Mousepad-style quick-edit users.
 
 ### G03 — Guarded Save / Save As Foundation
 Status: PENDING
