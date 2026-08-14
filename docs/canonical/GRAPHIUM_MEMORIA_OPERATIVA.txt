@@ -1,0 +1,130 @@
+GRAPHIUM — MEMORIA OPERATIVA CANONICA
+Canonical document 3 of 3
+Mode: append-only operational memory
+
+================================================================================
+ENTRY G00-001 — 2026-08-13 — PROJECT NAME / AUTHORIZATION / DOCUMENT CAP
+================================================================================
+
+PRODUCT=Graphium
+G00 AUTHORIZED
+WORK_ITEM=G00 — Architecture Bootstrap / Technology & Boundary Contract
+
+Permanent user constraint:
+  CANONICAL_DOCUMENT_CAP=3
+  Graphium must never have more than three canonical documents in total.
+  Future Gxx work items update the existing canonical set rather than creating
+  a new canonical document per work item.
+
+Canonical set frozen by G00:
+  1. GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  2. GRAPHIUM_ROADMAP.md
+  3. GRAPHIUM_MEMORIA_OPERATIVA.txt
+
+Non-canonical evidence is permitted, but it cannot override canonical truth.
+
+================================================================================
+ENTRY G00-002 — 2026-08-13 — DERIVATION BASELINE / EXTRACTION DECISION
+================================================================================
+
+Source product: Calamus Standard Edition
+Source baseline:
+  W116 published commit = 33331672f5ba8fcc6a7e1ede9ab849638579f0c7
+  W116 published tree   = db11fee424273c0a383145c132b645c15581b30a
+
+Prior read-only derivation audit verdict:
+  independent derivative repositories = ADOPT
+  shared calamus-core library now      = REJECT
+  copy whole Calamus application       = REJECT
+  feature-flag Calamus editions        = REJECT
+
+Graphium will use one-time provenance-recorded extraction and then evolve
+independently. Runtime Graphium code may not import Calamus.
+
+================================================================================
+ENTRY G00-003 — 2026-08-13 — TECHNOLOGY / BOUNDARY FREEZE
+================================================================================
+
+Technology:
+  Python 3
+  PyGObject + GTK 3
+  Gtk.TextView editor baseline
+  Gtk.ScrolledWindow direct editor containment
+  Pango / PangoCairo for printing where needed
+  unittest + static/source boundary gates
+  GtkSourceView is NOT a v1 dependency
+
+Architecture:
+  graphium/domain        = pure domain, no gi
+  graphium/application   = use cases/ports/controllers, no gi
+  graphium/adapters/gtk  = only direct gi/GTK import boundary
+  graphium/infrastructure= pure filesystem/settings implementations where possible
+  graphium/composition   = explicit composition policy, no service locator
+
+Authorities:
+  active document authority count = 1
+  physical writer authority count = 1
+  future live file monitor = observation only
+
+XDG namespace:
+  config = graphium
+  data   = graphium
+  cache  = graphium
+  state  = graphium
+  no Calamus configuration compatibility or mutation
+
+Desktop application ID:
+  DEFERRED at G00; do not guess before packaging/repository identity is frozen.
+
+================================================================================
+ENTRY G00-004 — 2026-08-13 — G00 BOOTSTRAP RESULT
+================================================================================
+
+G00 intentionally imports no Calamus product feature yet.
+It creates only product identity, machine-readable architecture markers,
+pure XDG path resolution, package boundaries, composition descriptor, tests,
+and the three canonical documents.
+
+Desktop product run:
+  NOT REQUIRED FOR G00
+  Reason: no GTK shell/product feature is implemented by G00.
+  First normal desktop candidate is routed to G04 after G01-G03 foundations.
+
+Expected G00 automated gates:
+  Python compile
+  unittest discovery
+  no runtime Calamus imports
+  gi imports allowed only below graphium/adapters/gtk
+  domain/application dependency rules
+  exact canonical document set <= 3
+  source/package identity Graphium only
+
+Next ordinary work item after G00 closure:
+  G01 — Document Identity / Load / Serialize Foundation
+
+================================================================================
+ENTRY G00-005 — 2026-08-14 — INITIAL CANONICAL REPOSITORY BASELINE AUTHORIZATION
+================================================================================
+
+User authorization:
+  G00 is authorized as the initial canonical baseline of the new Graphium
+  repository.
+
+Canonicalization policy:
+  target local repository = /home/luciano/Projects/graphium-work
+  default branch           = main
+  root commit subject      = G00: establish Graphium architecture bootstrap
+  remote publication       = separate operation; no remote URL is guessed
+  Git mutation             = executed by Luciano on the T480 through the
+                             fail-closed canonicalization runner
+
+Pre-canonicalization documentation repair:
+  The Architecture Contract filename in the transport G00 bundle contained the
+  typo GRAPHIIUM_. It is corrected before the first repository commit to:
+    GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  No product/runtime semantics changed.
+  Canonical-document count remains exactly 3.
+
+G00 closure identity is intentionally recorded by an external non-canonical
+receipt after the root commit; a canonical document cannot embed the hash of the
+commit that contains itself. A later append to this MO may record that receipt.
