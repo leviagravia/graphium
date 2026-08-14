@@ -986,3 +986,1232 @@ Classification:
   G03_PRODUCT_FAIL=NO
   G03_RUNTIME_CHANGE_FROM_REPAIR=NO
 
+
+================================================================================
+ENTRY G03-006 — 2026-08-14 — G03 FINAL PUBLICATION PASS
+================================================================================
+
+User executed the G03 fail-closed finalizer on the T480.
+
+Observed result:
+  TESTS=129/129_PASS
+  STRICT_GATES=PASS
+  GTK_DESKTOP_VALIDATION=N/A
+  STAGED_TREE=PASS
+  COMMIT=e7045e0ce1c79da71c9968bdfa052df25a5378b7
+  SUBJECT=G03: add guarded save and save as foundation
+  HEAD=e7045e0ce1c79da71c9968bdfa052df25a5378b7
+  ORIGIN_MAIN=e7045e0ce1c79da71c9968bdfa052df25a5378b7
+  REMOTE_MAIN=e7045e0ce1c79da71c9968bdfa052df25a5378b7
+  TREE=42fe5340e1181199db86ed69cfa93b4735e45666
+  WORKTREE=CLEAN
+  CANONICAL_DOCS=3
+  FINAL_PHASE=G03_PUBLICATION_PASS
+  RUNNER_RC=0
+
+Final classification:
+  G03_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  G03_PRODUCT_FAILS=0
+  G03_DESKTOP_VALIDATION=N/A
+
+================================================================================
+ENTRY G04-001 — 2026-08-14 — G04 AUTHORIZATION / TARGET / BASELINE
+================================================================================
+
+User authorized G04 after G03 publication.
+
+Exact baseline:
+  commit=e7045e0ce1c79da71c9968bdfa052df25a5378b7
+  tree=42fe5340e1181199db86ed69cfa93b4735e45666
+
+Target remains binding:
+  users of Leafpad, L3afpad and Mousepad quick-edit behavior, plus equivalent users who
+  want a simple, immediate, local plain-text editor rather than a mini IDE.
+
+G04 is the first actual GTK desktop work item and the first permanent performance checkpoint.
+
+================================================================================
+ENTRY G04-002 — 2026-08-14 — FIRST WITHDRAWN TRANSPORT / PRE-PRODUCT BOOTSTRAP STOP
+================================================================================
+
+A first pre-publication G04 desktop transport reached the T480 with candidate tree:
+  bd1d98911b599d0412bb9aa2352c138a14677403
+
+Before the stop:
+  152/152 non-desktop tests PASS
+  strict gates PASS
+  GTK 3.24.41 present
+
+The automated True-GTK helper then failed before importing/instantiating Graphium:
+  ModuleNotFoundError: No module named 'graphium'
+
+Root cause:
+  Python script-file execution made the tools directory the initial module-search root;
+  the helper incorrectly depended on cwd rather than deriving the application/source root
+  from its own executable location.
+
+Failure-specific mature-source re-audit included Lite XL, gedit, JOE and NEdit and showed
+that runtime/resource roots and launcher search context should be explicit rather than
+accidentally inherited from cwd/global environment.
+
+The entire entrypoint class was repaired, including a second latent identical defect in the
+shortcut-audit helper, and arbitrary-cwd bootstrap regressions were added.
+
+Classification:
+  PRE_PRODUCT_HARNESS_STOP=YES
+  PRODUCT_GTK_EXECUTED=NO
+  PRODUCT_FAIL=NO
+  VALID_DESKTOP_ATTEMPT=NO
+  TRIAL_AND_ERROR_INCREMENT=NO
+  candidate bd1d9891...=WITHDRAWN
+
+================================================================================
+ENTRY G04-003 — 2026-08-14 — SECOND WITHDRAWN TRANSPORT / PERFORMANCE-PROTOCOL STOP
+================================================================================
+
+Mature-source reissued transport tree:
+  ac66a6b67a42f78d0398391d30f44bd973dd476e
+
+T480 results before stop:
+  TESTS=157/157_PASS
+  STRICT_GATES=PASS
+  ENTRYPOINT_BOOTSTRAP_PREFLIGHT=PASS
+  TRUE_GTK_SHELL=PASS
+  TRUE_GTK_TEXTVIEW=PASS
+  TRUE_GTK_OPEN_SAVE_CRLF=PASS
+  TRUE_GTK_SAVEPOINT_UNDO_REDO=PASS
+  TRUE_GTK_TOOLBAR_ABSENT=PASS
+  SHORTCUT_COLLISION_GATE=PASS
+
+The next performance step stopped with:
+  KeyError: 'monotonic_ns'
+
+Exact protocol diagnosis:
+  the producer wrote a multi-line filesystem ready receipt through Path.write_text();
+  the consumer treated mere path existence as READY. File creation can be observed after
+  open/create but before all data is written, so the consumer could read a valid first line
+  without the second monotonic_ns line. This is a synchronization race, not a missing field
+  in the intended schema.
+
+Classification:
+  PERFORMANCE_HARNESS_PROTOCOL_INVALID=YES
+  PRODUCT_TRUE_GTK_FAIL=NO
+  PRODUCT_FAIL=NO
+  VALID_DESKTOP_ATTEMPT=NO
+  TRIAL_AND_ERROR_INCREMENT=NO
+  candidate ac66a6b6...=WITHDRAWN
+
+The stop triggered a complete G04 architecture re-audit rather than a KeyError patch.
+
+================================================================================
+ENTRY G04-004 — 2026-08-14 — CONFIRMATION-BIAS COUNTERMEASURE / DEEP MATURE-SOURCE REAUDIT
+================================================================================
+
+User correctly challenged the earlier audit as too shallow / potentially confirmation-biased.
+G04 methodology is therefore tightened permanently.
+
+CONFIRMATION-BIAS COUNTERMEASURE
+--------------------------------
+For every source comparison, record:
+  1. Graphium assumption under test;
+  2. mature evidence that contradicts or stresses it;
+  3. materially different mature model and why it works;
+  4. Graphium decision that would change if that evidence is stronger;
+  5. ADOPT / ADAPT / REJECT / DEFER outcome.
+
+An audit containing only evidence consistent with the pre-existing Graphium idea is invalid.
+No new desktop candidate is issued until the whole discovered failure/design class is audited,
+repaired and fully revalidated non-desktop.
+
+Direct mature sources used for the rebuilt G04 include:
+  Leafpad
+  L3afpad
+  Airpad
+  Janus
+  Mousepad 0.7.0
+  Parchment
+  gedit
+  GNOME Text Editor
+  NEdit
+  JOE 4.8
+  Lite XL
+  published Calamus W116 where provenance is relevant
+
+Key contradictory findings:
+
+A. NATIVE UNDO STORAGE / GROUPING
+  Earlier Graphium assumption:
+    full-text G02 snapshots plus a fixed native idle/commit delay were a sufficiently simple
+    quick-edit integration.
+
+  Contradictory mature evidence:
+    Leafpad/L3afpad record insert/delete deltas and coalesce structurally/key-contiguously;
+    Airpad has explicit delta records and structural sequence logic;
+    gedit/GNOME Text Editor/Mousepad use Gtk text/source buffer user-action boundaries for
+    compound edits; NEdit and JOE use delta records, structural/contiguous grouping and
+    bounded undo memory.
+
+  Decision:
+    ADAPT the common principle, not one implementation. G04 active GTK history becomes
+    delta-based; `begin-user-action` / `end-user-action` and edit structure are semantic
+    evidence; wall-clock time is not an Undo authority. G02 monotonic state-ID/savepoint
+    semantics are preserved independently from native undo storage.
+
+B. LARGE-DOCUMENT BEHAVIOR
+  Earlier Graphium assumption:
+    disabling multi-snapshot Undo above the G02 750,000-character threshold was acceptable
+    safe degradation for the quick-edit target.
+
+  Contradictory mature evidence:
+    the directly inspected lightweight/mature editors store changed ranges/deltas rather than
+    duplicating the complete base document per edit. A ~1 MiB text file is not exceptional
+    enough to justify losing normal Undo in the target category.
+
+  Decision:
+    REJECT document-size-as-Undo-disable-switch for active G04. A 1 MiB document with one
+    inserted character must keep Undo while storing one changed character of journal payload.
+
+C. PROCESS / WINDOW TOPOLOGY
+  Earlier Graphium assumption:
+    one unique Gtk.Application reusing a window was a harmless implementation detail.
+
+  Contradictory mature evidence:
+    Leafpad/L3afpad naturally use independent processes/windows per invocation; Airpad
+    explicitly sets G_APPLICATION_NON_UNIQUE and opens each additional command-line file in
+    its own spawned process. Mousepad can disable its server but its tab/server complexity is
+    intentionally outside Graphium's target.
+
+  Decision:
+    ADOPT the quick-edit topology: one invocation/process -> one window -> one document;
+    Graphium is NON_UNIQUE. A second file-manager invocation cannot hijack the first document.
+    Multi-file CLI input fans out one process per file.
+
+D. PERFORMANCE ORACLE
+  Earlier Graphium assumption:
+    Graphium exact first-editable values could be compared to comparator first-window-mapped
+    proxy values if clearly labelled.
+
+  Contradictory mature evidence:
+    Leafpad and L3afpad explicitly show the window before command-line file Open; Janus also
+    shows before Open, while Airpad has a different order. FIRST_VISIBLE is therefore not
+    FIRST_EDITABLE and structurally favors different startup orders.
+
+  Decision:
+    split metrics. Common FIRST_VISIBLE is measured externally by the same oracle for all four
+    target products and is the only G04 cross-product ratio. Graphium exact FIRST_EDITABLE is
+    a separate inherited-pipe measurement and is not compared numerically to FIRST_VISIBLE.
+    G12 must establish one common external FIRST_EDITABLE oracle before hard editable-readiness
+    competition claims.
+
+E. READY SYNCHRONIZATION
+  Earlier Graphium assumption:
+    existence of a ready file could represent a completed readiness receipt.
+
+  Contradictory systems fact exposed by the run:
+    namespace existence and complete payload publication are different events.
+
+  Decision:
+    REJECT ready files. Graphium child emits one short complete READY record over an inherited
+    pipe with one os.write; parent waits for newline and verifies emitter PID.
+
+================================================================================
+ENTRY G04-005 — 2026-08-14 — REBUILT G04 ARCHITECTURE / IMPLEMENTATION
+================================================================================
+
+G04 is rebuilt from the published G03 baseline, not patched from a withdrawn candidate.
+
+New/changed active architecture:
+
+  graphium.domain.edit_history.DeltaHistory
+    insertion/deletion delta journal;
+    positive monotonic never-reused state IDs;
+    structural coalescing without timers;
+    saved-state merge barrier;
+    exact view-state restoration;
+    bounded changed-payload storage independent of base document size.
+
+  graphium.application.native_editor.NativeEditorController
+    bridges mutable native buffer to DeltaHistory + DocumentSession;
+    no full-buffer capture on ordinary native edit;
+    one full capture only at explicit Save synchronization boundary;
+    exact delta replay/rollback;
+    Open/New are replacement boundaries and reset active undo while preserving ID monotonicity.
+
+  graphium.application.document_session
+    preserves published G02 dirty/savepoint relation;
+    adds text_editor_state_id so current editor identity can advance without copying live text;
+    text synchronization is explicit before physical Save.
+
+  graphium.adapters.gtk.window
+    Gtk.TextView-only classic shell;
+    native insert/delete signals plus begin/end-user-action;
+    no native edit commit timeout;
+    no toolbar;
+    File/Edit plus lazy Help menu;
+    Saved/Modified title projection.
+
+  graphium.adapters.gtk.application
+    G_APPLICATION_NON_UNIQUE;
+    one process/window/document;
+    extra CLI files fan out to new Graphium processes.
+
+  tools/g04_performance.py
+    exact Graphium FIRST_EDITABLE over inherited pipe;
+    no filesystem ready marker.
+
+  tools/g04_comparator_proxy.py
+    common external FIRST_VISIBLE oracle for Graphium/Leafpad/L3afpad/Mousepad.
+
+  tools/g04_topology_gate.py
+    desktop automated proof that separate invocations yield separate processes/windows and
+    multi-file input fans out rather than becoming tabs/server-owned documents.
+
+Visible G04 command surface:
+  File: New, Open, Save, Save As, Quit
+  Edit: Undo, Redo, Cut, Copy, Paste, Delete, Select All
+  Help: User Guide, Keyboard Shortcuts, About
+
+Help content is loaded only when requested and is updated in the same candidate.
+Toolbar remains absent and is deferred to G06 audit.
+
+G05_STARTED=NO
+
+================================================================================
+ENTRY G04-006 — 2026-08-14 — REBUILT G04 NONDESKTOP VALIDATION / DESKTOP READY
+================================================================================
+
+After the deep mature-source redesign, G04 was validated again from the published G03
+baseline without using either withdrawn transport as an implementation base.
+
+Final rebuilt non-desktop result before packaging:
+  FULL_TESTS=183/183_PASS
+  CANONICAL_DOCUMENT_CAP=PASS count=3
+  G04_RUNTIME_IDENTITY=PASS
+  G04_DESKTOP_APPLICATION_ID=PASS
+  PY_COMPILE=PASS files=56
+  NO_CALAMUS_RUNTIME_IMPORTS=PASS
+  GTK_BOUNDARY=PASS
+  LAYER_BOUNDARIES=PASS
+  SINGLE_PHYSICAL_WRITER=PASS count=1
+  G04_NATIVE_DELTA_HISTORY=PASS
+  G04_NO_TIMER_UNDO_AUTHORITY=PASS
+  G04_NON_UNIQUE_TOPOLOGY_SOURCE_GATE=PASS
+  G04_THIN_GTK_SHELL_SCOPE=PASS
+  HELP_INCREMENTAL=PASS
+  G04_CONTENT_NEUTRALITY_SOURCE_GATE=PASS
+  G04_ENTRYPOINT_CWD_INDEPENDENCE=PASS
+  G04_PERFORMANCE_PROTOCOL=PASS
+  G04_TOPOLOGY_GATE_SOURCE=PASS
+  KNOWN_SHORTCUT_COLLISION_GATE=PASS
+  W116_PROVENANCE=PASS files=8
+  G04_MATURE_SOURCE_AUDIT=PASS
+  G04_DEAD_CODE_AUDIT=PASS
+  G04_CONTRACT_MARKERS=PASS
+  G04_ROADMAP_REBASELINE=PASS
+  G04_TARGET_USER_MARKERS=PASS
+  TEXT_INTEGRITY=PASS
+  STRICT_GATES=PASS
+
+An additional hostile regression found during final harness hardening was retained rather
+than weakened: if the benchmark child publishes a complete READY record and exits quickly,
+the parent must drain the kernel pipe before interpreting process exit. The protocol was
+corrected accordingly. This prevents a valid READY message from being discarded merely
+because the child already terminated.
+
+Performance protocol hardening also freezes:
+  - exact FIRST_EDITABLE uses isolated HOME/XDG roots;
+  - G04 desktop baseline is explicitly X11 because the common FIRST_VISIBLE oracle uses
+    X11 window properties on the target Linux Mint/Cinnamon environment;
+  - impossible child timestamps preceding parent start are rejected;
+  - comparator version discovery uses only --version and never guesses -v, avoiding a
+    possible GUI-producing probe that could contaminate benchmark state;
+  - comparator window wait notices early process death instead of waiting the full timeout.
+
+G04 status after this entry:
+  G04_STATUS=OPEN/CONTRACT_FROZEN/NONDESKTOP_VALIDATED/DESKTOP_VALIDATION_READY
+  GTK_DESKTOP_VALIDATION=PENDING
+  PERFORMANCE_BASELINE=PENDING_T480
+  GIT_MUTATION=NO
+  G05_STARTED=NO
+
+================================================================================
+ENTRY G04-007 — 2026-08-14 — REBUILT CANDIDATE T480 GTK-ENVIRONMENT HARNESS STOP
+================================================================================
+
+The rebuilt G04 transport reached the T480 from the exact G03 baseline and produced:
+  FULL_TESTS=183/183_PASS
+  STRICT_GATES=PASS
+  G04_ENTRYPOINT_BOOTSTRAP_PREFLIGHT=PASS
+
+It then stopped before True-GTK product execution in the environment-report probe:
+  AttributeError: 'gi.repository.Gtk' object has no attribute 'get_version'
+
+Classification:
+  PRODUCT_DESKTOP_EXECUTED=NO
+  PRODUCT_FAIL=NO
+  ATTEMPT_COUNT=NOT_APPLICABLE
+  CLASSIFICATION=PRE_PRODUCT_HARNESS_API_MISMATCH
+
+Root cause:
+  the runner used a nonexistent convenience call `Gtk.get_version()` although GTK3 exposes
+  major/minor/micro version accessors individually through introspection.
+
+Repair rule:
+  environment reporting is moved into a source-controlled tool and uses
+  Gtk.get_major_version()/get_minor_version()/get_micro_version(). A static regression gate
+  forbids reintroduction of Gtk.get_version(). No new desktop validation may be requested
+  merely by changing the inline snippet.
+
+================================================================================
+ENTRY G04-008 — 2026-08-14 — SEVEN-EDITOR COMPETITIVE SYNTHESIS / PRODUCT IDENTITY FREEZE
+================================================================================
+
+Sources consolidated in this entry:
+  - FeatherPad-focused audit supplied 2026-08-14;
+  - `GRAPHIUM_SINTESI_COMPETITIVA_7_EDITOR_20260814.docx`, covering Leafpad, L3afpad,
+    Airpad, Janus, Parchment, Mousepad and FeatherPad.
+
+The synthesis does NOT authorize feature accumulation. It narrows Graphium's identity.
+
+PRODUCT CATEGORY:
+  LIGHTWEIGHT TRUST EDITOR
+
+CORE POSITION:
+  FAST + SIMPLE + SAFE + NATIVE GTK
+
+PRIMARY MIGRATION SEGMENT:
+  quick-edit users: Leafpad/L3afpad users and the subset of Mousepad/FeatherPad users who
+  value speed, conventional plain-text maturity and low cognitive load but do not depend on
+  tabs, named sessions, syntax highlighting, column editing or code-editor infrastructure.
+
+WHAT GRAPHIUM MUST EQUAL:
+  Leafpad/L3afpad:
+    immediacy and low cognitive load.
+  Mousepad/FeatherPad:
+    ordinary desktop workflow maturity: Open/Save/Save As, search, useful status,
+    preferences, printing, external-change awareness and overall polish.
+  Parchment:
+    discipline of scope, but NOT implicit content normalization.
+
+WHAT GRAPHIUM MUST DO BETTER:
+  1. strong file identity rather than path/mtime-only thinking;
+  2. one guarded physical writer, with full-write/durability/late-revalidation semantics;
+  3. exact state-ID Saved/Modified semantics through Undo/Redo/late Save;
+  4. content-neutral normal Save: no silent trailing-space cleanup, final-newline insertion,
+     EOL normalization, BOM conversion or encoding conversion;
+  5. low-noise external-change handling where filesystem events trigger fresh strong
+     observation rather than becoming truth authority;
+  6. conservative representation semantics for encoding/BOM/EOL.
+
+PERMANENT PERFORMANCE COMPARATOR SET:
+  Leafpad
+  L3afpad
+  Mousepad
+  FeatherPad
+
+Why FeatherPad is mandatory:
+  it combines very competitive launch behavior with much greater functional density.
+  Therefore Graphium may not justify latency by saying that mature/lightweight editors need
+  more initialization as they gain capabilities.
+
+MINIMUM CONVENIENCE FLOOR:
+  persistent Word Wrap, font, line numbers, compact status visibility, useful geometry,
+  tab-width/spaces-tabs policy where relevant, System/Light/Dark, trustworthy Find/Replace,
+  Recent Files, printing, conventional shortcuts and a real offline Help/User Guide.
+
+V1 DELIBERATE REJECTIONS:
+  tabs in one window;
+  named sessions/workspaces as primary workflow;
+  syntax/language-mode infrastructure;
+  column editing;
+  plugin platform/marketplace;
+  project/file-browser/IDE shell;
+  binary/hex editing as product identity;
+  complex theme platform.
+
+These are not missing features. They protect the product category and startup/state budget.
+
+================================================================================
+ENTRY G04-009 — 2026-08-14 — ROADMAP / PERFORMANCE / TRUST-PROPOSITION REBASELINE
+================================================================================
+
+The seven-editor synthesis is routed into the existing canonical roadmap and architecture
+contract without creating a fourth canonical authority.
+
+Frozen strategic decisions:
+  FEATURE_COUNT_IS_NOT_THE_COMPETITIVE_AXIS=YES
+  PRODUCT_CATEGORY=LIGHTWEIGHT_TRUST_EDITOR
+  TARGET_AXIS=FAST+SIMPLE+SAFE+NATIVE_GTK
+  PRIMARY_MIGRATION_SEGMENT=QUICK_EDIT_USERS
+  PERMANENT_PERFORMANCE_COMPARATORS=Leafpad,L3afpad,Mousepad,FeatherPad
+  NORMAL_SAVE_IS_CONTENT_NEUTRAL=YES
+  PHYSICAL_WRITER_AUTHORITY_COUNT=1
+  FILE_MONITOR_IS_OBSERVATION_TRIGGER_NOT_TRUTH_AUTHORITY=YES
+  V1_TABS_SYNTAX_IDE_PLUGIN_PLATFORM=NO
+  SAFETY_AND_PERFORMANCE_MAY_NOT_WEAKEN_EACH_OTHER=YES
+
+Roadmap consequences:
+  G04:
+    first desktop performance baseline includes FeatherPad in the common FIRST_VISIBLE set;
+    exact Graphium FIRST_EDITABLE remains separate until a common external editable oracle
+    exists for all products.
+  G05:
+    Find/Replace correctness is trust infrastructure, including Unicode and grouped Undo.
+  G06:
+    delivers the small view/status conveniences expected by lightweight-editor users;
+    word/character counts are allowed only if cheap enough not to create eager whole-buffer
+    work. Toolbar remains an audit decision, not an assumed feature.
+  G08:
+    Print/Preview/Page Setup must reach mature desktop quality while remaining lazy.
+  G10:
+    persists only high-utility recurring preferences and appearance choices.
+  G11:
+    Mousepad is the positive monitoring/lifecycle comparator; FeatherPad is a contrast oracle
+    for weaker mtime-oriented external-change/persistence semantics. Mandatory hostile case:
+      accept A -> external process replaces A with B -> Save must not silently overwrite B.
+  G12:
+    competitive proof is against all four permanent comparators and must demonstrate FAST +
+    SIMPLE + SAFE rather than assert it.
+  G13:
+    post-v1 recovery remains a crash-recovery cache separate from the target, not traditional
+    background autosave authority.
+
+Competitive success criteria at v1 closure:
+  1. ordinary quick edit is not sensibly described as slow by the lightweight target user;
+  2. common Open/Save/Search/Print/preferences workflows feel mature despite smaller scope;
+  3. Normal Save never silently normalizes content;
+  4. stale/replaced accepted targets cannot be silently overwritten;
+  5. Saved/Modified remains exact through Undo/Redo/programmatic edits/late Save;
+  6. persistent conveniences eliminate repeated setup without preference-platform bloat;
+  7. monitoring protects without routine false-positive warnings;
+  8. Graphium remains recognizably a plain-text quick editor, not a reduced IDE;
+  9. performance qualification uses Leafpad/L3afpad/Mousepad/FeatherPad on the real desktop;
+ 10. strongest safety mechanisms stay invisible on the happy path and surface only when they
+     prevent ambiguity or data loss.
+
+G04 remains OPEN.
+G05_STARTED=NO
+CANONICAL_DOCUMENT_COUNT=3
+
+================================================================================
+ENTRY G04-010 — 2026-08-14 — SEVEN-EDITOR REBASELINE NONDESKTOP VALIDATION / DESKTOP READY
+================================================================================
+
+After incorporating the seven-editor synthesis, FeatherPad as fourth permanent comparator,
+and the source-controlled GTK3 environment probe repair, the complete non-desktop suite was
+rerun from the rebaselined source tree. During this revalidation, the inherited-pipe unit
+test itself exposed scheduler dependence because it used a sleeping subprocess. The oracle
+was not weakened or simply rerun: the test was replaced by a deterministic mocked two-read
+pipe sequence that proves partial-record handling without wall-clock scheduling dependence.
+
+Result:
+  FULL_TESTS=184/184_PASS
+  CANONICAL_DOCUMENT_CAP=PASS count=3
+  PY_COMPILE=PASS files=57
+  NO_CALAMUS_RUNTIME_IMPORTS=PASS
+  GTK_BOUNDARY=PASS
+  LAYER_BOUNDARIES=PASS
+  SINGLE_PHYSICAL_WRITER=PASS count=1
+  G04_NATIVE_DELTA_HISTORY=PASS
+  G04_NO_TIMER_UNDO_AUTHORITY=PASS
+  G04_NON_UNIQUE_TOPOLOGY_SOURCE_GATE=PASS
+  G04_THIN_GTK_SHELL_SCOPE=PASS
+  G04_CONTENT_NEUTRALITY_SOURCE_GATE=PASS
+  G04_ENTRYPOINT_CWD_INDEPENDENCE=PASS
+  G04_PERFORMANCE_PROTOCOL=PASS
+  G04_TOPOLOGY_GATE_SOURCE=PASS
+  G04_MATURE_SOURCE_AUDIT=PASS
+  G04_CONTRACT_MARKERS=PASS
+  G04_ROADMAP_REBASELINE=PASS
+  G04_TARGET_USER_MARKERS=PASS
+  TEXT_INTEGRITY=PASS
+  STRICT_GATES=PASS
+
+Fresh-package requirements also passed for manifest integrity, exact source-tree
+reconstruction, full 184-test suite and runner Bash syntax.
+
+Current G04 status:
+  G04_STATUS=OPEN/CONTRACT_FROZEN/SEVEN_EDITOR_REBASELINED/NONDESKTOP_VALIDATED/DESKTOP_READY
+  GTK_DESKTOP_VALIDATION=PENDING
+  PERFORMANCE_BASELINE=PENDING_T480
+  PERMANENT_COMPARATORS=Leafpad,L3afpad,Mousepad,FeatherPad
+  GIT_MUTATION=NO
+  G05_STARTED=NO
+
+
+================================================================================
+ENTRY G04-011 — 2026-08-14 — VALID MANUAL PRODUCT FAIL: 1 MiB SINGLE-LINE RESPONSIVENESS
+================================================================================
+
+During final human desktop validation, the user reported a FAIL on the large-file step:
+`one-mib.txt`, Ctrl+End, type Z initially appeared usable with Undo available, but the
+Graphium window subsequently hung.
+
+Classification:
+  CLASSIFICATION=VALID_MANUAL_PRODUCT_FAIL
+  PRODUCT_FAIL=YES
+  FAILURE_DOMAIN=INTERACTIVE_RESPONSIVENESS
+  G04_CANDIDATE_TREE=caa1dc06f3e937a14ceb1499bbe3a9f73d1b6260
+  CANDIDATE_STATUS=WITHDRAWN
+  G04_REMAINS_OPEN=YES
+  G05_STARTED=NO
+
+Exact fixture audit found that `one-mib.txt` was generated as one uninterrupted string of
+1,048,576 `a` characters. It was therefore a pathological single logical line, not a
+representative 1 MiB multiline text document. The automated True-GTK gate used the same
+shape but never reproduced the user's real viewport navigation to the line end, so an
+oracle-coverage defect coexisted with the real product failure.
+
+The delta-history redesign is NOT rolled back: Undo stayed available and stored only the
+changed payload. The new evidence instead falsifies the assumption that delta-history
+scalability alone proves interactive renderability of every document shape.
+
+No further manual group is certified from this validation. No patch-and-retry candidate is
+authorized by the failure itself; mature-source re-audit of the whole renderer-safety class
+is required first.
+
+================================================================================
+ENTRY G04-012 — 2026-08-14 — HUGE-LINE MATURE-SOURCE REAUDIT / RENDERABILITY CONTRACT
+================================================================================
+
+Failure-specific mature-source audit is recorded in:
+  evidence/G04_HUGE_LINE_PRODUCT_FAIL_REAUDIT.txt
+
+Load-bearing findings:
+  - GNOME GtkTextView/GtkSourceView issue history documents severe responsiveness problems
+    for very long logical lines and explicitly discusses 20,000-column lines as a design
+    stress case.
+  - FeatherPad source applies an explicit huge-line guard around 500,000 characters, but
+    mutates the displayed text with a truncation marker and forces uneditable state.
+  - NEdit's custom display layer freezes MAX_DISP_LINE_LEN=1000 for rendering work.
+  - JOE disables expensive syntax/context presentation on very large files.
+  - Leafpad/L3afpad/Airpad expose plain GtkTextView/no-wrap paths without an explicit guard
+    in inspected source and are therefore not positive oracles for this failure class.
+  - Mousepad uses GtkSourceView and provides no basis for claiming that plain GtkTextView
+    safely handles million-character lines.
+
+Graphium decision:
+  ADOPT explicit renderer-safety admission.
+  ADAPT to the actual GtkTextView product with an initial conservative 20,000 Unicode-char
+        logical-line budget.
+  REJECT FeatherPad-style truncation/marker insertion because Normal Open must be content
+        neutral.
+  REJECT read-only fallback in the same GtkTextView because rendering/navigation itself is
+        the observed failure class.
+  DEFER exact paged/streamed viewing to separate future architecture.
+
+Frozen semantics:
+  G04_INTERACTIVE_LINE_BUDGET_CHARS=20000
+  G04_PATHOLOGICAL_LINE_POLICY=REFUSE_BEFORE_GTK_BUFFER_INSTALL
+  G04_PATHOLOGICAL_LINE_CONTENT_MUTATION=FORBIDDEN
+  LARGE_FILE_SIZE_AND_HUGE_LINE_WIDTH_ARE_SEPARATE_AXES=YES
+
+The 20,000 value is an initial Graphium product safety budget for its chosen renderer. It is
+not asserted to be a universal GTK hard limit and may be revised only by explicit later
+renderer qualification.
+
+Repair scope covers the whole class:
+  1. pre-install Open renderability guard;
+  2. source/current-document bytes never mutated by refusal;
+  3. insertion/paste preflight before GtkTextBuffer default mutation;
+  4. newline-deleting join preflight before default mutation;
+  5. blocked edit does not advance state identity/history and shows warning;
+  6. True-GTK large-file test becomes realistic multiline + actual end scrolling;
+  7. True-GTK separately verifies huge-line Open and paste refusal;
+  8. human large-file test uses realistic multiline text rather than a manufactured
+     million-character line.
+
+================================================================================
+ENTRY G04-013 — 2026-08-14 — RENDERER-SAFETY REPAIR NONDESKTOP VALIDATED / DESKTOP REQUALIFICATION READY
+================================================================================
+
+The failure-specific renderer-safety repair was completed without reopening G05 and without
+weakening the G01-G03 document-safety contracts.
+
+Implemented authorities:
+  graphium/application/renderability.py
+    MAX_INTERACTIVE_LINE_CHARS=20000
+    content-neutral full-text admission scan
+    prospective insert/paste line-width validation
+    prospective newline-delete/join validation
+
+  graphium/application/file_lifecycle.py
+    rejects an over-budget loaded logical line after G01 decoding but before active
+    GtkTextBuffer/session/history replacement.
+
+  graphium/adapters/gtk/window.py
+    pre-default insert-text and delete-range guards stop an unsafe mutation before GTK's
+    default buffer mutation; rejected edits do not enter DeltaHistory and produce a clear
+    user warning.
+
+  tools/g04_true_gtk_gate.py
+    no longer treats a million-character line as an ordinary 1 MiB large-file fixture.
+    It now separately proves:
+      - realistic ~1 MiB multiline Open + real end scroll + one-character edit + Undo;
+      - >20,000-character logical-line Open refusal before active-buffer replacement;
+      - over-budget insertion/paste refusal before GtkTextBuffer mutation.
+
+Failure-class test additions:
+  exact 20,000-character boundary accepted;
+  20,001 rejected;
+  realistic large multiline document accepted;
+  later over-budget logical line reports the correct line;
+  insert/paste overflow rejected;
+  multi-line inserted fragments checked independently;
+  newline-deleting join overflow rejected;
+  exact-limit join accepted;
+  failed huge-line Open preserves buffer/session/history and source bytes exactly;
+  static source gate verifies pre-install and pre-default mutation ordering.
+
+Non-desktop validation after repair:
+  FULL_TESTS=195/195_PASS
+  FIVE_CONSECUTIVE_STRICT_RUNS=PASS
+  G04_RENDERABILITY_POLICY=PASS
+  G04_PATHOLOGICAL_LINE_GUARD_SOURCE=PASS
+  CANONICAL_DOCUMENT_COUNT=3
+  GIT_MUTATION=NO
+  G05_STARTED=NO
+
+The previously recorded T480 FIRST_EDITABLE/FIRST_VISIBLE receipts remain useful historical
+measurements of the withdrawn seven-editor candidate but are NOT reused as certification of
+the repaired source. The repaired candidate must rerun True-GTK, topology, shortcuts and both
+performance protocols on the T480 before human desktop requalification.
+
+Current status:
+  G04_STATUS=OPEN/CONTRACT_FROZEN/VALID_PRODUCT_FAIL_REPAIRED/NONDESKTOP_VALIDATED/DESKTOP_REQUALIFICATION_READY
+  GTK_DESKTOP_REQUALIFICATION=PENDING
+  G05_STARTED=NO
+
+================================================================================
+ENTRY G04-012 — 2026-08-14 — MENU ARCHITECTURE R3 / COMPETITIVE SURFACE FREEZE
+================================================================================
+
+Authorization:
+  User authorized freezing the reviewed Graphium menu proposal as Menu
+  Architecture R3 and routing its product consequences into the canonical MO
+  and G05-G12 roadmap. No G04 product/runtime implementation is authorized by
+  this documentation step; G04 remains OPEN and G05 remains NOT STARTED.
+
+Competitive conclusion:
+  The six-menu architecture is ADOPTED because it does not change Graphium's
+  product category when duplication and diagnostic prominence are removed.
+  Graphium is not required to have the fewest commands. It is required to have
+  the smallest conventional desktop command surface that prevents the target
+  quick-edit user from feeling that a real editor is missing, while keeping
+  tabs/sessions/syntax/projects/plugins outside v1.
+
+Frozen top-level menu architecture:
+  TOP_LEVEL_MENUS=File,Edit,Search,View,Document,Help
+  TOOLS_MENU=NO
+  WINDOW_MENU=NO
+  FORMAT_MENU=NO
+  LANGUAGE_MENU=NO
+  SESSION_MENU=NO
+  PLUGINS_MENU=NO
+
+Frozen semantic ownership:
+  File      = persistence + document/file lifecycle
+  Edit      = local text editing + preferences that have no direct command
+  Search    = content search/navigation
+  View      = how the active text is presented
+  Document  = representation/state facts and explicit representation conversion
+  Help      = user understanding + compact support information
+
+R3 command routing:
+
+  FILE
+    New
+    Open…
+    Open Recent >
+    Save
+    Save As…
+    Save a Copy…
+    Save Version Copy…
+    Reload from Disk
+    Properties…
+    Page Setup…
+    Print Preview
+    Print…
+    Quit
+
+    Close is REJECTED for v1. With one process/window/document, New already
+    replaces the active document after lifecycle protection, while Quit closes
+    the process. A separate Close command would add lifecycle ambiguity without
+    a distinct user outcome.
+
+  EDIT
+    Undo
+    Redo
+    Cut
+    Copy
+    Paste
+    Delete
+    Select All
+    Preferences…
+
+    Paste as Plain Text is REJECTED for v1: Graphium is already a plain-text
+    editor and ordinary Paste owns text insertion semantics.
+
+  SEARCH
+    Find…
+    Find Next
+    Find Previous
+    Replace…
+    Go to Line…
+
+    Find Next/Previous are first-class commands, not UI-private button actions.
+    Regex/fuzzy/multi-file search remain outside the v1 MUST surface.
+
+  VIEW
+    Status Bar
+    Line Numbers
+    Word Wrap
+    Font…
+    Zoom In
+    Zoom Out
+    Reset Zoom
+    Appearance > System / Light / Dark
+    Full Screen
+    Toolbar = DEFER to G06 mature-source/target-user audit
+
+    Font owns configured family+size. Zoom is a transient/current magnification
+    relative to that configured font and Reset Zoom means 100%, not reset font.
+    View toggles/preferences are persistent but are not duplicated inside the
+    Preferences dialog.
+
+  DOCUMENT
+    Encoding >
+    Line Endings >
+    Statistics…
+
+    Encoding and Line Endings must distinguish OBSERVATION from CONVERSION.
+    Current representation is displayed as a fact. A user-requested change is
+    labelled/treated as an explicit Convert action. Ordinary Save never becomes
+    an implicit representation conversion command.
+
+    Indentation is REJECTED from Document because tab width and tabs/spaces are
+    editor behavior/preferences, not document representation facts.
+
+    Statistics is on-demand. Mandatory live word/character counting in the
+    status bar is REJECTED unless later evidence proves an incremental/cheap
+    implementation that does not violate performance budgets.
+
+  HELP
+    Graphium Help
+    Keyboard Shortcuts
+    About Graphium
+
+    System Information is ADAPTED into About Graphium (with copyable support
+    details if useful) rather than a separate top-level Help command.
+
+Preferences anti-duplication rule:
+  DIRECT_COMMAND_SETTING_DUPLICATION=FORBIDDEN
+  A persistent setting with a clear direct command surface is changed there and
+  remembered there. Preferences does not repeat Word Wrap, Line Numbers,
+  Status Bar, Toolbar, Appearance or Font merely to create a second route.
+
+  Initial Preferences ownership:
+    Tab width
+    Insert spaces for tabs
+    future settings only when they have no clearer direct command
+
+  Safety policy is never configurable as a cosmetic preference. No option may
+  disable guarded Save, ignore external mutation, or weaken strong identity.
+
+Properties / disk-state routing:
+  Properties remains a central File command and is the compact place where
+  Graphium can expose serious document/file facts without polluting the main UI:
+    logical name/location
+    size / modification observation
+    encoding / BOM / EOL
+    Saved / Modified
+    writable state
+    symlink / hard-link facts at an appropriate user level
+
+  The proposed `Check File on Disk` capability is ADOPTED as functionality but
+  REJECTED as a permanent primary Document-menu item. It is routed to
+  Properties as an explicit `Check Now` action and to G11 automatic monitoring.
+  The automatic monitor remains interrupt-only; a fresh strong observation is
+  the truth authority.
+
+Status-bar freeze:
+  v1 compact core = line/column + encoding/EOL + Saved/Modified.
+  live word/character count = OPTIONAL only after cheapness proof.
+  document-wide counts remain available on demand through Statistics… .
+
+Toolbar freeze:
+  TOOLBAR_G04=ABSENT
+  TOOLBAR_G06=DEFER_UNTIL_AUDIT
+  If G06 adopts a toolbar, it is optional, default-off is the leading hypothesis,
+  visibility is persistent, and the command set stays deliberately small.
+  No toolbar implementation is authorized by this R3 freeze.
+
+Anti-bloat decision:
+  MENU_COUNT_IS_NOT_BLOAT_METRIC=YES
+  DUPLICATED_STATE_SURFACES_ARE_BLOAT=YES
+  DIAGNOSTIC_PROMINENCE_IS_BLOAT_WHEN_NOT_WORKFLOW_CRITICAL=YES
+  COMMAND_MUST_HELP_NORMAL_TEXT_EDITING_FASTER_CLEARER_OR_SAFER=YES
+
+  The adopted R3 surface is intended to be:
+    more operationally mature than Leafpad/L3afpad;
+    simpler and lower-state than Mousepad/FeatherPad;
+    less content-prescriptive than Parchment;
+    more rigorous than the comparator set on file identity/persistence semantics.
+
+Roadmap routing:
+  G05 = Search menu command authority / trustworthy Find-Replace-Go-to-Line.
+  G06 = View menu core, compact status, Font/Zoom/Fullscreen, toolbar audit.
+  G07 = Open Recent, Save a Copy, Save Version Copy, Properties + manual Check Now.
+  G08 = Page Setup / Print Preview / Print, lazy.
+  G09 = explicit transformations only; they do not require a Format top-level menu.
+  G10 = persistence layer/preferences dialog without duplicating direct View commands.
+  G11 = Reload/external-change semantics + automatic strong re-observation.
+  G12 = full six-menu consistency, Help/shortcut synchronization and anti-bloat closure.
+
+Canonical-document count after this update remains exactly 3.
+
+
+===============================================================================
+2026-08-14 — LIGHTWEIGHT BUDGET / MANDATORY ANTI-BLOAT GATE FOR EVERY Gxx
+===============================================================================
+
+Decision status:
+  FROZEN PRODUCT/METHODOLOGY RULE
+  APPLIES_TO=G05_AND_ALL_LATER_Gxx
+  DOES_NOT_CHANGE_G04_PRODUCT_SCOPE=YES
+  G04_STATUS=OPEN
+  G05_STARTED=NO
+
+Reason for this freeze:
+  Menu Architecture R3 is a MAXIMUM V1 ENVELOPE, not an implementation checklist.
+  A function being useful is not sufficient reason to add it. Every proposed
+  capability must also justify its permanent cost in product state, runtime work,
+  architecture, testing, Help, persistence and user mental model.
+
+Core lightweight principle:
+  Graphium remains lightweight when it gives the user the smallest coherent set
+  of mature desktop-text-editor capabilities needed for normal quick editing,
+  while refusing infrastructure whose main purpose is multi-document management,
+  software development, project organization or extensibility.
+
+  The controlling question for every visible command remains:
+
+    DOES THIS HELP THE USER EDIT A NORMAL TEXT FILE
+    FASTER, CLEARER OR MORE SAFELY?
+
+  If the answer is YES, the feature is only a candidate for adoption. It must
+  still pass the Lightweight Budget below.
+
+LIGHTWEIGHT_BUDGET_MANDATORY_GATE=YES
+MENU_ARCHITECTURE_R3_IS_MAXIMUM_ENVELOPE_NOT_CHECKLIST=YES
+FEATURE_UTILITY_ALONE_IS_INSUFFICIENT=YES
+
+Mandatory anti-bloat review for each future Gxx feature:
+
+  1. USER VALUE
+     - Is the capability directly useful to the primary quick-edit target?
+     - Is the benefit frequent or important enough to justify permanent surface?
+     - Does it improve speed, clarity or safety of ordinary text-file work?
+
+  2. MENTAL-MODEL COST
+     - Does it introduce a new concept the user must learn?
+     - Can it reuse an existing File/Edit/Search/View/Document/Help concept?
+     - Does it create overlapping commands or two ways to configure the same fact?
+
+  3. PERSISTENT-STATE COST
+     - Does it require new persistent state?
+     - If yes, is that state small, explicit, filesystem-backed or ordinary config,
+       and clearly owned by one authority?
+     - New hidden databases, session stores or feature-specific registries are
+       forbidden unless a later explicitly authorized work item proves necessity.
+
+  4. BACKGROUND-WORK COST
+     - Background activity is not justified merely by convenience.
+     - No background analytics, document-wide polling or periodic rescans.
+     - File monitoring, where required, remains event/interrupt driven and its
+       event is never the truth authority.
+     - Work that can be on-demand or lazy must remain on-demand or lazy.
+
+  5. STARTUP-CRITICAL-PATH COST
+     - Printing, Help, Statistics, monitoring maintenance and other nonessential
+       subsystems must stay outside startup critical path unless proven otherwise.
+     - No eager syntax/parser/analytics initialization.
+     - Safety may not be weakened to improve benchmarks; performance may not be
+       ignored merely because a feature is useful.
+
+  6. ARCHITECTURAL COST
+     - A marginal command does not justify a new subsystem, service graph,
+       state machine or generalized framework.
+     - Prefer a small direct implementation with one clear authority.
+     - If a feature requires architecture that mainly exists to support itself,
+       default decision is DEFER or REJECT.
+
+  7. DUPLICATION COST
+     - DIRECT_COMMAND_SETTING_DUPLICATION remains FORBIDDEN.
+     - A persistent View setting controlled directly from View is not repeated in
+       Preferences simply to expose a second route.
+     - Diagnostic information belongs in Properties/About unless it is itself a
+       normal workflow action.
+
+  8. DOCUMENT-WIDE COMPUTATION COST
+     - No mandatory eager whole-document analytics for status decoration.
+     - Word/character statistics remain on-demand unless a later implementation
+       proves incremental/cheap behavior under real performance gates.
+     - Large-document and pathological-line safety remains part of qualification.
+
+  9. STORAGE / RECOVERY COST
+     - No session restoration or multi-document workspace state in v1.
+     - Future crash recovery, if adopted at G13, uses a separate recovery cache and
+       does not silently grant a background subsystem authority to Save the target.
+
+  10. SCOPE-DRIFT CHECK
+      The following remain outside the v1 identity and are not reintroduced by
+      incremental convenience work:
+        NO tabs
+        NO named sessions
+        NO workspace/project tree
+        NO syntax/language engine
+        NO column-editing platform
+        NO plugin/extensibility platform
+        NO IDE/LSP/debugger/terminal/Git subsystem
+        NO multi-file search workflow
+        NO binary/hex-editor identity
+        NO theme marketplace / arbitrary styling platform
+
+  11. HELP / TEST / MAINTENANCE COST
+      - Every visible command must update Help/Keyboard Shortcuts in the same work
+        item when applicable.
+      - Every new persistent state requires regression coverage for defaults,
+        persistence and failure behavior.
+      - Every file-affecting feature must preserve strong identity, guarded Save,
+        content neutrality and exact Saved/Modified semantics.
+
+  12. REAL-DESKTOP COST
+      - A feature that passes headless tests but makes the T480 shell noticeably
+        slower, less responsive or visually more complex may still be rejected.
+      - Performance and responsiveness qualification remains product behavior, not
+        a cosmetic optimization.
+
+Decision matrix required for each candidate feature:
+
+  ADOPT
+    High/clear target-user value; bounded state and runtime cost; no scope drift;
+    no duplicated surface; passes safety/performance requirements.
+
+  ADAPT
+    Useful capability, but mature-source form is too large or stateful; Graphium
+    implements a deliberately smaller form that preserves the user benefit.
+
+  DEFER
+    Useful but nonessential for the current v1, or its implementation cost cannot
+    yet be shown to fit the Lightweight Budget.
+
+  REJECT
+    Primarily serves multi-document/code/project/extensibility workflows, creates
+    disproportionate infrastructure, duplicates state/surface, weakens safety or
+    performance, or changes Graphium's product category.
+
+Current R3 examples under this rule:
+
+  Toolbar
+    DEFER to G06 audit. Presence in the maximum envelope is not authorization.
+
+  Full Screen
+    ADOPT only if implementation is near-zero architectural/runtime cost and does
+    not create a separate Zen-mode subsystem.
+
+  Statistics
+    ADAPT as on-demand dialog. Mandatory live whole-document counting is not part
+    of v1 without cheapness proof.
+
+  Properties
+    ADOPT as compact fact surface; REJECT inspector/debug-console expansion.
+
+  Open Recent
+    ADOPT as simple file history; REJECT session/workspace semantics.
+
+  Save Version Copy
+    ADOPT only as deterministic copy command; REJECT timeline/database/versioning
+    subsystem growth.
+
+  Encoding / Line Endings
+    ADOPT as observation + explicit conversion; REJECT implicit Save conversion,
+    broad codec/platform expansion for its own sake or content normalization.
+
+  Preferences
+    ADAPT as intentionally small. It owns only settings without a clearer direct
+    command surface; it does not become a second copy of View/Document menus.
+
+Lightweight closure criterion for each Gxx:
+
+  A work item cannot be considered competitively closed merely because its tests
+  pass. Its final audit must also record that the implemented delta remains within
+  the Lightweight Budget and did not create hidden scope expansion.
+
+  Required closing marker:
+
+    LIGHTWEIGHT_BUDGET_GATE=PASS
+
+  A PASS means, at minimum:
+    startup critical path not unnecessarily expanded;
+    no duplicate settings/command authority introduced;
+    no new hidden persistent database/session state;
+    no unjustified background work;
+    no scope drift toward tabs/syntax/projects/plugins;
+    no weakening of file-safety semantics;
+    no accepted responsiveness regression without explicit product decision.
+
+Strategic interpretation:
+  Graphium must finish v1 feeling like:
+
+    "It has everything I need to edit an ordinary text file."
+
+  It must not finish v1 feeling like:
+
+    "It has almost everything Mousepad or FeatherPad has."
+
+  Therefore LESS remains an active design tool. A mature-source feature may be
+  useful and still be deliberately omitted when omission better protects the
+  quick-edit workflow, startup responsiveness, low-state architecture or safety.
+
+Canonical-document count remains exactly 3.
+
+================================================================================
+ENTRY — G04 FEATHERPAD COMPARATOR PROCESS-ISOLATION HARNESS DEFECT
+Date: 2026-08-14
+================================================================================
+
+Observed during renderer-safety desktop requalification after Graphium itself had passed:
+- 195/195 non-desktop tests in the tested transport;
+- strict gates;
+- True-GTK renderer-safety gate;
+- one-process/one-window/one-document topology;
+- Linux Mint shortcut audit;
+- exact Graphium FIRST_EDITABLE admission.
+
+The common FIRST_VISIBLE run completed Graphium, Leafpad, L3afpad and Mousepad, then a FeatherPad window appeared but the oracle stopped with:
+
+  RuntimeError: no new X11 top-level window for pid <spawned-pid>: ['/usr/bin/featherpad']
+
+Classification:
+  PRE_MANUAL_COMPARATOR_HARNESS_DEFECT
+  GRAPHIUM_PRODUCT_FAIL=NO
+  GRAPHIUM_PRODUCT_RUNTIME_CHANGED_BY_REPAIR=NO
+
+Root cause:
+FeatherPad is single-instance by default. Its normal launch can transfer/open the requested window in an already-running FeatherPad process, while the common oracle intentionally requires the new X11 top-level to belong to the exact PID spawned for that measured run. Accepting an arbitrary FeatherPad-owned window would weaken the common metric and make process-start attribution ambiguous.
+
+Repair decision:
+- preserve exact spawned-PID ownership;
+- preserve common external FIRST_VISIBLE definition;
+- Mousepad continues to use `--disable-server` when supported;
+- FeatherPad MUST use `--standalone`;
+- if an installed FeatherPad build lacks `--standalone`, comparative qualification is BLOCKED rather than weakening the oracle;
+- add a regression gate proving both process-isolation flags and exact-PID ownership remain present.
+
+Methodological principle:
+  FIX COMPARATOR TOPOLOGY; DO NOT RELAX THE ORACLE.
+
+After adding the regression test, the non-desktop suite authority becomes 196 tests for the repaired transport.
+
+G04 remains OPEN. Desktop requalification must restart from the repaired harness package because comparative receipts from the stopped run are incomplete. G05 remains NOT STARTED.
+
+
+================================================================================
+ENTRY — G04 CLEAN-PAYLOAD PACKAGING PREFLIGHT DEFECT
+Date: 2026-08-14
+================================================================================
+
+A comparator-isolation transport stopped before product execution because 57 test-generated
+`__pycache__/*.pyc` files had been included in the ZIP payload and their volatile bytes no
+longer matched the package manifest.
+
+Classification:
+  PRE_PRODUCT_PACKAGING_MANIFEST_DEFECT
+  GRAPHIUM_PRODUCT_FAIL=NO
+  GRAPHIUM_RUNTIME_CHANGED_BY_REPAIR=NO
+  GRAPHIUM_SOURCE_CANDIDATE_CHANGED_BY_REPAIR=NO
+
+Root cause:
+The packaging step copied a post-test working directory rather than a source-clean tree.
+Graphium's `.gitignore` already excludes `__pycache__/`, `*.pyc` and equivalent generated
+bytecode, so those files were never source authority and must not be frozen into a source
+bundle.
+
+Permanent packaging rule:
+  SOURCE_BUNDLE_CONTAINS_VOLATILE_PYTHON_BYTECODE=NO
+
+Candidate source identity remained:
+  9138a273c2363ef2d43adf64470b3273d49c8eae
+
+The clean-payload transport revalidated its manifest, exact source tree, 196/196 suite and
+strict gates before returning to T480 desktop qualification.
+
+================================================================================
+ENTRY — G04 FINAL DESKTOP VALIDATION PASS / PUBLICATION READY
+Date: 2026-08-14
+================================================================================
+
+Validated product source tree:
+  9138a273c2363ef2d43adf64470b3273d49c8eae
+
+Published baseline used by the runner:
+  G03 commit e7045e0ce1c79da71c9968bdfa052df25a5378b7
+  G03 tree   42fe5340e1181199db86ed69cfa93b4735e45666
+
+T480 environment evidence:
+- repository preflight PASS: HEAD/tree/remote main exact G03; worktree CLEAN;
+- 196/196 non-desktop tests PASS;
+- strict gates PASS;
+- GTK 3.24.41;
+- True-GTK bounded-responsiveness gate PASS;
+- one-process/one-window/one-document topology PASS;
+- Linux Mint/Cinnamon shortcut collision audit PASS;
+- exact Graphium FIRST_EDITABLE admission PASS;
+- common FIRST_VISIBLE comparison PASS against Leafpad, L3afpad, Mousepad and FeatherPad;
+- final human desktop validation 4/4 PASS;
+- Git mutation NO;
+- runner exit 0;
+- final phase G04_DESKTOP_CANDIDATE_PASS.
+
+Exact Graphium FIRST_EDITABLE medians (T480):
+  empty   227.383 ms, p90 232.298 ms, RSS 54.36 MiB
+  5 KiB   231.208 ms, p90 241.926 ms, RSS 54.49 MiB
+  1 MiB   626.719 ms, p90 665.209 ms, RSS 58.87 MiB
+  10 MiB  4015.953 ms, p90 4156.968 ms, RSS 108.02 MiB
+
+Common external FIRST_VISIBLE medians (T480):
+  Graphium:   empty 244.814 ms; 5 KiB 278.106 ms; 1 MiB 273.236 ms; 10 MiB 591.753 ms
+  Leafpad:    empty 218.838 ms; 5 KiB 104.943 ms; 1 MiB 114.296 ms; 10 MiB 284.893 ms
+  L3afpad:    empty 249.202 ms; 5 KiB 114.880 ms; 1 MiB 146.059 ms; 10 MiB 320.887 ms
+  Mousepad:   empty 228.886 ms; 5 KiB 240.936 ms; 1 MiB 256.511 ms; 10 MiB 484.826 ms
+  FeatherPad: empty 220.046 ms; 5 KiB 249.167 ms; 1 MiB 250.637 ms; 10 MiB 250.456 ms
+
+Manual groups:
+  GROUP_1_SHELL_HELP_EDITING=PASS
+  GROUP_2_CRLF_SAVEPOINT=PASS
+  GROUP_2_BYTE_ORACLE=PASS sha256=533b8ea63f5e07a6ec290507ecc7db4667137bd2f0482913981ae17d3b3169a0
+  GROUP_3_UNSAVED_CANCEL_DISCARD=PASS
+  GROUP_3_DISK_UNCHANGED=PASS sha256=c7cde8022846cd6aff9b189e32dc3aa4f3eea733835d469093054391490627b2
+  GROUP_4_TOPOLOGY_REALISTIC_LARGE_FILE=PASS
+
+Reporting-only note:
+The runner's final footer still printed `TESTS=195/195_PASS`, but the same run's unittest
+section executed 196 tests successfully and the strict verifier printed
+`GRAPHIUM_SELFTEST=PASS tests=196`. The stale footer count is therefore classified as a
+REPORTING_ONLY_HARNESS_DEFECT and does not change the validated product result. Publication
+receipts use the authoritative 196/196 count.
+
+Product conclusion:
+  G04_DESKTOP_VALIDATION=PASS
+  G04_PRODUCT_FAIL=NO_AFTER_REPAIR
+  G04_MANUAL_DESKTOP=4/4_PASS
+  G04_TRUE_GTK=PASS
+  G04_PERFORMANCE_ADMISSION=PASS
+  G04_COMPARATOR_BASELINE=PASS
+  G04_PUBLICATION_READY=YES
+  G04_PUBLISHED=NO
+  G05_STARTED=NO
+
+Menu Architecture R3 and the mandatory Lightweight Budget remain future routing authorities;
+no G05+ feature was implemented into the validated G04 product.

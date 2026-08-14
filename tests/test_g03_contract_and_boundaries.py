@@ -19,11 +19,12 @@ def imports(path: Path) -> set[str]:
 
 
 class G03ContractAndBoundaryTests(unittest.TestCase):
-    def test_g03_runtime_identity(self):
-        from graphium.product import VERSION, WORK_ITEM, WORK_ITEM_DESCRIPTION
-        self.assertEqual(WORK_ITEM, "G03")
-        self.assertEqual(WORK_ITEM_DESCRIPTION, "Guarded Save / Save As")
-        self.assertEqual(VERSION, "0.0.4-g03")
+    def test_published_g03_release_identity_is_retained_as_regression_evidence(self):
+        roadmap = (ROOT / "docs/canonical/GRAPHIUM_ROADMAP.md").read_text(encoding="utf-8")
+        self.assertIn("e7045e0ce1c79da71c9968bdfa052df25a5378b7", roadmap)
+        self.assertIn("42fe5340e1181199db86ed69cfa93b4735e45666", roadmap)
+        self.assertTrue((ROOT / "graphium/infrastructure/guarded_file_writer.py").is_file())
+        self.assertTrue((ROOT / "graphium/application/document_save_service.py").is_file())
 
     def test_canonical_document_cap_remains_exactly_three(self):
         docs = [p for p in (ROOT / "docs/canonical").iterdir() if p.is_file()]
@@ -49,9 +50,14 @@ class G03ContractAndBoundaryTests(unittest.TestCase):
                         offenders.append((rel, marker))
         self.assertEqual(offenders, [])
 
-    def test_g03_does_not_smuggle_g04_or_g11_ui_monitoring(self):
+    def test_published_g03_modules_remain_free_of_g04_ui_and_g11_monitoring(self):
         runtime = "\n".join(
-            p.read_text(encoding="utf-8") for p in (ROOT / "graphium").rglob("*.py")
+            (ROOT / rel).read_text(encoding="utf-8")
+            for rel in (
+                "graphium/domain/document_save.py",
+                "graphium/application/document_save_service.py",
+                "graphium/infrastructure/guarded_file_writer.py",
+            )
         )
         for marker in ("Gtk.FileChooser", "GtkFileChooser", "Gio.FileMonitor", "FileMonitor"):
             self.assertNotIn(marker, runtime)

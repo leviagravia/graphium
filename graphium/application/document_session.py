@@ -1,6 +1,9 @@
-"""Single-document savepoint-aware session authority for Graphium G02.
+"""Single-document savepoint-aware session authority for Graphium.
 
-GTK-free and write-free: G03 will provide the physical save authority.
+G02 established state-ID based Saved/Modified semantics. G04 hardens the native editor
+integration by allowing the live GTK buffer to advance state identity without copying the
+entire document into this session on every keystroke. Before a physical Save, the current
+buffer text must be explicitly synchronized to the exact current editor state ID.
 """
 from __future__ import annotations
 from contextlib import contextmanager
@@ -10,10 +13,12 @@ from typing import Iterator
 from graphium.domain.document_identity import DocumentFileState, DocumentLoadResult
 from graphium.domain.history import HistoryState
 
+
 class DocumentSessionPhase(str, Enum):
     IDLE = "idle"
     REPLACING = "replacing"
     OPENING = "opening"
+
 
 @dataclass(frozen=True)
 class DocumentSessionSnapshot:
@@ -24,6 +29,7 @@ class DocumentSessionSnapshot:
     revision: int
     current_editor_state_id: int | None
     saved_editor_state_id: int | None
+    text_editor_state_id: int | None
 
     @property
     def file_path(self) -> str | None:
@@ -31,13 +37,25 @@ class DocumentSessionSnapshot:
 
     @property
     def modified(self) -> bool:
-        return not (self.current_editor_state_id is not None and
-                    self.saved_editor_state_id is not None and
-                    self.current_editor_state_id == self.saved_editor_state_id)
+        return not (
+            self.current_editor_state_id is not None
+            and self.saved_editor_state_id is not None
+            and self.current_editor_state_id == self.saved_editor_state_id
+        )
+
+    @property
+    def text_is_current(self) -> bool:
+        return (
+            self.current_editor_state_id is not None
+            and self.text_editor_state_id == self.current_editor_state_id
+        )
+
 
 class DocumentSession:
-    __slots__ = ("_text","_logical_path","_file_state","_phase","_phase_depth","_revision",
-                 "_current_editor_state_id","_saved_editor_state_id")
+    __slots__ = (
+        "_text", "_logical_path", "_file_state", "_phase", "_phase_depth", "_revision",
+        "_current_editor_state_id", "_saved_editor_state_id", "_text_editor_state_id",
+    )
 
     def __init__(self) -> None:
         self._text = ""
@@ -48,6 +66,7 @@ class DocumentSession:
         self._revision = 0
         self._current_editor_state_id = None
         self._saved_editor_state_id = None
+        self._text_editor_state_id = None
 
     @staticmethod
     def _state_id(value: int) -> int:
@@ -75,12 +94,22 @@ class DocumentSession:
     @property
     def saved_editor_state_id(self): return self._saved_editor_state_id
     @property
+    def text_editor_state_id(self): return self._text_editor_state_id
+    @property
+    def text_is_current(self): return self.snapshot().text_is_current
+    @property
     def modified(self): return self.snapshot().modified
 
     def snapshot(self) -> DocumentSessionSnapshot:
         return DocumentSessionSnapshot(
-            self._text, self._logical_path, self._file_state, self._phase, self._revision,
-            self._current_editor_state_id, self._saved_editor_state_id
+            self._text,
+            self._logical_path,
+            self._file_state,
+            self._phase,
+            self._revision,
+            self._current_editor_state_id,
+            self._saved_editor_state_id,
+            self._text_editor_state_id,
         )
 
     @contextmanager
@@ -107,7 +136,9 @@ class DocumentSession:
         self._text, self._logical_path, self._file_state = state.text, None, None
         self._current_editor_state_id = state.state_id
         self._saved_editor_state_id = state.state_id if clean else None
-        if self.snapshot() != before: self._revision += 1
+        self._text_editor_state_id = state.state_id
+        if self.snapshot() != before:
+            self._revision += 1
 
     def establish_open(self, result: DocumentLoadResult, state: HistoryState) -> None:
         if not isinstance(result, DocumentLoadResult):
@@ -122,24 +153,34 @@ class DocumentSession:
         self._file_state = result.file_state
         self._current_editor_state_id = state.state_id
         self._saved_editor_state_id = state.state_id
-        if self.snapshot() != before: self._revision += 1
+        self._text_editor_state_id = state.state_id
+        if self.snapshot() != before:
+            self._revision += 1
 
     def observe_uncommitted_text(self, text: str) -> bool:
-        if not isinstance(text, str): raise TypeError("text must be a string")
-        if self.loading: return False
+        """Historical G02 path retained for headless regression compatibility."""
+        if not isinstance(text, str):
+            raise TypeError("text must be a string")
+        if self.loading:
+            return False
         before = self.snapshot()
         self._text = text
         self._current_editor_state_id = None
-        if self.snapshot() != before: self._revision += 1
+        self._text_editor_state_id = None
+        if self.snapshot() != before:
+            self._revision += 1
         return True
 
     def reconcile_with_history(self, state: HistoryState) -> bool:
         if not isinstance(state, HistoryState) or state.state_id <= 0:
             raise TypeError("state must be an assigned HistoryState")
-        if self._text != state.text: return False
+        if self._text != state.text:
+            return False
         before = self.snapshot()
         self._current_editor_state_id = state.state_id
-        if self.snapshot() != before: self._revision += 1
+        self._text_editor_state_id = state.state_id
+        if self.snapshot() != before:
+            self._revision += 1
         return True
 
     def commit_history_state(self, state: HistoryState) -> None:
@@ -148,7 +189,37 @@ class DocumentSession:
         before = self.snapshot()
         self._text = state.text
         self._current_editor_state_id = state.state_id
-        if self.snapshot() != before: self._revision += 1
+        self._text_editor_state_id = state.state_id
+        if self.snapshot() != before:
+            self._revision += 1
+
+    def advance_editor_state(self, state_id: int) -> None:
+        """Advance native editor identity without copying the live buffer text.
+
+        G04 uses this on every committed native edit group. The session text remains a
+        previously synchronized representation until ``synchronize_current_text`` is
+        called before Save. Modified/Saved remains exact because it depends on IDs only.
+        """
+        state_id = self._state_id(state_id)
+        before = self.snapshot()
+        self._current_editor_state_id = state_id
+        if self.snapshot() != before:
+            self._revision += 1
+
+    def synchronize_current_text(self, text: str, *, state_id: int | None = None) -> int:
+        if not isinstance(text, str):
+            raise TypeError("text must be a string")
+        current = self._current_editor_state_id
+        if current is None or current <= 0:
+            raise RuntimeError("cannot synchronize text without a stable editor state")
+        if state_id is not None and self._state_id(state_id) != current:
+            raise RuntimeError("text synchronization state ID differs from current editor state")
+        before = self.snapshot()
+        self._text = text
+        self._text_editor_state_id = current
+        if self.snapshot() != before:
+            self._revision += 1
+        return current
 
     def accept_saved_state(self, state_id: int, *, file_state: DocumentFileState | None = None) -> None:
         state_id = self._state_id(state_id)
@@ -159,7 +230,8 @@ class DocumentSession:
                 raise TypeError("file_state must be DocumentFileState or None")
             self._logical_path = file_state.binding.logical_path
             self._file_state = file_state
-        if self.snapshot() != before: self._revision += 1
+        if self.snapshot() != before:
+            self._revision += 1
 
     def accept_committed_save(
         self,
@@ -168,12 +240,6 @@ class DocumentSession:
         logical_path: str,
         file_state: DocumentFileState | None,
     ) -> None:
-        """Install the identity consequences of a physical G03 namespace commit.
-
-        A committed result may lack a fresh post-save baseline.  The named logical
-        path is still retained, but file_state becomes None so a later ordinary Save
-        cannot silently reuse stale pre-commit evidence.
-        """
         state_id = self._state_id(state_id)
         if not isinstance(logical_path, str) or not logical_path:
             raise ValueError("logical_path must be a non-empty string")
@@ -192,7 +258,8 @@ class DocumentSession:
     def invalidate_saved_relation(self) -> None:
         before = self.snapshot()
         self._saved_editor_state_id = None
-        if self.snapshot() != before: self._revision += 1
+        if self.snapshot() != before:
+            self._revision += 1
 
     def restore_checkpoint(self, snapshot: DocumentSessionSnapshot) -> None:
         if not isinstance(snapshot, DocumentSessionSnapshot):
@@ -205,6 +272,7 @@ class DocumentSession:
         self._revision = snapshot.revision
         self._current_editor_state_id = snapshot.current_editor_state_id
         self._saved_editor_state_id = snapshot.saved_editor_state_id
+        self._text_editor_state_id = snapshot.text_editor_state_id
 
     def requires_save_confirmation(self) -> bool:
         return self.modified

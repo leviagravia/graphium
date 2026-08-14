@@ -38,7 +38,11 @@ class DocumentSaveService:
         state_id = snapshot.current_editor_state_id
         if state_id is None or state_id <= 0:
             raise SaveBindingError(
-                "Graphium must flush the current editor transaction before saving"
+                "Graphium must establish a stable current editor state before saving"
+            )
+        if not snapshot.text_is_current:
+            raise SaveBindingError(
+                "Graphium must synchronize the live editor text to the exact current state before saving"
             )
         if operation is SaveOperation.SAVE:
             if snapshot.logical_path is None or snapshot.file_state is None:
@@ -68,6 +72,10 @@ class DocumentSaveService:
             target,
             allow_mixed_eol_normalization=allow_mixed_eol_normalization,
         )
+
+    def observe_save_as_target(self, logical_path: str) -> SaveTargetObservation:
+        """Observe a Save As destination through the sole physical writer authority."""
+        return self.writer.observe_target(logical_path)
 
     def save_as(
         self,

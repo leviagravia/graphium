@@ -21,8 +21,12 @@ class ProductIdentityTests(unittest.TestCase):
         self.assertTrue(WORK_ITEM.startswith("G"))
         self.assertTrue(VERSION.startswith("0.0."))
 
-    def test_desktop_application_id_is_deliberately_deferred(self):
-        self.assertIsNone(DESKTOP_APPLICATION_ID)
+    def test_desktop_application_id_was_deferred_in_g00_and_is_frozen_by_g04(self):
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[1]
+        contract = (root / "docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md").read_text(encoding="utf-8")
+        self.assertIn("desktop application ID is **DEFERRED in G00**", contract)
+        self.assertEqual(DESKTOP_APPLICATION_ID, "io.github.leviagravia.Graphium")
 
     def test_single_document_and_writer_authorities_are_frozen(self):
         descriptor = describe_composition()

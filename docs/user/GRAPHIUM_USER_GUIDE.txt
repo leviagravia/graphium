@@ -1,0 +1,130 @@
+GRAPHIUM USER GUIDE
+===================
+
+Graphium is a fast, simple and safety-focused plain-text editor for Linux. G04 is the
+first desktop foundation: one process owns one window and one active document. Graphium
+does not use tabs, projects, syntax modes, plugins, cloud services or hidden document
+databases.
+
+1. THE BASIC MODEL
+------------------
+Each Graphium invocation opens one window for one document. If you launch Graphium again
+from the file manager or command line, the new invocation gets its own process and window;
+it does not take over an already-open Graphium document. If several filenames are passed
+to one command, Graphium opens each file in a separate process/window.
+
+The window title reports the current document name and either Saved or Modified.
+
+  Untitled (Saved) — Graphium
+  notes.txt (Modified) — Graphium
+
+Saved/Modified is based on the editor's exact savepoint identity, not on a sticky visual
+flag. Undoing to the exact saved state returns to Saved; Redo away from it returns to
+Modified, and vice versa.
+
+2. FILE COMMANDS
+----------------
+New
+  Replaces the active document with a blank document. If the current document is
+  Modified, Graphium first offers Save, Discard Changes, or Cancel.
+
+Open…
+  Opens a plain-text file. Graphium loads and validates the selected file before replacing
+  the current document. A failed Open leaves the current document untouched.
+
+Save
+  Saves to the current file. Graphium uses guarded, staged replacement rather than
+  truncating the original file first. If the file has changed unexpectedly since it was
+  accepted, Graphium refuses to overwrite it silently.
+
+Save As…
+  Saves to a different path. The active document is rebound to the new path only after the
+  physical commit succeeds. Replacing an existing destination requires explicit consent.
+
+Quit
+  If the document is Modified, Graphium offers Save, Discard Changes, or Cancel.
+
+3. CONTENT NEUTRALITY
+---------------------
+Open and Save are not text-cleanup commands. Graphium does not silently trim spaces, add a
+final newline, change encoding, remove/add a BOM, or normalize line endings merely because
+a file was opened or saved.
+
+The current foundation supports strict UTF-8 and BOM-aware UTF-8/UTF-16/UTF-32 families.
+Line endings are represented internally as LF while the accepted external representation
+is retained for Save. If a file contains mixed line endings and exact reproduction is not
+possible after editing, Graphium asks before normalizing them.
+
+4. UNDO AND REDO
+----------------
+Graphium records native text changes as insertion/deletion deltas. It does not copy the
+whole document on every keystroke and it does not use an idle timer to decide what an Undo
+operation means. GTK user-action boundaries and structural edit continuity define groups.
+
+Typing a normal contiguous word can therefore undo as a useful unit, while whitespace,
+compound actions, replacements and the exact saved state form meaningful boundaries.
+Large ordinary multiline files do not lose Undo merely because the document exceeds an
+arbitrary snapshot threshold. Graphium separately protects the interactive editor from
+pathological single logical lines. In G04, a logical line longer than 20,000 Unicode
+characters is refused before it is installed in Gtk.TextView. This is a conservative
+interactive-rendering safety policy, not a statement that the file is invalid text. The
+source file and the currently open document are left unchanged. Graphium never truncates
+the line or inserts line breaks/marker text to make it displayable.
+
+The same safety budget prevents a paste or newline-deleting edit from creating an
+over-budget logical line. The edit is blocked before buffer mutation and Graphium shows a
+warning. A future exact paged/streamed viewer for pathological generated/minified lines
+would require a separate architecture and is not emulated by G04.
+
+5. EDIT COMMANDS
+----------------
+Undo / Redo
+  Move backward or forward through the native delta history while preserving the exact
+  Saved/Modified relation.
+
+Cut / Copy / Paste / Delete / Select All
+  Use the normal GTK text editing behavior. Compound native actions are captured as one
+  logical history group when GTK exposes them as one user action.
+
+6. MULTIPLE FILES
+-----------------
+Graphium is deliberately single-document but not single-process globally. To keep two
+files open, open two Graphium windows. This is intentional and follows the quick-edit
+mental model: each window is independently owned by one process and one document.
+
+7. FILE SAFETY
+--------------
+The current foundation already applies these rules:
+
+* one physical writer authority;
+* no direct-write fallback;
+* staged same-directory writes and late revalidation;
+* Save As binds the new identity only after commit;
+* unexpected external replacement blocks an ordinary Save;
+* symlink logical identity is preserved by the guarded writer;
+* hard-linked targets fail closed in the current safety policy;
+* a failed Save keeps the document Modified;
+* a late Save of an older editor state cannot make a newer state appear Saved.
+
+Live external-file notifications are intentionally deferred to G11. Even before that,
+Save itself revalidates the accepted file state and fails closed on stale data.
+
+8. PERFORMANCE DISCIPLINE
+-------------------------
+Graphium targets users of lightweight editors such as Leafpad, L3afpad and the quick-edit
+side of Mousepad. Nonessential subsystems must stay off the startup-critical path.
+Performance is measured in two distinct ways: a common FIRST_VISIBLE metric for Graphium
+and the four permanent comparators (Leafpad, L3afpad, Mousepad and FeatherPad), and an exact internal FIRST_EDITABLE handshake for
+Graphium. Graphium does not claim that unlike metrics are directly comparable.
+
+9. KEYBOARD SHORTCUTS
+---------------------
+Choose Help > Keyboard Shortcuts for the current list. Graphium audits accelerators against
+active Linux Mint/Cinnamon global bindings before release. Ctrl+Alt+L is reserved in the
+target environment and is not used by Graphium.
+
+10. WHAT IS DELIBERATELY NOT IN G04
+-----------------------------------
+Search/Replace, status bar, line numbers, typography controls, recent files, printing,
+preferences, live file monitoring and crash recovery belong to later roadmap work items.
+They are not emulated by hidden background subsystems in G04.

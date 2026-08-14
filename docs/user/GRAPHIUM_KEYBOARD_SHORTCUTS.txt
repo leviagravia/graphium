@@ -1,0 +1,25 @@
+GRAPHIUM KEYBOARD SHORTCUTS — G04
+=================================
+
+File
+  Ctrl+N          New
+  Ctrl+O          Open…
+  Ctrl+S          Save
+  Ctrl+Shift+S    Save As…
+  Ctrl+Q          Quit
+
+Edit
+  Ctrl+Z          Undo
+  Ctrl+Shift+Z    Redo
+  Ctrl+X          Cut
+  Ctrl+C          Copy
+  Ctrl+V          Paste
+  Delete          Delete selection
+  Ctrl+A          Select All
+
+Help commands intentionally have no global accelerator in G04.
+
+Linux Mint/Cinnamon note
+------------------------
+Graphium does not use Ctrl+Alt+L. New accelerators are checked against active desktop
+global bindings before a desktop candidate is accepted.

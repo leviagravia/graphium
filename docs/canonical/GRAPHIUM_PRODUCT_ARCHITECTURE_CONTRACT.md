@@ -2,8 +2,8 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Status: **G00-G01 CLOSED / CERTIFIED / PUBLISHED; G02 OPEN / CONTRACT FROZEN / HEADLESS VALIDATED / FINALIZATION READY**.
-Published G01 baseline: `bf7878c3cdc5cf895b0ffba86b854860c34936a4` / tree `2334e0c71f01a1b0a30bcb9298911c7c0cafe042`.
+Status: **G00-G03 CLOSED / CERTIFIED / PUBLISHED; G04 OPEN / CONTRACT FROZEN / REBUILT FROM DEEP MATURE-SOURCE AUDIT / NONDESKTOP VALIDATED / DESKTOP READY**.
+Published G03 baseline: `e7045e0ce1c79da71c9968bdfa052df25a5378b7` / tree `42fe5340e1181199db86ed69cfa93b4735e45666`.
 
 ## 1. Product identity
 
@@ -168,11 +168,12 @@ Test logs, SHA manifests, provenance maps, release receipts, generated inventori
 
 - Gxx work items are serial.
 - A later Gxx does not begin as implementation until the preceding item reaches its required closure state.
-- Headless/domain logic is implemented and tested before GTK wiring where feasible.
-- GTK adapters remain thin.
-- A desktop attempt, when a work item reaches that stage, must test an isolated Graphium candidate, not Calamus and not an installed user configuration.
+- For the current Gxx, the assistant performs source audit, falsification-oriented mature-source comparison, implementation, complete non-desktop tests, strict gates, source bundle and incremental MO update autonomously.
+- Headless/domain logic is implemented and tested before GTK wiring where feasible; GTK adapters remain thin.
+- The user is asked only for the final desktop validation after the candidate has passed the preceding automated gates. That validation uses an isolated Graphium copy, never Calamus or the installed user configuration.
+- Graphium does not progress by numbered trial-and-error candidate attempts. A pre-product harness/oracle stop or product defect is localized and re-audited against relevant mature sources; the whole discovered failure/design class is repaired and fully revalidated before another final desktop validation is requested.
 - Failures are classified before repair; harness/oracle failures are not silently converted into product failures.
-- Git publication is a separate explicit operation on the user's machine; generated bootstrap artifacts here do not mutate a canonical repository.
+- Git publication is a separate explicit operation on the user's machine. Only the user executes Git-mutating stage/commit/push commands on the T480.
 
 ## 10. G00 closure conditions
 
@@ -270,88 +271,67 @@ G01 is a selective adaptation of the Calamus W116 published `calamus_document_id
 
 ## 12. Performance & Perceived Latency Budget
 
-Freeze: 2026-08-14.
+Rebaseline: 2026-08-14 — G04 deep mature-source audit.
 
 `PERFORMANCE_PERCEIVED_LATENCY_BUDGET=FROZEN`
-`PERMANENT_COMPARATORS=Leafpad,L3afpad,Mousepad`
+`PERMANENT_COMPARATORS=Leafpad,L3afpad,Mousepad,FeatherPad`
 `PRIMARY_TARGET_SEGMENT=QUICK_EDIT_SIMPLE_TEXT_EDITOR_USERS`
 `SAFETY_MAY_NOT_BE_DISABLED_FOR_BENCHMARKS=YES`
+`PERFORMANCE_HETEROGENEOUS_ORACLE_RATIOS=FORBIDDEN`
+`PRODUCT_CATEGORY=LIGHTWEIGHT_TRUST_EDITOR`
+`FEATURE_COUNT_IS_NOT_THE_COMPETITIVE_AXIS=YES`
+`NORMAL_SAVE_IS_CONTENT_NEUTRAL=YES`
+`FILE_MONITOR_IS_OBSERVATION_TRIGGER_NOT_TRUTH_AUTHORITY=YES`
+`V1_TABS_SYNTAX_IDE_PLUGIN_PLATFORM=FORBIDDEN`
+`SAFETY_AND_PERFORMANCE_MAY_NOT_WEAKEN_EACH_OTHER=YES`
 
-### 12.1 Product-positioning consequence
+### 12.1 Positioning
 
-Web/user research reviewed in G01 confirms that the core Leafpad/L3afpad audience values immediate startup, a small UI, low cognitive load and basic text-file work; the quick-edit segment of Mousepad values the same qualities while tolerating a somewhat richer editor. Graphium therefore freezes the product principle:
+Graphium freezes **FAST + SIMPLE + SAFE + NATIVE GTK** and the product category **LIGHTWEIGHT TRUST EDITOR**. Leafpad/L3afpad are the immediacy/low-cognitive-load references; Mousepad is the primary operational-maturity comparator; FeatherPad is the permanent speed-plus-maturity comparator proving that greater feature density does not excuse poor launch latency. Graphium targets the quick-edit subset of Mousepad/FeatherPad users rather than their tab/session/syntax/column-editing power-user segment.
 
-**FAST + SIMPLE + SAFE + NATIVE GTK**
+### 12.2 Comparator set and falsifiable receipts
 
-The differentiator is not feature count. Graphium must preserve Leafpad/L3afpad-like immediacy while adding stronger file safety, transparent encoding/EOL state, persistent essential preferences, mature print/preview/page setup, a compact useful status bar, and identity-preserving copy/version operations.
+Every desktop-capable checkpoint records the actually installed Leafpad, L3afpad, Mousepad and FeatherPad versions on the T480, together with Graphium version/tree, sample hashes, run count, metric definition and environment isolation. Missing comparators block the comparative receipt; they do not become a product failure.
 
-Syntax highlighting, tabs, IDE facilities and feature-platform behavior are not admitted merely to compete with Mousepad's richer use cases. Graphium targets Mousepad's quick-edit users, not its mini-code-editor segment.
+### 12.3 Two metrics that must not be conflated
 
-### 12.2 Permanent comparator set
+**FIRST_VISIBLE** is the common cross-product metric: process start -> first new X11 top-level mapped for the exact spawned process. The same external X11 oracle is used for Graphium, Leafpad, L3afpad, Mousepad and FeatherPad. Ratios may be calculated only within this common metric.
 
-Performance claims and regression checks must be measured on the same T480 against installed versions of:
+Comparator process-isolation is part of the oracle contract, not an implementation detail: Mousepad is launched with its no-server mode when supported, and FeatherPad is launched with `--standalone` because FeatherPad is single-instance by default. A comparator build that cannot provide the required isolated-process mode BLOCKS the comparative receipt; the oracle must not be weakened to accept a window owned by a different pre-existing PID.
 
-- Leafpad;
-- L3afpad;
-- Mousepad.
+**FIRST_EDITABLE** is the exact Graphium-internal metric: process start -> requested file Open (if any) completed -> window mapped -> Gtk.TextView focused -> one complete READY record emitted. G04 transports this record through an inherited pipe, not a filesystem ready flag. It is exact Graphium regression/admission evidence but is **not** numerically compared with comparator FIRST_VISIBLE values.
 
-Each benchmark receipt records application version, package/source identity where available, Linux/GTK/Python versions, power mode, sample-file hashes and measurement method. Comparator versions may change over time; the currently installed versions are the reference for that measurement and must be recorded rather than assumed.
+Direct source audit established why this distinction is mandatory: Leafpad and L3afpad show their window before completing command-line file Open, while Airpad follows a different ordering. Therefore `first mapped window` cannot be silently relabelled `first editable`.
 
-### 12.3 Mandatory workloads and metrics
+G12 may make hard cross-product FIRST_EDITABLE claims only after a single common external oracle is implemented for all compared applications, e.g. an AT-SPI/XTest-style disposable first-input acceptance probe.
 
-At minimum, the benchmark harness must cover:
+### 12.4 Workloads and statistics
 
-1. empty-window/process start to first editable state;
-2. open a 5 KiB UTF-8/LF plain-text file to editable state;
-3. open a 1 MiB UTF-8/LF plain-text file to editable state;
-4. open a 10 MiB UTF-8/LF plain-text file to editable state;
-5. idle resident memory after first editable state;
-6. resident memory after the 1 MiB workload.
+Both applicable G04 metrics cover empty, 5 KiB, 1 MiB and 10 MiB UTF-8/LF files. Normal series use one uncounted priming run plus at least seven measured runs. Report median and p90; Graphium exact measurements also record RSS. Real user configuration must not be read/mutated for benchmarking.
 
-Primary metrics:
+### 12.5 G04 admission
 
-- median wall-clock time to first editable state;
-- p90 time to first editable state;
-- median open-to-editable latency;
-- idle RSS MiB;
-- RSS MiB after the 1 MiB open workload.
+Graphium exact FIRST_EDITABLE must satisfy:
 
-Normal benchmark series use at least 7 measured runs after one uncounted priming run. Session-first/cold observations are reported separately because filesystem/page-cache state cannot be made perfectly comparable without intrusive system-wide cache manipulation. Graphium benchmarking must not require root or mutate the user's real configuration.
+- empty median <= 750 ms;
+- 5 KiB median <= 900 ms;
+- idle RSS <= 200 MiB.
 
-### 12.4 G04 admission ceilings and G12 competitive targets
+The common FIRST_VISIBLE receipt also applies the existing quick-edit admission comparison against Mousepad:
 
-The first real GTK shell at G04 establishes the initial Graphium performance baseline. G04 may not close as a credible quick editor if, on the T480:
+- Graphium empty FIRST_VISIBLE <= 2.0x Mousepad or <= 750 ms;
+- Graphium 5 KiB FIRST_VISIBLE <= 2.0x Mousepad or <= 900 ms;
+- Graphium idle RSS <= 200 MiB.
 
-- warm empty time-to-editable exceeds both **2.0x Mousepad** and **750 ms median**; or
-- warm 5 KiB open-to-editable exceeds both **2.0x Mousepad** and **900 ms median**; or
-- idle RSS exceeds **200 MiB**.
+Leafpad and L3afpad gaps are always reported. These thresholds are admission ceilings, not marketing claims.
 
-These are admission ceilings, not aspirational targets. Missing one requires optimization or an explicit user-authorized contract rebaseline before feature expansion.
+### 12.6 Permanent regression budget
 
-For G12 v1 closure, the target is stronger:
+After G04, relative to the immediately preceding published Graphium desktop baseline, >10% median regression in empty/5 KiB, >15% in 1/10 MiB, or >15% idle-RSS growth blocks closure until explained and explicitly accepted. Noise is handled by rerunning complete series, never by cherry-picking.
 
-- warm empty and 5 KiB median latency: target <= **1.5x Mousepad**;
-- 1 MiB and 10 MiB open median latency: target <= **1.75x Mousepad**;
-- idle RSS: target <= **150 MiB** and <= **2.5x Mousepad** where both conditions are meaningful;
-- Leafpad and L3afpad gaps are always reported even when they are not the hard gate, because they represent the most latency-sensitive target audience.
+### 12.7 Startup discipline
 
-Graphium may not market itself or document itself as "fast" if the G12 competitive target is materially missed without an explicit documented rebaseline.
-
-### 12.5 Permanent regression budget
-
-After G04, every later desktop-capable published Gxx records the same core benchmark set. Relative to the immediately preceding published Graphium baseline:
-
-- >10% median regression in empty or 5 KiB startup/open latency is a closure blocker until explained and accepted;
-- >15% median regression in 1 MiB/10 MiB open latency is a closure blocker until explained and accepted;
-- >15% idle-RSS growth is a closure blocker unless caused by an explicitly authorized, measurable v1 requirement.
-
-Noise must be handled by rerunning the complete series, not by selecting favorable individual runs.
-
-### 12.6 Startup discipline
-
-Features not needed to make the first document editable must not be eagerly initialized on the startup critical path. In particular, Print/Preview/Page Setup, Help, optional spellcheck and other dormant subsystems should be lazy where technically reasonable. Recent-file maintenance or live-monitor setup must not delay the editor becoming usable unless required for correctness.
-
-Performance optimizations may never weaken G01-G03 document safety, savepoint semantics, encoding/EOL correctness or guarded-write guarantees. Safety is a product invariant, not a benchmark toggle.
+Subsystems not needed for the first editable document remain off the critical path where reasonable. Help content, Print/Preview/Page Setup, optional spellcheck and later nonessential services are lazy. Performance optimizations may never weaken G01-G03 safety, encoding/EOL neutrality, exact savepoint semantics or guarded writes.
 
 
 ## 13. G02 — History / Editor Transaction / Savepoint Session
@@ -580,3 +560,181 @@ G03 remains GTK-free and adds no:
 
 G04 owns chooser/consent and visible Save/Save As wiring. G11 owns observation-only live external-file monitoring. Both must call the existing G03/G02 authorities rather than create new file/session authorities.
 
+
+
+## 15. G04 — Native Edit Integration Hardening / Thin GTK Shell / Core File Lifecycle
+
+Rebuild freeze: 2026-08-14, after deep mature-source falsification audit.
+
+`G04_CONTRACT=FROZEN`
+`G04_NATIVE_HISTORY=DELTA_BASED`
+`G04_NATIVE_EDIT_TIMER_AUTHORITY=FORBIDDEN`
+`G04_FULL_BUFFER_CAPTURE_PER_NATIVE_EDIT=FORBIDDEN`
+`G04_APPLICATION_TOPOLOGY=ONE_PROCESS_ONE_WINDOW_ONE_DOCUMENT`
+`G04_APPLICATION_UNIQUENESS=NON_UNIQUE`
+`G04_MULTI_FILE_CLI=ONE_PROCESS_PER_FILE`
+`G04_GTK_EDITOR_WIDGET=Gtk.TextView`
+`G04_GTK_SOURCEVIEW=FORBIDDEN`
+`G04_TOOLBAR=ABSENT`
+`G04_HELP=LAZY_OFFLINE`
+`G04_PERFORMANCE_COMMON_METRIC=FIRST_VISIBLE`
+`G04_PERFORMANCE_EXACT_INTERNAL_METRIC=FIRST_EDITABLE`
+`G04_PERFORMANCE_READY_PROTOCOL=INHERITED_PIPE_ATOMIC_RECORD`
+`G04_HETEROGENEOUS_READINESS_RATIO=FORBIDDEN`
+`G04_TARGET_USERS=Leafpad,L3afpad,Mousepad_quick_edit,FeatherPad_quick_edit`
+`G04_INTERACTIVE_LINE_BUDGET_CHARS=20000`
+`G04_PATHOLOGICAL_LINE_POLICY=REFUSE_BEFORE_GTK_BUFFER_INSTALL`
+`G04_PATHOLOGICAL_LINE_CONTENT_MUTATION=FORBIDDEN`
+
+### 15.1 Explicit architecture review of the published G02 snapshot engine
+
+G02 remains published historical authority for **editor-state identity and savepoint semantics**:
+
+- positive monotonically increasing state IDs;
+- state IDs never reused after Undo branching, pruning or rollback;
+- Saved/Modified derived from current-state ID versus saved-state ID;
+- late Save may mark only the exact persisted state saved;
+- text equality alone is never the dirty-state oracle.
+
+G04 is the explicit architecture review contemplated by G02 section 13.5. Direct source comparison against Leafpad, L3afpad, Airpad, Mousepad/GtkSourceView clients, gedit, GNOME Text Editor, NEdit and JOE showed that the active native editor should not retain a complete document snapshot per ordinary edit. Therefore:
+
+- `TextHistory` remains available as published G02 headless/regression code;
+- the active G04 GTK runtime composes `DeltaHistory` instead;
+- the active native editor stores insertion/deletion payload plus offsets/view state, not the entire base document;
+- document size itself is not a switch that disables ordinary Undo;
+- a 1 MiB document with a one-character edit must retain normal Undo and store approximately that changed payload rather than another 1 MiB document copy.
+
+This supersedes only G02's **active-runtime storage choice** and old 750,000-character native-Undo degradation assumption. It does not rewrite G02 history or invalidate its published tests/commit.
+
+### 15.2 Native user-action and grouping authority
+
+Wall-clock inactivity is not semantic evidence that an editing operation ended. The withdrawn pre-rebuild G04 design's fixed native-commit delay is forbidden.
+
+The active GTK adapter records deltas from real `GtkTextBuffer` insertion/deletion signals and uses `begin-user-action` / `end-user-action` as the primary compound-action boundary. Across adjacent completed user actions, bounded structural coalescing may combine compatible contiguous single-character insertion/deletion runs. Whitespace class, operation kind/direction, non-contiguity, multi-character compound operations and the exact saved state are merge barriers.
+
+Required consequences:
+
+- Undo behavior does not change merely because the user typed faster/slower than a timeout;
+- Save is a semantic merge barrier so Undo can land exactly on the saved state;
+- programmatic edits outside a GTK user-action may create one explicit fallback group, but never by waiting for elapsed time;
+- Undo/Redo replay is suppressed from re-recording itself;
+- replay verifies expected deleted text and fails rather than silently applying a delta to an unexpected buffer state.
+
+### 15.3 DocumentSession/live-buffer split
+
+The mutable Gtk.TextBuffer is the live text surface but not a second savepoint authority. G04 allows `DocumentSession.current_editor_state_id` to advance without copying the full live text into the session on every native edit.
+
+`DocumentSession.text_editor_state_id` records which editor-state identity the session's synchronized text represents. After an ordinary native edit, `text_is_current` may be false while Saved/Modified remains exact from state IDs.
+
+Immediately before physical Save/Save As, `NativeEditorController.prepare_for_save()` must:
+
+1. require no active native edit group;
+2. verify delta-history current ID equals DocumentSession current ID;
+3. capture the full GtkTextBuffer once;
+4. synchronize that text to the exact current editor-state ID;
+5. then call the existing G03 save service.
+
+Merely asking whether New/Open/Quit should discard a Modified document must not capture/copy the whole buffer.
+
+### 15.4 Process/window/document topology
+
+Graphium v1 remains single-document. For the target quick-edit workflow, G04 freezes the stronger process topology:
+
+**one invocation/process -> one Gtk.ApplicationWindow -> one active document.**
+
+`Gtk.Application` uses `G_APPLICATION_NON_UNIQUE`. A second Graphium invocation must create its own process/window and must not forward an Open request into a pre-existing Graphium process. If one invocation receives several filenames, the first belongs to that process and remaining files are fanned out to separate Graphium processes, following the useful Airpad pattern.
+
+File -> Open within one window may deliberately replace that window's current document after the normal Save/Discard/Cancel lifecycle. This is different from another OS/file-manager invocation hijacking an unrelated open document.
+
+### 15.5 Thin visible shell
+
+G04 exposes only the first credible classic quick-edit surface:
+
+File:
+- New
+- Open…
+- Save
+- Save As…
+- Quit
+
+Edit:
+- Undo
+- Redo
+- Cut
+- Copy
+- Paste
+- Delete
+- Select All
+
+Help:
+- User Guide
+- Keyboard Shortcuts
+- About
+
+Help text is offline product material loaded only when requested. G04 has no toolbar. The optional toolbar question remains routed to G06 after direct source/target-user audit. GtkSourceView, tabs, syntax, sidebars and project/session UI remain outside G04.
+
+### 15.6 File lifecycle and content neutrality
+
+G04 may perform chooser/consent/UI orchestration but may not bypass G01-G03 authorities.
+
+- Open loads/validates before replacing the current document.
+- failed Open leaves current buffer/session/history intact.
+- New/Open/Quit consult `DocumentSession.modified` and offer Save/Discard/Cancel.
+- Save/Save As physically write only through `DocumentSaveService` -> `GuardedFileWriter`.
+- Save As rebind remains commit-after-only.
+- mixed EOL normalization requires explicit consent.
+- no implicit trailing-space cleanup, final-newline insertion, encoding conversion, BOM conversion or line-ending normalization is permitted merely because Open/Save occurred.
+
+### 15.7 Performance protocol
+
+The old filesystem ready-file protocol is rejected because file existence was observable before a complete readiness record was guaranteed. G04 exact FIRST_EDITABLE uses an inherited pipe. The child emits one short newline-terminated `READY <pid> <monotonic_ns>` record with one `os.write()` after requested Open completion, window map and editor focus. The parent waits for a complete newline record and verifies the emitting PID.
+
+Cross-product comparison uses the common external FIRST_VISIBLE oracle defined in section 12. FIRST_VISIBLE and FIRST_EDITABLE receipts are intentionally separate. A report must never infer that a competitor is editable merely because its window became visible.
+
+### 15.8 Mature-source audit discipline / confirmation-bias countermeasure
+
+For every Graphium design decision evaluated against mature software, evidence must state:
+
+1. the Graphium assumption under test;
+2. a mature source that contradicts or stresses that assumption;
+3. the materially different model used by that source and why it works;
+4. the Graphium decision that would change if the alternative evidence is stronger;
+5. final ADOPT / ADAPT / REJECT / DEFER classification.
+
+An audit that records only corroborating examples is incomplete. A pre-product harness/oracle stop triggers failure localization and re-audit of the whole failure class before another desktop candidate is issued; Graphium does not progress by numbered trial-and-error attempts.
+
+### 15.9 Pathological logical-line / renderer-safety policy
+
+The valid T480 manual product FAIL on the seven-editor candidate demonstrated that "1 MiB file" and "1 MiB single logical line" are not equivalent workloads. The failed fixture was one line of 1,048,576 characters. Delta Undo remained available, but navigating/rendering the line end could make the GtkTextView window unresponsive. Mature-source re-audit showed that long-line display is a distinct renderer problem: FeatherPad applies an explicit logical-line guard, NEdit bounds custom display work, and GNOME's own GtkTextView issue history documents severe long-line behavior.
+
+G04 therefore freezes a **20,000 Unicode-character per logical line interactive-rendering budget** for the GtkTextView editor surface. This is a conservative Graphium product budget for the chosen renderer, not a claim that GTK has a universal 20,000-character hard limit. It may be changed only by later explicit renderer qualification.
+
+Required semantics:
+
+- G01 may still load/decode such input as valid plain text; renderability is a G04 interactive-surface concern.
+- before `NativeEditorController.initialize_open()` installs loaded text into GtkTextBuffer, G04 scans logical-line width without splitting/rewriting the document; any line above the budget causes a typed refusal.
+- failed renderability admission leaves current buffer, session, history and logical path unchanged.
+- Graphium never truncates the line, inserts a marker, inserts line breaks, normalizes content or silently changes wrap mode to make the file fit.
+- no read-only GtkTextView fallback is offered for the same pathological line, because the failure class is rendering/navigation itself; a future exact paged/streamed viewer is separate architecture.
+- native insertion/paste is preflighted before GtkTextBuffer's default insertion handler; a deletion that would join line fragments above the budget is likewise stopped before default mutation.
+- blocked edits do not advance editor-state identity or Undo history and surface an explicit warning.
+- automated large-file qualification uses a realistic multiline 1 MiB document and actually moves/scrolls the cursor to the end before edit/Undo. Huge-line refusal is a separate automated guard test.
+
+This policy preserves both sides of the product identity: **large ordinary text remains editable; pathological renderer input is refused without altering user bytes**.
+
+### 15.10 Desktop closure gates
+
+Before asking the user for final G04 desktop validation, the candidate must pass:
+
+- all G00-G03 regressions;
+- G04 delta-history/native-editor/lifecycle/performance-protocol tests;
+- architecture/source strict gates;
+- arbitrary-cwd bootstrap probes;
+- True-GTK shell/Open/Save/savepoint/delta-history/realistic-multiline-1-MiB Undo gate;
+- True-GTK pathological-line Open/paste refusal gate before GtkTextBuffer mutation;
+- `NON_UNIQUE` one-process/one-window/one-document topology gate;
+- active Linux Mint/Cinnamon shortcut collision audit;
+- exact Graphium FIRST_EDITABLE admission receipt;
+- common FIRST_VISIBLE Graphium/Leafpad/L3afpad/Mousepad/FeatherPad receipt, or a comparator-missing BLOCKED result rather than a false product FAIL.
+
+Only after these automated desktop gates pass is human visual/lifecycle validation requested.
