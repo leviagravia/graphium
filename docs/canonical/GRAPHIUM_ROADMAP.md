@@ -59,14 +59,19 @@ Extract/adapt W116 document identity, stable loader and serializer into Graphium
 G01 also records the target-user research and freezes the permanent Performance & Perceived Latency Budget; this changes no G01 runtime scope and requires no GTK benchmark yet.
 
 ### G02 — History / Editor Transaction / Savepoint Session
-Status: **OPEN / CONTRACT FROZEN / HEADLESS VALIDATED / FINALIZATION READY**
+Status: **CLOSED / CERTIFIED / PUBLISHED**
+
+Published commit: `b91af48a5688772ceffc7eac202c68e1815d7a36`
+Certified tree: `3e5b24263d4086a3eccf4897b038b8992703db79`
 
 Port/adapt bounded history, editor transaction and single-document savepoint-aware session. Preserve monotonic non-reused state-ID dirty semantics across Undo/Redo, exact rollback, caret/selection restoration and late-save correctness. Keep the headless core completely GTK-free and write-free. G02 intentionally adds no visible complexity for Leafpad/L3afpad/Mousepad-style quick-edit users.
 
 ### G03 — Guarded Save / Save As Foundation
-Status: PENDING
+Status: **OPEN / CONTRACT FROZEN / HEADLESS VALIDATED / FINALIZATION READY**
 
-Port guarded writer and save service with alias/topology/race protection, atomic commit and mixed-EOL consent contract. No alternate physical writer. Performance optimization must not weaken safety or durability semantics.
+Add the single physical `GuardedFileWriter` and GTK-free `DocumentSaveService`. Ordinary Save is guarded by the exact accepted G01/G02 disk baseline; Save As is based on an immutable target observation supplied after future G04 chooser consent. Preserve encoding/BOM/EOL, logical symlink identity, staged-write failure atomicity, late target revalidation, race-safe absent-target creation and exact captured-state savepoint semantics. Hardlinked/unsupported topology fails closed. No direct-write fallback, no permanent file monitor and no GTK chooser are admitted in G03.
+
+G03 is deliberately invisible maturity for Leafpad/L3afpad/Mousepad-style quick-edit users: it makes Save safer without adding a new visible workflow. Performance optimization may not weaken safety or durability semantics.
 
 ### G04 — Thin GTK Editor Shell + Core File Lifecycle + First Performance Baseline
 Status: PENDING

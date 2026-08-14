@@ -73,6 +73,10 @@ class DiskObservation:
     mtime_ns: int
     mode: int
     read_only: bool
+    ctime_ns: int | None = None
+    uid: int | None = None
+    gid: int | None = None
+    nlink: int | None = None
 
 
 @dataclass(frozen=True)

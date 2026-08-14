@@ -1,7 +1,7 @@
 """GTK-free Graphium composition descriptor.
 
-The real GTK composition root remains deferred until G04. G02 adds the single
-headless document-session/history authority while preserving the G00 dependency directions.
+The real GTK composition root remains deferred until G04. G03 activates the single
+headless physical-writer authority while preserving the one-document dependency directions.
 """
 from __future__ import annotations
 

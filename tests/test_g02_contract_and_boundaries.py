@@ -4,17 +4,18 @@ import ast
 from pathlib import Path
 import unittest
 
-from graphium.product import VERSION, WORK_ITEM, WORK_ITEM_DESCRIPTION
-
 ROOT = Path(__file__).resolve().parents[1]
 CANON = ROOT / "docs" / "canonical"
 
 
 class G02ContractAndBoundaryTests(unittest.TestCase):
-    def test_runtime_identity_is_g02(self):
-        self.assertEqual(WORK_ITEM, "G02")
-        self.assertEqual(WORK_ITEM_DESCRIPTION, "History / Editor Transaction / Savepoint Session")
-        self.assertTrue(VERSION.endswith("-g02"))
+    def test_published_g02_runtime_modules_remain_present_as_regression_authority(self):
+        for rel in (
+            "graphium/domain/history.py",
+            "graphium/application/document_session.py",
+            "graphium/application/editor_transaction.py",
+        ):
+            self.assertTrue((ROOT / rel).is_file(), rel)
 
     def test_g02_modules_are_gtk_and_io_free(self):
         rels = (

@@ -94,6 +94,10 @@ def serialize_document(
     """Serialize LF-normalized editor text to exact bytes without touching disk."""
     if not isinstance(text, str):
         raise TypeError("text must be a string")
+    if "\x00" in text:
+        raise DocumentSerializationError(
+            "NUL characters are outside Graphium plain-text document scope."
+        )
     if not isinstance(profile, DocumentSerializationProfile):
         raise TypeError("profile must be DocumentSerializationProfile")
     if profile.mixed_source and not allow_mixed_eol_normalization:

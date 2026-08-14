@@ -438,3 +438,145 @@ G03 owns the guarded physical writer and Save/Save As orchestration.
 G04 owns the Gtk.TextBuffer adapter, native user-action events, debounce/timing policy and visual Saved/Modified projection.
 
 G02 must not pre-implement either layer.
+
+
+## 14. G03 — Guarded Save / Save As
+
+Freeze: 2026-08-14.
+
+`G03_CONTRACT=FROZEN`
+`G03_SCOPE=GUARDED_SAVE_SAVE_AS`
+`G03_GTK_REQUIRED=NO`
+`G03_SINGLE_PHYSICAL_WRITER=GuardedFileWriter`
+`G03_DIRECT_WRITE_FALLBACK=FORBIDDEN`
+`G03_HARDLINK_POLICY=FAIL_CLOSED`
+`G03_SAVE_AS_REBIND_BEFORE_COMMIT=FORBIDDEN`
+`G03_TARGET_USERS=Leafpad,L3afpad,Mousepad_quick_edit`
+
+### 14.1 Target-user consequence
+
+Graphium's quick-edit user must experience Save as an ordinary, immediate editor operation. The complexity below is **invisible safety**, not a new workflow. G03 adds no dialogs, monitor, conflict panel, backup manager or history UI. The future G04 chooser remains responsible for path selection and human overwrite consent; G03 owns only transactional persistence safety.
+
+### 14.2 One physical writer authority
+
+`graphium.infrastructure.guarded_file_writer.GuardedFileWriter` is the only Graphium v1 authority permitted to perform authoritative document namespace mutation. There is no direct/truncate fallback and no second atomic writer.
+
+The guarded lane is:
+
+1. capture one stable G02 editor state;
+2. derive strict G01 serialization before filesystem mutation;
+3. observe the exact target and topology;
+4. create an exclusive unpredictable sibling stage in the target directory;
+5. write all bytes and apply required metadata;
+6. `fsync` the staged inode; sync failure is fatal before commit;
+7. revalidate logical path, parent identity and target immediately before commit;
+8. commit through the topology-appropriate namespace operation;
+9. `fsync` the parent directory;
+10. reload through the G01 stable loader and verify the committed fingerprint;
+11. advance only the exact captured G02 editor-state identity.
+
+Graphium does **not** claim a mathematically linearizable filesystem CAS against arbitrary non-cooperating writers. Existing-target replacement remains a guarded late-check followed by atomic namespace replacement.
+
+### 14.3 Ordinary Save guard
+
+Ordinary Save requires:
+
+- a named active `DocumentSession`;
+- the accepted G01 `DocumentFileState` installed by Open or a previous confirmed save;
+- the exact current stable G02 editor-state ID.
+
+Writer observation checks the accepted target against fresh physical evidence, including object identity where present, size, mtime/ctime, mode, owner/group, link count and SHA-256 content fingerprint. Same-size + same-mtime but different bytes must fail closed.
+
+If the accepted baseline is absent, the target disappeared, identity/topology changed, or required metadata cannot enter the safe lane, ordinary Save fails before authoritative target mutation. It does not silently reacquire a new baseline and overwrite.
+
+### 14.4 Serialization boundary
+
+G01 remains the representation authority:
+
+- accepted encoding is preserved;
+- BOM policy is preserved;
+- homogeneous EOL is preserved;
+- mixed EOL requires explicit normalization consent from the future G04 user-facing boundary;
+- new/unbound document default for Save As is UTF-8, no BOM, LF;
+- encoding is strict and replacement-character fallback is forbidden;
+- decoded/serialized NUL content remains outside Graphium's plain-text scope.
+
+Serialization must complete before stage/target mutation.
+
+### 14.5 Symlink and hardlink policy
+
+For an active document opened through a stable symlink:
+
+- the logical path remains the document binding;
+- the physical/canonical regular-file target receives the atomic commit;
+- the logical symlink itself is preserved;
+- logical parent and symlink relation are late-revalidated before commit.
+
+A dangling/cyclic/retargeted symlink fails closed.
+
+An existing target with `st_nlink != 1` is outside the G03 guarded replacement lane and fails closed. Graphium does not silently break a hardlink group and does not fall back to in-place truncate/write.
+
+### 14.6 Failure-atomic staging
+
+Existing authoritative bytes remain untouched on every pre-commit failure, including:
+
+- strict encoding failure;
+- stage creation collision/substitution;
+- short/injected write failure;
+- stage `fsync` failure;
+- metadata/xattr preservation failure;
+- parent replacement/retarget;
+- target mutation/deletion/replacement during staging;
+- late stale-target mismatch.
+
+Stage files are best-effort cleaned after failure.
+
+### 14.7 Save As transaction
+
+G03 does not create a GTK chooser. Future G04 owns destination selection and human overwrite consent.
+
+After the destination is accepted, G04 supplies an immutable `SaveTargetObservation` to `DocumentSaveService.save_as()`.
+
+Required identity semantics:
+
+- target choice alone does not rebind `DocumentSession`;
+- pre-commit failure leaves the previous logical binding and savepoint relation unchanged;
+- Save As to the currently active physical object routes ordinary guarded Save semantics;
+- an absent target uses a no-overwrite namespace commit (`link`-style lane) so an attacker/process creating the final name before commit is not overwritten;
+- an existing accepted overwrite target is late-revalidated before atomic replacement;
+- only after namespace commit does the session bind the new logical path and mark the captured editor-state ID saved.
+
+### 14.8 Post-commit truthfulness
+
+Once the namespace commit happened, Graphium must not throw a normal retry-shaped "nothing was saved" error.
+
+Outcomes distinguish at least:
+
+- `COMMITTED_CONFIRMED`;
+- `COMMITTED_DURABILITY_UNCERTAIN` when parent-directory durability could not be confirmed;
+- `COMMITTED_BASELINE_UNAVAILABLE` when a fresh stable post-save baseline cannot be reacquired/verified.
+
+A post-commit baseline-unavailable result retains the logical document path but clears accepted `file_state`. The next ordinary Save therefore fails closed until a baseline is deliberately re-established by a later lifecycle boundary. No blind automatic second write is permitted.
+
+### 14.9 G02 integration
+
+The save transaction persists the captured stable editor state, not "whatever text exists when I/O finishes".
+
+After a committed result, `DocumentSession.accept_committed_save()` marks exactly the captured `editor_state_id` saved. If editing advanced while I/O was in progress, the newer current state remains Modified.
+
+Pre-commit failure never advances the savepoint.
+
+### 14.10 G03/G04/G11 boundary
+
+G03 remains GTK-free and adds no:
+
+- `GtkFileChooser`;
+- permanent `Gio.FileMonitor`;
+- auto-reload;
+- merge/diff conflict UI;
+- deleted/renamed background state machine;
+- Recent Files side effects;
+- backup/local-history subsystem.
+
+G04 owns chooser/consent and visible Save/Save As wiring. G11 owns observation-only live external-file monitoring. Both must call the existing G03/G02 authorities rather than create new file/session authorities.
+

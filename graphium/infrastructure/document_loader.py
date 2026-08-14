@@ -41,8 +41,18 @@ def normalize_logical_path(path: str) -> str:
     return os.path.abspath(os.path.normpath(os.path.expanduser(path)))
 
 
-def _stat_signature(st: os.stat_result) -> tuple[int, int, int, int, int]:
-    return (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_mode)
+def _stat_signature(st: os.stat_result) -> tuple[int, int, int, int, int, int, int, int, int]:
+    return (
+        st.st_dev,
+        st.st_ino,
+        st.st_size,
+        st.st_mtime_ns,
+        int(getattr(st, "st_ctime_ns", 0)),
+        st.st_mode,
+        int(getattr(st, "st_uid", 0)),
+        int(getattr(st, "st_gid", 0)),
+        int(getattr(st, "st_nlink", 1)),
+    )
 
 
 def _read_stable_bytes(path: str, *, retries: int = 1) -> tuple[bytes, os.stat_result, str]:
@@ -187,6 +197,10 @@ def load_document(
             mtime_ns=st.st_mtime_ns,
             mode=st.st_mode,
             read_only=(st.st_mode & 0o222) == 0,
+            ctime_ns=int(getattr(st, "st_ctime_ns", 0)),
+            uid=int(getattr(st, "st_uid", 0)),
+            gid=int(getattr(st, "st_gid", 0)),
+            nlink=int(getattr(st, "st_nlink", 1)),
         ),
         content_fingerprint=ContentFingerprint(
             algorithm="sha256",

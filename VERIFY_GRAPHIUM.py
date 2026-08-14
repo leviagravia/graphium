@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Current fail-closed non-desktop verifier for Graphium G02."""
+"""Current fail-closed non-desktop verifier for Graphium G03."""
 from __future__ import annotations
 
 import ast
@@ -17,14 +17,14 @@ EXPECTED_CANONICAL = {
     "GRAPHIUM_ROADMAP.md",
     "GRAPHIUM_MEMORIA_OPERATIVA.txt",
 }
-EXPECTED_TESTS = 81
+EXPECTED_TESTS = 129
 EXPECTED_W116 = {
-    "calamus_history.py": "eec76da61c78a141f743432f4505d0d6570a90f9960d1ff3a18291b3349cf7d4",
-    "calamus_editor_transaction.py": "fab2e80320b2ce3ab1ab1e9f5b6a0ba950a899214cee5dd86f3d27f9f9dce911",
-    "calamus_document_session.py": "c2bd6e591dc02b3ce6ccb8b60a30bb178d19683ec4697c92e0bb337bb4d5af79",
+    "calamus_document_save.py": "921378e5e89ae49c3226534d6bcd8b46a4eee2895b49d1944f120e34884f911f",
+    "calamus_guarded_file_writer.py": "7cbc782325447a946f4a0f231b0861a77f1eb99b29b92c5f69626a1355d68564",
     "calamus_document_session_controller.py": "72b443c1802e20191522847c69d70596ddbea6134c7ed9128bd0e93c8e3f0e18",
-    "calamus_history_runtime.py": "849a61e17d9cc1ba0df8dea33ed2010fc9e14deaaf95537474c0e914701074ff",
-    "calamus_editor_buffer_adapter.py": "12a828525f988fac25d5cd3e40e4741555e5a2435a7a3787ea281ab7df3c95c6",
+    "calamus_document_session.py": "c2bd6e591dc02b3ce6ccb8b60a30bb178d19683ec4697c92e0bb337bb4d5af79",
+    "calamus_document_serializer.py": "814a65449240f10627c0685ab28b269bb5c6bb1a17ee199a70b723560945a943",
+    "calamus_document_identity.py": "f53291c156ed39dca0acec2dd8d7f29491b1dfde8971dbeed76a1a7972c7613a",
 }
 
 
@@ -54,10 +54,10 @@ def verify_runtime_identity() -> None:
     sys.path.insert(0, str(ROOT))
     from graphium.product import VERSION, WORK_ITEM, WORK_ITEM_DESCRIPTION
     if (WORK_ITEM, WORK_ITEM_DESCRIPTION, VERSION) != (
-        "G02", "History / Editor Transaction / Savepoint Session", "0.0.3-g02"
+        "G03", "Guarded Save / Save As", "0.0.4-g03"
     ):
         fail(f"unexpected product identity: {(WORK_ITEM, WORK_ITEM_DESCRIPTION, VERSION)}")
-    print("G02_RUNTIME_IDENTITY=PASS")
+    print("G03_RUNTIME_IDENTITY=PASS")
 
 
 def verify_compile() -> None:
@@ -98,31 +98,59 @@ def verify_boundaries() -> None:
     print("LAYER_BOUNDARIES=PASS")
 
 
-def verify_g02_anti_scope() -> None:
-    g02 = [
-        ROOT / "graphium/domain/history.py",
-        ROOT / "graphium/application/document_session.py",
-        ROOT / "graphium/application/editor_transaction.py",
-    ]
-    forbidden_roots = {"gi", "os", "pathlib", "tempfile", "shutil", "subprocess"}
-    for path in g02:
-        roots = {name.split(".", 1)[0] for name in imports_in(path)}
-        if roots & forbidden_roots:
-            fail(f"G02 IO/GTK import in {path.name}: {sorted(roots & forbidden_roots)}")
+def verify_g03_writer_scope() -> None:
+    writer_rel = "graphium/infrastructure/guarded_file_writer.py"
+    writer = ROOT / writer_rel
+    if not writer.is_file():
+        fail("G03 GuardedFileWriter authority missing")
+    writer_text = writer.read_text(encoding="utf-8")
+    for marker in ("class GuardedFileWriter", "os.replace(", "os.link(", "os.fsync("):
+        if marker not in writer_text:
+            fail(f"writer marker missing: {marker}")
+
+    namespace_markers = (
+        "os.replace(", "os.link(", "os.write(", "os.fsync(",
+        ".write_bytes(", "Path.write_bytes(",
+    )
+    offenders: list[tuple[str, str]] = []
+    for path in sorted(PACKAGE.rglob("*.py")):
+        rel = path.relative_to(ROOT).as_posix()
+        if rel == writer_rel:
+            continue
+        text = path.read_text(encoding="utf-8")
+        for marker in namespace_markers:
+            if marker in text:
+                offenders.append((rel, marker))
+    if offenders:
+        fail(f"duplicate physical writer markers: {offenders}")
+
     runtime_text = "\n".join(p.read_text(encoding="utf-8") for p in sorted(PACKAGE.rglob("*.py")))
-    for marker in (
-        "GuardedFileWriter", "os.replace(", ".write_bytes(", ".write_text(",
-        "Gtk.PrintOperation", "Gio.FileMonitor",
+    for forbidden in (
+        "GtkFileChooser", "Gtk.FileChooser", "Gio.FileMonitor", "FileMonitor(",
+        "DirectWriteFallback", "setDirectWriteFallback", "AtomicDocumentWriter",
     ):
-        if marker in runtime_text:
-            fail(f"future writer/desktop authority detected: {marker}")
-    for stale in ("VERIFY_G00.py", "VERIFY_G01.py", "bin/graphium-g00-selftest"):
-        if (ROOT / stale).exists():
-            fail(f"obsolete current verifier remains: {stale}")
-    if not (ROOT / "VERIFY_GRAPHIUM.py").is_file():
-        fail("current verifier missing")
-    print("G02_ANTI_SCOPE=PASS")
-    print("DEAD_CODE_CURRENT_VERIFIER_CLEANUP=PASS")
+        if forbidden in runtime_text:
+            fail(f"G03 future/fallback authority detected: {forbidden}")
+
+    writer_classes = []
+    for path in sorted(PACKAGE.rglob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef) and node.name.endswith("Writer"):
+                writer_classes.append((path.relative_to(ROOT).as_posix(), node.name))
+    if writer_classes != [(writer_rel, "GuardedFileWriter")]:
+        fail(f"unexpected Writer authorities: {writer_classes}")
+
+    for rel in (
+        "graphium/domain/document_save.py",
+        "graphium/application/document_save_service.py",
+        writer_rel,
+    ):
+        for imported in imports_in(ROOT / rel):
+            if imported == "gi" or imported.startswith("gi."):
+                fail(f"G03 GTK import in {rel}: {imported}")
+    print("SINGLE_PHYSICAL_WRITER=PASS count=1")
+    print("G03_ANTI_SCOPE=PASS")
 
 
 def verify_text_integrity() -> None:
@@ -143,21 +171,26 @@ def verify_text_integrity() -> None:
 
 
 def verify_provenance() -> None:
-    path = ROOT / "evidence/G02_W116_PROVENANCE.json"
+    path = ROOT / "evidence/G03_W116_PROVENANCE.json"
     data = json.loads(path.read_text(encoding="utf-8"))
-    if data.get("work_item") != "G02":
-        fail("G02 provenance identity missing")
+    if data.get("work_item") != "G03":
+        fail("G03 provenance identity missing")
     actual = {entry["file"]: entry["sha256"] for entry in data.get("direct_sources", [])}
     if actual != EXPECTED_W116:
         fail(f"W116 provenance mismatch: {actual}")
     if data.get("runtime_imports_from_calamus_allowed") is not False:
         fail("Calamus runtime-import prohibition missing")
-    if not (ROOT / "evidence/G02_MATURE_SOURCE_AUDIT.txt").is_file():
-        fail("mature-source audit evidence missing")
-    if not (ROOT / "evidence/G02_DEAD_CODE_AUDIT.txt").is_file():
-        fail("dead-code audit evidence missing")
+    for rel in (
+        "evidence/G03_SOURCE_AUDIT.txt",
+        "evidence/G03_MATURE_SOURCE_AUDIT.txt",
+        "evidence/G03_DEAD_CODE_AUDIT.txt",
+        "evidence/G03_SCOPE_AND_BUILD_RECEIPT.txt",
+    ):
+        if not (ROOT / rel).is_file():
+            fail(f"G03 evidence missing: {rel}")
     print(f"W116_PROVENANCE=PASS files={len(actual)}")
     print("MATURE_SOURCE_AUDIT=PASS")
+    print("DEAD_CODE_AUDIT=PASS")
 
 
 def verify_contract_markers() -> None:
@@ -165,26 +198,28 @@ def verify_contract_markers() -> None:
     roadmap = (CANON / "GRAPHIUM_ROADMAP.md").read_text(encoding="utf-8")
     mo = (CANON / "GRAPHIUM_MEMORIA_OPERATIVA.txt").read_text(encoding="utf-8")
     markers = (
-        "G02_CONTRACT=FROZEN",
-        "G02_SCOPE=HISTORY_TRANSACTION_SAVEPOINT_SESSION",
-        "G02_GTK_REQUIRED=NO",
-        "G02_DIRTY_AUTHORITY=EDITOR_STATE_ID_RELATION",
-        "G02_PHYSICAL_WRITER=FORBIDDEN",
-        "G02_TARGET_USERS=Leafpad,L3afpad,Mousepad_quick_edit",
-        "never reused",
-        "late save",
+        "G03_CONTRACT=FROZEN",
+        "G03_SCOPE=GUARDED_SAVE_SAVE_AS",
+        "G03_GTK_REQUIRED=NO",
+        "G03_SINGLE_PHYSICAL_WRITER=GuardedFileWriter",
+        "G03_DIRECT_WRITE_FALLBACK=FORBIDDEN",
+        "G03_HARDLINK_POLICY=FAIL_CLOSED",
+        "G03_SAVE_AS_REBIND_BEFORE_COMMIT=FORBIDDEN",
+        "G03_TARGET_USERS=Leafpad,L3afpad,Mousepad_quick_edit",
     )
     for marker in markers:
         if marker not in architecture:
             fail(f"architecture marker missing: {marker}")
-    if "bf7878c3cdc5cf895b0ffba86b854860c34936a4" not in roadmap:
-        fail("published G01 commit missing from roadmap")
-    if "ENTRY G02-001" not in mo or "ENTRY G02-003" not in mo:
-        fail("G02 MO entries missing")
+    if "b91af48a5688772ceffc7eac202c68e1815d7a36" not in roadmap:
+        fail("published G02 commit missing from roadmap")
+    if "ENTRY G02-005" not in mo or "ENTRY G03-001" not in mo or "ENTRY G03-004" not in mo:
+        fail("G02 publication/G03 MO entries missing")
     if "FAST + SIMPLE + SAFE + NATIVE GTK" not in architecture:
         fail("target positioning missing")
-    print("G02_CONTRACT_MARKERS=PASS")
-    print("G02_TARGET_USER_MARKERS=PASS")
+    if "Ctrl+Alt+L" not in mo or "GUI / HELP / SHORTCUT / DEAD-CODE MEMORANDUM" not in mo:
+        fail("standing GUI/Help/shortcut/dead-code memorandum missing")
+    print("G03_CONTRACT_MARKERS=PASS")
+    print("G03_TARGET_USER_MARKERS=PASS")
 
 
 def run_tests() -> None:
@@ -203,14 +238,14 @@ def main() -> None:
     verify_runtime_identity()
     verify_compile()
     verify_boundaries()
-    verify_g02_anti_scope()
+    verify_g03_writer_scope()
     verify_text_integrity()
     verify_provenance()
     verify_contract_markers()
     run_tests()
     print("STRICT_GATES=PASS")
     print("GTK_DESKTOP_VALIDATION=N/A")
-    print("FINAL_PHASE=G02_HEADLESS_VERIFIED")
+    print("FINAL_PHASE=G03_HEADLESS_VERIFIED")
 
 
 if __name__ == "__main__":

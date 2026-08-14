@@ -798,3 +798,191 @@ State before Git finalization:
   PUSH_ATTEMPTED=NO
   G03_STARTED=NO
 
+================================================================================
+ENTRY G02-005 — 2026-08-14 — G02 FINAL PUBLICATION PASS
+================================================================================
+
+User executed the G02 fail-closed finalizer on the T480.
+
+Observed result:
+  STRICT_GATES=PASS
+  TESTS=81/81_PASS
+  GTK_DESKTOP_VALIDATION=N/A
+  STAGED_TREE=PASS
+  COMMIT=b91af48a5688772ceffc7eac202c68e1815d7a36
+  SUBJECT=G02: add history transaction savepoint session
+  HEAD=b91af48a5688772ceffc7eac202c68e1815d7a36
+  ORIGIN_MAIN=b91af48a5688772ceffc7eac202c68e1815d7a36
+  REMOTE_MAIN=b91af48a5688772ceffc7eac202c68e1815d7a36
+  TREE=3e5b24263d4086a3eccf4897b038b8992703db79
+  WORKTREE=CLEAN
+  CANONICAL_DOCS=3
+  FINAL_PHASE=G02_PUBLICATION_PASS
+  RUNNER_RC=0
+
+Final classification:
+  G02_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  G02_PRODUCT_FAILS=0
+  G02_DESKTOP_VALIDATION=N/A
+
+================================================================================
+ENTRY G03-001 — 2026-08-14 — G03 AUTHORIZATION / BASELINE / DIRECT SOURCE AUDIT
+================================================================================
+
+User authorized the next Graphium work item after G02 publication:
+  G03 — Guarded Save / Save As Foundation
+
+Exact published baseline:
+  commit=b91af48a5688772ceffc7eac202c68e1815d7a36
+  tree=3e5b24263d4086a3eccf4897b038b8992703db79
+
+Direct Graphium audit confirmed:
+  G01 already owns path/file identity, stable loads and strict encoding/BOM/EOL serialization;
+  G02 already owns stable editor-state identity, savepoint relation and one active DocumentSession;
+  no physical document writer existed before G03;
+  composition reserved exactly one physical-writer authority;
+  G04 chooser/UI and G11 live file monitor remain future boundaries.
+
+Direct published Calamus W116 source was inspected for selective semantic adaptation:
+  calamus_document_save.py
+  calamus_guarded_file_writer.py
+  calamus_document_session_controller.py
+  calamus_document_session.py
+  calamus_document_serializer.py
+  calamus_document_identity.py
+
+No Graphium runtime import from Calamus is allowed.
+
+================================================================================
+ENTRY G03-002 — 2026-08-14 — MATURE-SOURCE SAVE AUDIT / CONTRACT DECISION
+================================================================================
+
+G03 re-used the existing direct W114 mature-source audit rather than inventing a new save model.
+The audit includes QtBase/QSaveFile 6.11.1, KTextEditor 6.28 and corroborating evidence from
+GLib/GIO, GtkSourceView clients, GNOME Text Editor, gedit/Pluma, Geany/Scintilla, Vim,
+Emacs, nano, Helix and other mature editors.
+
+Load-bearing conclusions adopted for Graphium:
+  - same-directory transactional staging is useful, but QSaveFile direct-write fallback is unsafe;
+  - Graphium therefore has no silent in-place truncate/write fallback;
+  - symlink logical identity must survive save; commit goes to the validated physical target;
+  - hardlink replacement is semantically ambiguous and fails closed;
+  - strict encoding/BOM/EOL serialization completes before target mutation;
+  - stage sync error is a fatal pre-commit failure;
+  - target and parent are late-revalidated before namespace commit;
+  - an absent Save-As target requires a no-overwrite commit lane;
+  - parent-directory fsync happens after namespace commit;
+  - post-commit durability/baseline uncertainty must be reported as committed uncertainty;
+  - saved editor state advances only after a real namespace commit;
+  - Save As must never prebind the active DocumentSession.
+
+Graphium deliberately does not claim true filesystem CAS against arbitrary external writers.
+G11 live monitoring is not an authorization oracle for G03 Save.
+
+No new mature-source upload was required.
+
+================================================================================
+ENTRY G03-003 — 2026-08-14 — G03 CONTRACT FREEZE / IMPLEMENTATION
+================================================================================
+
+Frozen contract markers:
+  G03_CONTRACT=FROZEN
+  G03_SCOPE=GUARDED_SAVE_SAVE_AS
+  G03_GTK_REQUIRED=NO
+  G03_SINGLE_PHYSICAL_WRITER=GuardedFileWriter
+  G03_DIRECT_WRITE_FALLBACK=FORBIDDEN
+  G03_HARDLINK_POLICY=FAIL_CLOSED
+  G03_SAVE_AS_REBIND_BEFORE_COMMIT=FORBIDDEN
+  G03_TARGET_USERS=Leafpad,L3afpad,Mousepad_quick_edit
+
+New runtime authorities:
+  graphium/domain/document_save.py
+    immutable save/target contracts, typed precommit errors and truthful commit dispositions;
+
+  graphium/infrastructure/guarded_file_writer.py
+    sole document filesystem mutation authority;
+    stable target observation;
+    symlink/hardlink/topology checks;
+    same-directory exclusive stage;
+    full write + stage fsync;
+    existing metadata/xattr preservation when supported;
+    logical/physical parent validation;
+    mandatory late target revalidation;
+    existing-target atomic replace;
+    absent-target no-overwrite link commit;
+    parent-directory fsync;
+    fresh G01-grade postcommit load/fingerprint verification;
+
+  graphium/application/document_save_service.py
+    captures one stable G02 editor state;
+    serializes before mutation;
+    ordinary Save guard from accepted baseline;
+    Save As without pre-rebind;
+    marks only the exact captured state saved after commit.
+
+Narrowly adapted existing authorities:
+  document_identity: DiskObservation adds ctime/uid/gid/nlink observations;
+  document_loader: populates the stronger writer-grade observations;
+  document_serialization: NUL remains outside Graphium plain-text serialization;
+  document_session: logical path may remain known after a committed-but-baseline-unavailable result.
+
+G03 adds no GTK chooser, live file monitor, Recent side effect, backup/history subsystem or second writer.
+
+================================================================================
+ENTRY G03-004 — 2026-08-14 — G03 COMPLETE HEADLESS VALIDATION / FINALIZATION READY
+================================================================================
+
+G03 is a headless filesystem/application work item. There is no Graphium GTK product UI to
+validate in G03; desktop validation is N/A. G04 remains the first real GTK editor candidate.
+
+Full validation markers are filled by the final strict verifier/source package:
+  TESTS=129/129_PASS
+  CANONICAL_DOCUMENT_CAP=PASS count=3
+  G03_RUNTIME_IDENTITY=PASS
+  PY_COMPILE=PASS
+  NO_CALAMUS_RUNTIME_IMPORTS=PASS
+  GTK_BOUNDARY=PASS
+  LAYER_BOUNDARIES=PASS
+  SINGLE_PHYSICAL_WRITER=PASS
+  G03_ANTI_SCOPE=PASS
+  TEXT_INTEGRITY=PASS
+  W116_PROVENANCE=PASS files=6
+  MATURE_SOURCE_AUDIT=PASS
+  G03_CONTRACT_MARKERS=PASS
+  STRICT_GATES=PASS
+  GTK_DESKTOP_VALIDATION=N/A
+
+Focused hostile coverage includes:
+  stale same-size/same-mtime bytes; inode replacement; hardlinks; read-only targets;
+  symlink preservation and retarget races; absent-target races before/at namespace commit;
+  stage write/fsync failure; stage substitution; target mutation/deletion during staging;
+  parent replacement; mode/xattr preservation; directory fsync uncertainty;
+  postcommit baseline failure; dangling symlink/directory rejection; stage cleanup;
+  ordinary Save exact captured-state semantics; newer-edit-during-save remains Modified;
+  Save As commit-only rebinding; mixed-EOL consent; untitled UTF-8/LF defaults;
+  failed/stale savepoint preservation; NUL rejection before disk mutation.
+
+G04_STARTED=NO
+
+================================================================================
+ENTRY G03-005 — 2026-08-14 — FULL-GATE STALE HISTORICAL TEST REPAIR
+================================================================================
+
+The first 129-test full run found one failure only:
+  test_g02_contract_and_boundaries.test_runtime_identity_is_g02
+
+Diagnosis:
+  stale historical release-identity assertion; it required the current product WORK_ITEM to
+  remain G02, which would make every legitimate later release fail. G03 runtime identity and
+  all G03 focused writer/service tests were already passing.
+
+Repair:
+  remove the stale current-release == G02 oracle;
+  replace it with a factual regression test that the three published G02 runtime authorities
+  remain present. No G02 semantics or G03 product/runtime behavior changed.
+
+Classification:
+  STALE_TEST_ORACLE=YES
+  G03_PRODUCT_FAIL=NO
+  G03_RUNTIME_CHANGE_FROM_REPAIR=NO
+

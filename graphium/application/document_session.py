@@ -18,6 +18,7 @@ class DocumentSessionPhase(str, Enum):
 @dataclass(frozen=True)
 class DocumentSessionSnapshot:
     text: str
+    logical_path: str | None
     file_state: DocumentFileState | None
     phase: DocumentSessionPhase
     revision: int
@@ -26,7 +27,7 @@ class DocumentSessionSnapshot:
 
     @property
     def file_path(self) -> str | None:
-        return None if self.file_state is None else self.file_state.binding.logical_path
+        return self.logical_path
 
     @property
     def modified(self) -> bool:
@@ -35,11 +36,12 @@ class DocumentSessionSnapshot:
                     self.current_editor_state_id == self.saved_editor_state_id)
 
 class DocumentSession:
-    __slots__ = ("_text","_file_state","_phase","_phase_depth","_revision",
+    __slots__ = ("_text","_logical_path","_file_state","_phase","_phase_depth","_revision",
                  "_current_editor_state_id","_saved_editor_state_id")
 
     def __init__(self) -> None:
         self._text = ""
+        self._logical_path = None
         self._file_state = None
         self._phase = DocumentSessionPhase.IDLE
         self._phase_depth = 0
@@ -57,9 +59,11 @@ class DocumentSession:
     @property
     def text(self): return self._text
     @property
+    def logical_path(self): return self._logical_path
+    @property
     def file_state(self): return self._file_state
     @property
-    def file_path(self): return self.snapshot().file_path
+    def file_path(self): return self._logical_path
     @property
     def phase(self): return self._phase
     @property
@@ -74,8 +78,10 @@ class DocumentSession:
     def modified(self): return self.snapshot().modified
 
     def snapshot(self) -> DocumentSessionSnapshot:
-        return DocumentSessionSnapshot(self._text, self._file_state, self._phase, self._revision,
-                                       self._current_editor_state_id, self._saved_editor_state_id)
+        return DocumentSessionSnapshot(
+            self._text, self._logical_path, self._file_state, self._phase, self._revision,
+            self._current_editor_state_id, self._saved_editor_state_id
+        )
 
     @contextmanager
     def replacement(self, phase: DocumentSessionPhase = DocumentSessionPhase.REPLACING) -> Iterator[None]:
@@ -98,7 +104,7 @@ class DocumentSession:
         if not isinstance(state, HistoryState) or state.state_id <= 0:
             raise TypeError("state must be an assigned HistoryState")
         before = self.snapshot()
-        self._text, self._file_state = state.text, None
+        self._text, self._logical_path, self._file_state = state.text, None, None
         self._current_editor_state_id = state.state_id
         self._saved_editor_state_id = state.state_id if clean else None
         if self.snapshot() != before: self._revision += 1
@@ -111,7 +117,9 @@ class DocumentSession:
         if state.text != result.text:
             raise ValueError("history state text must equal loaded text")
         before = self.snapshot()
-        self._text, self._file_state = result.text, result.file_state
+        self._text = result.text
+        self._logical_path = result.file_state.binding.logical_path
+        self._file_state = result.file_state
         self._current_editor_state_id = state.state_id
         self._saved_editor_state_id = state.state_id
         if self.snapshot() != before: self._revision += 1
@@ -149,8 +157,37 @@ class DocumentSession:
         if file_state is not None:
             if not isinstance(file_state, DocumentFileState):
                 raise TypeError("file_state must be DocumentFileState or None")
+            self._logical_path = file_state.binding.logical_path
             self._file_state = file_state
         if self.snapshot() != before: self._revision += 1
+
+    def accept_committed_save(
+        self,
+        state_id: int,
+        *,
+        logical_path: str,
+        file_state: DocumentFileState | None,
+    ) -> None:
+        """Install the identity consequences of a physical G03 namespace commit.
+
+        A committed result may lack a fresh post-save baseline.  The named logical
+        path is still retained, but file_state becomes None so a later ordinary Save
+        cannot silently reuse stale pre-commit evidence.
+        """
+        state_id = self._state_id(state_id)
+        if not isinstance(logical_path, str) or not logical_path:
+            raise ValueError("logical_path must be a non-empty string")
+        if file_state is not None:
+            if not isinstance(file_state, DocumentFileState):
+                raise TypeError("file_state must be DocumentFileState or None")
+            if file_state.binding.logical_path != logical_path:
+                raise ValueError("file_state logical binding must equal committed logical_path")
+        before = self.snapshot()
+        self._logical_path = logical_path
+        self._file_state = file_state
+        self._saved_editor_state_id = state_id
+        if self.snapshot() != before:
+            self._revision += 1
 
     def invalidate_saved_relation(self) -> None:
         before = self.snapshot()
@@ -161,6 +198,7 @@ class DocumentSession:
         if not isinstance(snapshot, DocumentSessionSnapshot):
             raise TypeError("snapshot must be DocumentSessionSnapshot")
         self._text = snapshot.text
+        self._logical_path = snapshot.logical_path
         self._file_state = snapshot.file_state
         self._phase = snapshot.phase
         self._phase_depth = 0
