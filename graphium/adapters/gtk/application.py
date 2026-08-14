@@ -1,4 +1,4 @@
-"""GTK3 application root for Graphium G04.
+"""GTK3 application root for Graphium through G05.
 
 Graphium is deliberately NON_UNIQUE: one invocation/process owns one window and one active
 document, matching the quick-edit mental model of Leafpad/L3afpad and Airpad. Multiple

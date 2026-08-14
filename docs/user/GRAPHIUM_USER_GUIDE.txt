@@ -1,130 +1,190 @@
 GRAPHIUM USER GUIDE
 ===================
 
-Graphium is a fast, simple and safety-focused plain-text editor for Linux. G04 is the
-first desktop foundation: one process owns one window and one active document. Graphium
-does not use tabs, projects, syntax modes, plugins, cloud services or hidden document
-databases.
+Graphium is a fast, simple and safety-focused plain-text editor for Linux. G05 keeps the
+single-document quick-edit model from G04 and adds a deliberately small current-document
+Search surface. Graphium does not use tabs, projects, syntax modes, plugins, cloud services
+or hidden document databases.
 
 1. THE BASIC MODEL
 ------------------
-Each Graphium invocation opens one window for one document. If you launch Graphium again
-from the file manager or command line, the new invocation gets its own process and window;
-it does not take over an already-open Graphium document. If several filenames are passed
-to one command, Graphium opens each file in a separate process/window.
+Each Graphium invocation opens one window for one document: one process owns one window and one active document. Launching Graphium again gets
+its own process/window; it does not take over an already-open Graphium document. Several
+command-line filenames are fanned out to separate processes/windows.
 
-The window title reports the current document name and either Saved or Modified.
+The title reports the document name and exact savepoint relation:
 
   Untitled (Saved) — Graphium
   notes.txt (Modified) — Graphium
 
-Saved/Modified is based on the editor's exact savepoint identity, not on a sticky visual
-flag. Undoing to the exact saved state returns to Saved; Redo away from it returns to
-Modified, and vice versa.
+Saved/Modified is derived from monotonic editor-state identities. Undoing or redoing to the
+exact saved state therefore restores Saved exactly; text equality on a different edit
+branch is not enough.
 
 2. FILE COMMANDS
 ----------------
 New
-  Replaces the active document with a blank document. If the current document is
-  Modified, Graphium first offers Save, Discard Changes, or Cancel.
+  Replaces the active document with a blank document after Save/Discard/Cancel protection
+  when the current document is Modified.
 
 Open…
-  Opens a plain-text file. Graphium loads and validates the selected file before replacing
-  the current document. A failed Open leaves the current document untouched.
+  Loads and validates the selected file before replacing the current document. A failed
+  Open leaves the current document untouched.
 
 Save
-  Saves to the current file. Graphium uses guarded, staged replacement rather than
-  truncating the original file first. If the file has changed unexpectedly since it was
-  accepted, Graphium refuses to overwrite it silently.
+  Uses guarded same-directory staging and late target revalidation. An unexpectedly changed
+  or replaced accepted file is not silently overwritten.
 
 Save As…
-  Saves to a different path. The active document is rebound to the new path only after the
-  physical commit succeeds. Replacing an existing destination requires explicit consent.
+  Writes to another path and rebinds the active document only after the physical commit
+  succeeds. Replacing an existing destination requires explicit consent.
 
 Quit
-  If the document is Modified, Graphium offers Save, Discard Changes, or Cancel.
+  Protects Modified text with Save/Discard/Cancel.
 
 3. CONTENT NEUTRALITY
 ---------------------
-Open and Save are not text-cleanup commands. Graphium does not silently trim spaces, add a
-final newline, change encoding, remove/add a BOM, or normalize line endings merely because
-a file was opened or saved.
+Open and Save are not cleanup commands. Graphium does not silently trim spaces, add a final
+newline, change encoding/BOM, or normalize line endings merely because a file was opened or
+saved.
 
 The current foundation supports strict UTF-8 and BOM-aware UTF-8/UTF-16/UTF-32 families.
 Line endings are represented internally as LF while the accepted external representation
-is retained for Save. If a file contains mixed line endings and exact reproduction is not
-possible after editing, Graphium asks before normalizing them.
+is retained for Save. Mixed line endings require explicit consent before normalization when
+exact reproduction is no longer possible after editing.
 
 4. UNDO AND REDO
 ----------------
-Graphium records native text changes as insertion/deletion deltas. It does not copy the
-whole document on every keystroke and it does not use an idle timer to decide what an Undo
-operation means. GTK user-action boundaries and structural edit continuity define groups.
+Graphium stores insertion/deletion deltas, not a complete document snapshot per keystroke.
+GTK user-action boundaries and structural continuity define normal edit groups; no wall-clock
+idle timer decides Undo semantics.
 
-Typing a normal contiguous word can therefore undo as a useful unit, while whitespace,
-compound actions, replacements and the exact saved state form meaningful boundaries.
-Large ordinary multiline files do not lose Undo merely because the document exceeds an
-arbitrary snapshot threshold. Graphium separately protects the interactive editor from
-pathological single logical lines. In G04, a logical line longer than 20,000 Unicode
-characters is refused before it is installed in Gtk.TextView. This is a conservative
-interactive-rendering safety policy, not a statement that the file is invalid text. The
-source file and the currently open document are left unchanged. Graphium never truncates
-the line or inserts line breaks/marker text to make it displayable.
-
-The same safety budget prevents a paste or newline-deleting edit from creating an
-over-budget logical line. The edit is blocked before buffer mutation and Graphium shows a
-warning. A future exact paged/streamed viewer for pathological generated/minified lines
-would require a separate architecture and is not emulated by G04.
+Programmatic replacement in G05 uses the same delta authority. Replace All is one logical
+Undo step and one editor-state advance. If it cannot be completed safely, Graphium leaves
+buffer/history/savepoint authorities unchanged rather than leaving a partial replacement.
 
 5. EDIT COMMANDS
 ----------------
 Undo / Redo
-  Move backward or forward through the native delta history while preserving the exact
-  Saved/Modified relation.
+  Move through native delta history while preserving exact Saved/Modified semantics.
 
 Cut / Copy / Paste / Delete / Select All
-  Use the normal GTK text editing behavior. Compound native actions are captured as one
-  logical history group when GTK exposes them as one user action.
+  Use normal GTK editing behavior. The G04 renderer-safety guard remains active for normal
+  typing, paste and deletion.
 
-6. MULTIPLE FILES
+6. SEARCH AND REPLACE
+---------------------
+Search is current-document and literal in G05. It is intentionally not a regex, project or
+multi-file search platform.
+
+Find… (Ctrl+F)
+  Opens a compact in-window search bar. The query is single-line Unicode text. A suitable
+  single-line editor selection may prefill it. Searching does not modify the document,
+  create Undo history or change Saved/Modified.
+
+Find Next / Find Previous (F3 / Shift+F3)
+  Navigate to the next or previous occurrence and wrap once automatically. The current
+  occurrence is simply the native text selection. There is no eager highlight-all scan or
+  background search index in G05. Once a query is known, F3/Shift+F3 remain real commands
+  even when the search bar is hidden.
+
+Match Case
+  When off, Graphium uses Unicode casefold matching with exact mapping back to original
+  editor character offsets, including length-changing folds such as German sharp-s. When
+  on, matching is exact codepoint literal comparison.
+
+Replace… (Ctrl+H)
+  Expands the same search bar with a single-line replacement field plus Replace and Replace
+  All. Replacement may be empty. Multi-line query/replacement, regular expressions, fuzzy
+  search, Whole Word mode and search-history storage are outside the frozen G05 scope.
+
+Replace
+  One activation either replaces the current exact match or acquires the next match and
+  replaces it. It is one Undo step. If there is no match, no editor-state identity is
+  allocated.
+
+Replace All
+  Graphium freezes all non-overlapping matches from the original source; inserted replacement
+  text does not recursively become a new match during the same command. The complete result
+  is calculated and checked against renderer safety before GTK mutation. Changes are applied
+  as one expected-delete/inverse-rollback delta transaction and therefore Undo as one unit.
+  An operation whose changed payload would exceed the bounded Undo budget is refused before
+  mutation rather than silently losing Undo.
+
+Escape closes the search bar and returns focus to the document.
+
+7. GO TO LINE
+-------------
+Go to Line… (Ctrl+G) accepts a 1-based line number bounded to the current document. It only
+moves the cursor/view; it does not modify text, history or Saved/Modified and does not create
+a bookmark/navigation-history subsystem.
+
+8. RENDERER SAFETY
+------------------
+Large ordinary multiline documents keep normal editing and Undo. A different case is a
+pathological single logical line: G04 demonstrated that very long unbroken lines can drive
+the Gtk.TextView rendering path into unacceptable responsiveness.
+
+Graphium therefore uses a conservative 20,000-Unicode-character interactive logical-line
+budget. An over-budget file is refused before Gtk.TextBuffer installation. Graphium never
+truncates the source, inserts line breaks/markers or silently rewrites it to make it fit.
+Normal insert/paste/newline-join edits cannot create an over-budget line. G05 Replace All
+preflights the complete final result before using its programmatic transaction path.
+
+9. MULTIPLE FILES
 -----------------
-Graphium is deliberately single-document but not single-process globally. To keep two
-files open, open two Graphium windows. This is intentional and follows the quick-edit
-mental model: each window is independently owned by one process and one document.
+Graphium remains single-document but not globally single-process. To keep two files open,
+open two Graphium windows. Each is independently owned by one process and one document.
 
-7. FILE SAFETY
---------------
-The current foundation already applies these rules:
+10. FILE SAFETY
+---------------
+The current product applies these invariants:
 
 * one physical writer authority;
 * no direct-write fallback;
 * staged same-directory writes and late revalidation;
-* Save As binds the new identity only after commit;
-* unexpected external replacement blocks an ordinary Save;
+* Save As binds only after commit;
+* unexpected external replacement blocks ordinary Save;
 * symlink logical identity is preserved by the guarded writer;
-* hard-linked targets fail closed in the current safety policy;
-* a failed Save keeps the document Modified;
-* a late Save of an older editor state cannot make a newer state appear Saved.
+* hard-linked targets fail closed in the current policy;
+* failed Save keeps the document Modified;
+* late Save of an older state cannot clean a newer state;
+* search navigation cannot change Saved/Modified;
+* replacement is all-or-nothing with respect to its Graphium transaction authority.
 
-Live external-file notifications are intentionally deferred to G11. Even before that,
-Save itself revalidates the accepted file state and fails closed on stale data.
+Live external-file notifications remain routed to G11. Save itself already revalidates the
+accepted file state and fails closed on stale data.
 
-8. PERFORMANCE DISCIPLINE
--------------------------
-Graphium targets users of lightweight editors such as Leafpad, L3afpad and the quick-edit
-side of Mousepad. Nonessential subsystems must stay off the startup-critical path.
-Performance is measured in two distinct ways: a common FIRST_VISIBLE metric for Graphium
-and the four permanent comparators (Leafpad, L3afpad, Mousepad and FeatherPad), and an exact internal FIRST_EDITABLE handshake for
-Graphium. Graphium does not claim that unlike metrics are directly comparable.
+11. PERFORMANCE DISCIPLINE
+--------------------------
+Graphium targets lightweight quick-edit behavior. Search does no startup scan, idle scan,
+background indexing or eager match highlighting. Text scanning happens only on an explicit
+search/replace command. G05 must qualify this design on realistic multiline documents before
+desktop certification.
 
-9. KEYBOARD SHORTCUTS
----------------------
-Choose Help > Keyboard Shortcuts for the current list. Graphium audits accelerators against
+Performance remains measured separately as common FIRST_VISIBLE for Graphium and permanent
+comparators Leafpad/L3afpad/Mousepad/FeatherPad, plus Graphium's exact internal
+FIRST_EDITABLE handshake.
+
+12. KEYBOARD SHORTCUTS
+----------------------
+Choose Help > Keyboard Shortcuts for the current list. Accelerators are audited against the
 active Linux Mint/Cinnamon global bindings before release. Ctrl+Alt+L is reserved in the
 target environment and is not used by Graphium.
 
-10. WHAT IS DELIBERATELY NOT IN G04
------------------------------------
-Search/Replace, status bar, line numbers, typography controls, recent files, printing,
-preferences, live file monitoring and crash recovery belong to later roadmap work items.
-They are not emulated by hidden background subsystems in G04.
+13. WHAT G05 DELIBERATELY DOES NOT ADD
+--------------------------------------
+G05 adds no tabs, sessions, syntax engine, plugin system, project search, regex engine,
+background search index, search-history database or highlight-all subsystem. View controls,
+status bar, recent files, printing, preferences, live external monitoring and recovery remain
+routed to later roadmap work items.
+
+
+SEARCH SCALE SAFETY
+-------------------
+Find Next and Find Previous do not build a list of every occurrence. Case-insensitive
+Unicode search works one logical line at a time, so it does not keep a second folded copy
+of the entire document. Replace All is deliberately bounded: one activation can freeze at
+most 50,000 source matches and must also fit the Undo payload budget. If either bound would
+be exceeded, Graphium refuses the operation before changing the document. This does not
+limit ordinary Find Next/Previous.

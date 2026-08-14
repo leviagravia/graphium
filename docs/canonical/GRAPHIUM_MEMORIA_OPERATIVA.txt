@@ -2215,3 +2215,155 @@ Product conclusion:
 
 Menu Architecture R3 and the mandatory Lightweight Budget remain future routing authorities;
 no G05+ feature was implemented into the validated G04 product.
+
+
+================================================================================
+ENTRY — G04 PUBLICATION PASS / G05 OPEN + CONTRACT FREEZE
+Date: 2026-08-14
+================================================================================
+
+G04 real publication completed on the T480:
+  COMMIT=283f1aa5352c2403ac9e0a945b87cc82cd08cff0
+  SUBJECT=G04: add native GTK editor lifecycle and safety
+  TREE=5e2aa256a47739c45f9c79f39a9685b5c6a454d6
+  VALIDATED_PRODUCT_TREE=9138a273c2363ef2d43adf64470b3273d49c8eae
+  PRODUCT_EQUIVALENCE=PASS files=62
+  HEAD=ORIGIN_MAIN=REMOTE_MAIN
+  WORKTREE=CLEAN
+  TESTS=196/196_PASS
+  MANUAL_DESKTOP=4/4_PASS
+  FINAL_PHASE=G04_PUBLICATION_PASS
+  FINALIZER_RC=0
+
+G04_STATUS=CLOSED_CERTIFIED_PUBLISHED
+
+The user authorized the next step. G05 is therefore OPEN and implementation-authorized.
+
+G05 direct-source audit and falsification-oriented mature-source audit froze:
+- top-level Search command authority: Find, Find Next, Find Previous, Replace, Go to Line;
+- literal current-document Unicode search only;
+- single-line non-empty query; single-line replacement may be empty;
+- Match Case ADOPT; Whole Word DEFER;
+- regex/fuzzy/multi-file/history/highlight-all/background scanning outside G05 MUST;
+- automatic one-wrap navigation;
+- native selection is current-match projection;
+- Find navigation never advances editor state/history/Saved-Modified;
+- Replace One has one-click acquisition semantics;
+- Replace All freezes original non-overlapping matches, computes and renderability-preflights final text before mutation, applies descending-offset deltas, advances one state ID and one Undo group;
+- no generic renderer-guard bypass;
+- no resurrection of legacy G02 full-snapshot editor transaction;
+- programmatic replacement uses expected-delete verification + inverse rollback + DeltaHistory/DocumentSession checkpoints;
+- stale source-state plans fail closed;
+- Go to Line is bounded 1-based view navigation only.
+
+G05_CONTRACT=FROZEN
+G05_IMPLEMENTATION_AUTHORIZED=YES
+G05_DESKTOP_CANDIDATE=NO
+GIT_MUTATION=NO_USER_REPO
+G06_STARTED=NO
+
+Lightweight decisions:
+  ADOPT literal current-doc search / Match Case / one-wrap / Replace / Go to Line
+  ADAPT lazy inline SearchBar / Graphium-owned programmatic delta transaction
+  DEFER Whole Word / search history / canonical-equivalence expansion
+  REJECT regex / fuzzy / multi-file / background index / eager highlight-all
+
+Required G05 closure marker:
+  LIGHTWEIGHT_BUDGET_GATE=PASS
+
+
+================================================================================
+ENTRY — G05 SEARCH SCALE HARDENING / LIGHTWEIGHT BUDGET
+Date: 2026-08-14
+================================================================================
+
+During pre-candidate implementation hardening, two hidden scale costs were found before
+desktop qualification:
+
+1. The first Unicode casefold offset map retained document-wide boundary information and
+   produced unacceptable cost on a 10 MiB document containing a length-changing fold.
+2. Find Next/Previous initially called find_all(), so a frequent one-character query could
+   materialize millions of SearchMatch objects even though navigation needs only one match.
+
+These are classified as PRE-CANDIDATE ARCHITECTURAL/PERFORMANCE DEFECTS, not desktop
+product failures. No user Git mutation or desktop candidate had occurred.
+
+Frozen repair:
+- Unicode case-insensitive matching remains full casefold-correct, including exact mapping
+  of length-changing folds such as ß -> ss;
+- because query/replacement are single-line and G04 bounds interactive logical-line width,
+  casefold/map working memory is LOGICAL-LINE-BOUNDED rather than document-wide;
+- Find Next/Previous use direct forward/backward search and never materialize all matches;
+- Replace All alone enumerates its frozen original-source match set;
+- Replace All match materialization cap = 50,000; the 50,001st match fails closed before
+  final-text/replay-plan construction;
+- DeltaHistory changed-payload budget remains a separate authoritative pre-mutation bound;
+- case-sensitive query==replacement is a provable no-op and returns without dense scanning.
+
+Local engineering measurement after the line-bounded redesign (not T480 certification):
+- 10 MiB case-sensitive Find Next to end: approximately 6 ms;
+- 10 MiB case-insensitive Find Next to end: approximately 250 ms;
+- inserting one ß expansion into the 10 MiB fixture remains approximately 250 ms rather
+  than the approximately 6.8 s observed in the rejected document-wide mapping design.
+
+Markers:
+  G05_CASEFOLD_WORKING_SET=LOGICAL_LINE_BOUNDED
+  G05_FIND_NAVIGATION_MATERIALIZES_ALL_MATCHES=NO
+  G05_REPLACE_ALL_MATCH_CAP=50000
+  G05_REPLACE_ALL_MATCH_CAP_FAILURE=PRE_MUTATION_FAIL_CLOSED
+  G05_DESKTOP_CANDIDATE=NO
+  GIT_MUTATION=NO_USER_REPO
+
+This hardening is a direct application of the permanent Lightweight Budget gate.
+
+2026-08-14 — G05 PRE-CANDIDATE NONDESKTOP CLOSURE
+- Post-implementation source/dead-code audit PASS; no duplicate search/programmatic-edit authority.
+- Full suite 238/238 PASS.
+- Five consecutive strict verifier runs PASS.
+- Latest local engineering g05_search_performance.py PASS (NOT T480 certification):
+  find-cs-1m 0.379 ms; find-ci-1m 11.913 ms; find-ci-expansion-1m 12.343 ms;
+  find-cs-10m 4.784 ms; find-ci-10m 120.280 ms; find-ci-expansion-10m 131.728 ms;
+  replace-all-1m 5.673 ms; replace-all-10m 61.962 ms; replace-cap-refusal 35.827 ms;
+  maximum observed worker RSS 164.02 MiB.
+- G05 remains OPEN; desktop qualification pending; no user-repository Git mutation.
+G05_PRE_CANDIDATE_NONDESKTOP_CLOSURE=PASS
+
+================================================================================
+ENTRY — G05 DESKTOP CERTIFICATION / PUBLICATION READY
+Date: 2026-08-14
+================================================================================
+
+G05 final desktop validation completed on the T480 against published G04 baseline:
+  BASELINE_COMMIT=283f1aa5352c2403ac9e0a945b87cc82cd08cff0
+  BASELINE_TREE=5e2aa256a47739c45f9c79f39a9685b5c6a454d6
+  VALIDATED_CANDIDATE_TREE=295fa67e4943c35d80e605e214e51ee861350fe6
+  TESTS=238/238_PASS
+  STRICT_GATES=PASS
+  G04_TRUE_GTK_REGRESSION=PASS
+  G05_TRUE_GTK=PASS
+  G04_TOPOLOGY=PASS
+  G05_SHORTCUT_COLLISION_AUDIT=PASS
+  G04_FIRST_EDITABLE_REGRESSION=PASS
+  G04_FIRST_VISIBLE_COMPARATORS=PASS
+  G05_SEARCH_PERFORMANCE=PASS
+  G05_LIGHTWEIGHT_BUDGET_GATE=PASS
+  G05_MANUAL_DESKTOP=4/4_PASS
+  RUNNER_RC=0
+  FINAL_PHASE=G05_DESKTOP_CANDIDATE_PASS
+  GIT_MUTATION=NO
+
+T480 receipt and log reported by the user:
+  RECEIPT=/home/luciano/Downloads/GRAPHIUM_G05_DESKTOP_VALIDATION_RECEIPT_20260814_230004.txt
+  LOG=/home/luciano/Downloads/GRAPHIUM_G05_DESKTOP_VALIDATION_20260814_230004.log
+
+Publication rule:
+- runtime/product/user-help files from the validated candidate must remain byte-for-byte equivalent;
+- post-validation changes are limited to canonical status/MO/roadmap documentation and certification evidence;
+- G05 remains NOT YET PUBLISHED until the real T480 finalizer verifies exact tree, commits, pushes and confirms remote main/worktree clean.
+
+Markers:
+  G05_DESKTOP_CERTIFIED=YES
+  G05_PUBLICATION_READY=YES
+  G05_PUBLISHED=NO
+  G06_STARTED=NO
+

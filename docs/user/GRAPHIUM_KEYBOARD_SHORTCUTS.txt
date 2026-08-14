@@ -1,4 +1,4 @@
-GRAPHIUM KEYBOARD SHORTCUTS — G04
+GRAPHIUM KEYBOARD SHORTCUTS — G05
 =================================
 
 File
@@ -17,7 +17,18 @@ Edit
   Delete          Delete selection
   Ctrl+A          Select All
 
-Help commands intentionally have no global accelerator in G04.
+Search
+  Ctrl+F          Find…
+  F3              Find Next
+  Shift+F3        Find Previous
+  Ctrl+H          Replace…
+  Ctrl+G          Go to Line…
+
+Find Next/Previous are product commands, not private buttons in the search bar. After a
+query has been entered, F3 and Shift+F3 continue to work when the search bar is hidden.
+Search wraps once automatically.
+
+Help commands intentionally have no global accelerator in G05.
 
 Linux Mint/Cinnamon note
 ------------------------

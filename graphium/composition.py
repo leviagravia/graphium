@@ -1,4 +1,4 @@
-"""Graphium G04 composition root: one document, one writer, thin GTK adapters."""
+"""Graphium composition root through G05: one document, one writer, thin GTK adapters."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,6 +8,7 @@ from .application.document_save_service import DocumentSaveService
 from .application.document_session import DocumentSession
 from .application.file_lifecycle import FileLifecycleController, LifecycleUI
 from .application.native_editor import NativeEditorBufferPort, NativeEditorController
+from .application.search import SearchController
 from .domain.document_identity import DocumentLoadResult
 from .domain.edit_history import DeltaHistory
 from .infrastructure.document_loader import load_document
@@ -34,6 +35,7 @@ class GraphiumCore:
     writer: GuardedFileWriter
     save_service: DocumentSaveService
     lifecycle: FileLifecycleController
+    search: SearchController
 
 
 def describe_composition() -> CompositionDescriptor:
@@ -59,6 +61,7 @@ def build_core(
     editor = NativeEditorController(session=session, history=history, buffer=buffer)
     writer = GuardedFileWriter()
     save_service = DocumentSaveService(session=session, writer=writer)
+    search = SearchController()
     lifecycle = FileLifecycleController(
         session=session,
         editor=editor,
@@ -73,4 +76,5 @@ def build_core(
         writer=writer,
         save_service=save_service,
         lifecycle=lifecycle,
+        search=search,
     )

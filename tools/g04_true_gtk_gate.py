@@ -17,9 +17,9 @@ if "--bootstrap-only" in sys.argv:
     # This probe certifies only deterministic Graphium package discovery.  GTK availability
     # is a separate desktop-environment precondition checked by the real True-GTK gate.
     from graphium.product import WORK_ITEM
-    if WORK_ITEM != "G04":
+    if not WORK_ITEM.startswith("G"):
         raise SystemExit(f"G04_TRUE_GTK_BOOTSTRAP=FAIL work_item={WORK_ITEM}")
-    print(f"G04_TRUE_GTK_BOOTSTRAP=PASS root={ROOT}")
+    print(f"G04_TRUE_GTK_BOOTSTRAP=PASS root={ROOT} current_work_item={WORK_ITEM}")
     raise SystemExit(0)
 
 import gi

@@ -1,4 +1,4 @@
-"""Minimal Graphium G04 command catalog.
+"""Graphium product-owned command catalog through G05.
 
 The first credible quick-edit shell exposes only essential editing/file commands plus
 lazy offline Help. Later work items extend this same product-owned catalog; GTK is not the
@@ -29,6 +29,11 @@ COMMANDS = (
     CommandSpec("paste", "Paste", "<Ctrl>V", "Edit"),
     CommandSpec("delete", "Delete", "Delete", "Edit"),
     CommandSpec("select-all", "Select All", "<Ctrl>A", "Edit"),
+    CommandSpec("find", "Find…", "<Ctrl>F", "Search"),
+    CommandSpec("find-next", "Find Next", "F3", "Search"),
+    CommandSpec("find-previous", "Find Previous", "<Shift>F3", "Search"),
+    CommandSpec("replace", "Replace…", "<Ctrl>H", "Search"),
+    CommandSpec("go-to-line", "Go to Line…", "<Ctrl>G", "Search"),
     CommandSpec("user-guide", "User Guide", None, "Help"),
     CommandSpec("keyboard-shortcuts", "Keyboard Shortcuts", None, "Help"),
     CommandSpec("about", "About", None, "Help"),

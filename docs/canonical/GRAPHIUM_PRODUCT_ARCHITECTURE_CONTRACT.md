@@ -2,8 +2,8 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Status: **G00-G03 CLOSED / CERTIFIED / PUBLISHED; G04 OPEN / CONTRACT FROZEN / REBUILT FROM DEEP MATURE-SOURCE AUDIT / NONDESKTOP VALIDATED / DESKTOP READY**.
-Published G03 baseline: `e7045e0ce1c79da71c9968bdfa052df25a5378b7` / tree `42fe5340e1181199db86ed69cfa93b4735e45666`.
+Status: **G00-G04 CLOSED / CERTIFIED / PUBLISHED; G05 DESKTOP CERTIFIED / PUBLICATION READY / NOT YET PUBLISHED**.
+Published G04 baseline: `283f1aa5352c2403ac9e0a945b87cc82cd08cff0` / tree `5e2aa256a47739c45f9c79f39a9685b5c6a454d6`.
 
 ## 1. Product identity
 
@@ -738,3 +738,87 @@ Before asking the user for final G04 desktop validation, the candidate must pass
 - common FIRST_VISIBLE Graphium/Leafpad/L3afpad/Mousepad/FeatherPad receipt, or a comparator-missing BLOCKED result rather than a false product FAIL.
 
 Only after these automated desktop gates pass is human visual/lifecycle validation requested.
+
+
+## 16. G05 — Search / Replace / Go to Line Trust Contract
+
+Freeze: 2026-08-14, after audit of published G04 source plus L3afpad, FeatherPad, GTK 3 and GtkSourceView search models.
+
+`G05_CONTRACT=FROZEN`
+`G05_SEARCH_SCOPE=LITERAL_CURRENT_DOCUMENT_ONLY`
+`G05_SEARCH_QUERY=SINGLE_LINE_NONEMPTY_UNICODE`
+`G05_REPLACEMENT=SINGLE_LINE_UNICODE_MAY_BE_EMPTY`
+`G05_MATCH_CASE=ADOPT`
+`G05_WHOLE_WORD=DEFER`
+`G05_REGEX=REJECT_V1`
+`G05_FUZZY=REJECT_V1`
+`G05_MULTI_FILE_SEARCH=REJECT_V1`
+`G05_SEARCH_HISTORY=DEFER`
+`G05_HIGHLIGHT_ALL=REJECT`
+`G05_BACKGROUND_SEARCH=REJECT`
+`G05_WRAP=AUTOMATIC_ONE_WRAP`
+`G05_CURRENT_MATCH=NATIVE_SELECTION`
+`G05_REPLACE_ALL_MATCH_SET=FROZEN_FROM_ORIGINAL_SOURCE`
+`G05_REPLACE_ALL_UNDO_GROUPS=1`
+`G05_REPLACE_ALL_RENDERABILITY=PREFLIGHT_FINAL_TEXT`
+`G05_PROGRAMMATIC_REPLACE=DELTA_EXPECTED_DELETE_INVERSE_ROLLBACK`
+`G05_GENERIC_RENDER_GUARD_BYPASS=FORBIDDEN`
+`G05_LEGACY_FULL_SNAPSHOT_TRANSACTION=FORBIDDEN`
+`G05_REPLACE_UNDO_PAYLOAD_MAX=DELTA_HISTORY_MAX_PAYLOAD`
+`G05_CASEFOLD_WORKING_SET=LOGICAL_LINE_BOUNDED`
+`G05_REPLACE_ALL_MATCH_CAP=50000`
+
+### 16.1 Search authority and navigation
+
+G05 adds a GTK-free current-document literal-search authority. Search text is Unicode `str`; offsets are editor character offsets and must map exactly back to the original buffer. Case-sensitive search is exact codepoint literal comparison. Case-insensitive search uses Unicode casefold semantics with explicit transformed-boundary-to-original-offset mapping so length-changing folds cannot produce partial-source-character matches. Because G05 queries are single-line and G04 already bounds interactive logical-line length, casefold working memory is line-bounded: Graphium folds/maps one logical line at a time instead of casefolding/caching the complete multi-megabyte document or allocating per-character document-wide offset tables.
+
+Find Next starts after the current selection when a selection is active, otherwise at the insertion point. Find Previous starts before the current selection/insertion point. Each command may wrap exactly once. Search navigation changes only view/selection state: it does not allocate a DeltaHistory state ID, touch the savepoint, mark Modified or create Undo data.
+
+The last accepted non-empty query and Match Case option are application command state so F3/Shift+F3 work after the search surface is hidden. No search history database or cross-document persistence is introduced.
+
+### 16.2 Lightweight visible search surface
+
+The top-level Search menu owns:
+- Find… (`Ctrl+F`)
+- Find Next (`F3`)
+- Find Previous (`Shift+F3`)
+- Replace… (`Ctrl+H`)
+- Go to Line… (`Ctrl+G`)
+
+Find/Replace use one lazily shown in-window `Gtk.SearchBar`. Find mode exposes one single-line query entry plus Match Case and navigation. Replace mode adds one single-line replacement entry and Replace / Replace All commands. Editing the fields alone does not scan/highlight the whole document. Escape closes the bar and returns focus to the editor. The current occurrence is represented by the native text selection, not a separate highlight-all subsystem.
+
+Opening Find/Replace may prefill a non-empty single-line editor selection. A multiline selection is never copied into the one-line query field merely because it is selected.
+
+### 16.3 Replace One
+
+Replace One is a single activation, not an exact-selection availability trap:
+1. if the current selection is the exact active match under the current query/options, use it;
+2. otherwise acquire the next match using normal Find Next semantics;
+3. replace exactly that source range;
+4. if another match exists after the resulting caret, select it for the next activation.
+
+The text mutation is one DeltaHistory group/state-ID advance and therefore one Undo step. If no match exists, nothing is mutated and no editor-state identity is allocated.
+
+### 16.4 Replace All atomicity and non-cascading semantics
+
+Replace All snapshots the current buffer text and current editor-state identity on explicit activation, determines all non-overlapping matches against that original source, and derives the complete final text before GTK mutation. Inserted replacement text is never searched again during the same activation.
+
+Before mutation, the final text must pass the published G04 interactive renderability authority. G05 query/replacement fields are single-line, so a replacement cannot introduce/remove a logical-line boundary. The programmatic transaction may suppress ordinary GTK signal recording only after this full final-state preflight; it must not expose a generic or caller-controlled renderer-safety bypass.
+
+Changed source ranges are applied in descending original offset order. Each deletion verifies the exact expected original text before mutation. The buffer adapter owns inverse rollback if any operation fails. NativeEditorController also checkpoints DeltaHistory and DocumentSession; history/session advance only after successful buffer application. If post-buffer authority commit fails, the exact inverse operation sequence restores the prior buffer before authority rollback. No full-document snapshot is stored in Undo history.
+
+All changed ranges belong to one DeltaHistory group and produce exactly one new editor-state ID. Undo restores the exact original text/view and saved-state relation; Redo restores the replacement result. Zero effective changes produce no Undo group and no state-ID advance.
+
+Before mutation, the total changed Undo payload for a programmatic replacement must fit `DeltaHistory.max_payload_chars`. A replacement exceeding that bound is refused explicitly before GTK mutation; Graphium does not silently make a successful Replace All non-undoable and does not allow one oversized group to defeat the published changed-payload memory bound. Independently, Replace All may freeze at most 50,000 source matches in one activation. The 50,001st match fails closed before final-text/replay-plan materialization. This is an explicit command-scale bound against Python object amplification, not a document-size limit and not a limit on Find Next/Previous, which never materialize the complete match set.
+
+A replacement plan is tied to the exact source editor-state ID. A stale plan must be rejected rather than applied to a newer editor state.
+
+### 16.5 Go to Line
+
+Go to Line is 1-based, bounded to the current document line count, and only changes cursor/selection/view state. It does not alter document text, history or Saved/Modified state. No bookmark stack/navigation history is created in G05.
+
+### 16.6 Lightweight Budget
+
+G05 performs no startup search scan, idle scan, background worker, persistent index, full-document casefold cache or eager highlight-all computation. Whole Word, canonical-equivalence expansion, regex, fuzzy search and search history remain outside the frozen G05 MUST scope. Explicit command-time text capture is permitted and must be measured on realistic multiline 1 MiB and 10 MiB fixtures; if evidence shows unacceptable responsiveness, architecture must be re-audited rather than silently adding a background subsystem.
+
+G05 cannot close without `LIGHTWEIGHT_BUDGET_GATE=PASS`.

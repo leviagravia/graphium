@@ -15,9 +15,12 @@ from graphium.domain.edit_history import (
     DeleteDirection,
     DeltaHistory,
     DeltaHistoryCheckpoint,
+    EditKind,
+    ReplayOperation,
     ReplayPlan,
     ViewState,
 )
+from graphium.application.renderability import ensure_interactive_text_renderable
 from graphium.domain.history import HistoryState
 
 
@@ -26,6 +29,7 @@ class NativeEditorBufferPort(Protocol):
     def restore_full(self, state: HistoryState) -> None: ...
     def capture_view(self) -> ViewState: ...
     def apply_replay(self, plan: ReplayPlan) -> None: ...
+    def apply_operations(self, operations: tuple[ReplayOperation, ...], target_view: ViewState) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -189,6 +193,102 @@ class NativeEditorController:
         except BaseException:
             self.history.restore_checkpoint(hcp)
             self.session.restore_checkpoint(scp)
+            raise
+        finally:
+            self._restoring_depth -= 1
+
+
+    @staticmethod
+    def _inverse_operations(operations: tuple[ReplayOperation, ...]) -> tuple[ReplayOperation, ...]:
+        result: list[ReplayOperation] = []
+        for operation in reversed(operations):
+            kind = EditKind.DELETE if operation.kind is EditKind.INSERT else EditKind.INSERT
+            result.append(ReplayOperation(kind, operation.offset, operation.text))
+        return tuple(result)
+
+    def apply_prevalidated_programmatic_group(
+        self,
+        *,
+        operations: tuple[ReplayOperation, ...],
+        expected_source_state_id: int,
+        final_text: str,
+        before_view: ViewState,
+        target_view: ViewState,
+    ) -> int:
+        """Apply one explicit G05-style programmatic edit transaction.
+
+        Final renderability and history payload are checked before any GTK mutation.
+        Buffer operations own expected-delete verification/inverse rollback; this controller
+        checkpoints DeltaHistory/DocumentSession and advances them only after buffer success.
+        No full-document snapshot is stored in history.
+        """
+        if self.history.group_active:
+            raise RuntimeError("cannot apply a programmatic edit during an active native group")
+        if not isinstance(operations, tuple):
+            operations = tuple(operations)
+        if not isinstance(before_view, ViewState) or not isinstance(target_view, ViewState):
+            raise TypeError("programmatic edit views must be ViewState")
+        if not isinstance(final_text, str):
+            raise TypeError("programmatic edit final_text must be a string")
+        expected = int(expected_source_state_id)
+        current = self.history.current_state_id
+        if expected <= 0 or expected != current or self.session.current_editor_state_id != current:
+            raise RuntimeError("stale programmatic edit plan: editor state identity changed")
+        if not operations:
+            return current
+        payload_chars = sum(len(operation.text) for operation in operations)
+        if payload_chars > self.history.max_payload_chars:
+            raise RuntimeError(
+                "programmatic edit exceeds Graphium's bounded Undo payload budget "
+                f"({payload_chars} > {self.history.max_payload_chars} characters)"
+            )
+        # This is the only authority that permits programmatic signal suppression for a
+        # text-changing command: the complete final text must first satisfy the published
+        # G04 renderer-safety policy. Ordinary typing/paste/delete still use GTK guards.
+        ensure_interactive_text_renderable(final_text)
+
+        hcp = self.history.checkpoint()
+        scp = self.session.snapshot()
+        self.history.begin_group(before_view)
+        try:
+            for operation in operations:
+                if operation.kind is EditKind.INSERT:
+                    self.history.record_insert(operation.offset, operation.text)
+                else:
+                    self.history.record_delete(
+                        operation.offset,
+                        operation.text,
+                        direction=DeleteDirection.RANGE,
+                    )
+        except BaseException:
+            self.history.restore_checkpoint(hcp)
+            raise
+
+        buffer_applied = False
+        self._restoring_depth += 1
+        try:
+            self.buffer.apply_operations(operations, target_view)
+            buffer_applied = True
+            state_id = self.history.end_group(
+                target_view,
+                saved_state_id=self.session.saved_editor_state_id,
+            )
+            self.session.advance_editor_state(state_id)
+            return state_id
+        except BaseException as exc:
+            rollback_error: BaseException | None = None
+            if buffer_applied:
+                try:
+                    self.buffer.apply_operations(self._inverse_operations(operations), before_view)
+                except BaseException as rollback_exc:
+                    rollback_error = rollback_exc
+            self.history.restore_checkpoint(hcp)
+            self.session.restore_checkpoint(scp)
+            if rollback_error is not None:
+                raise RuntimeError(
+                    "programmatic edit authority commit failed and exact buffer rollback also failed: "
+                    f"{rollback_error}"
+                ) from rollback_error
             raise
         finally:
             self._restoring_depth -= 1

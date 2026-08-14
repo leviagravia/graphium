@@ -1,4 +1,4 @@
-"""Thin GTK3 single-document editor window for the rebuilt Graphium G04."""
+"""Thin GTK3 single-document editor window through Graphium G05."""
 from __future__ import annotations
 
 import os
@@ -7,9 +7,10 @@ from pathlib import Path
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gio, GLib, GObject, Gtk
+from gi.repository import Gdk, Gio, GLib, GObject, Gtk
 
 from graphium.application.commands import COMMANDS, command_availability
+from graphium.domain.text_search import SearchInputError, SearchMatch
 from graphium.composition import build_core
 from graphium.domain.edit_history import ViewState
 from graphium.application.renderability import (
@@ -18,7 +19,7 @@ from graphium.application.renderability import (
     ensure_join_renderable,
 )
 from graphium.product import PRODUCT_NAME, VERSION
-from .dialogs import GtkLifecycleUI, show_about, show_text_document
+from .dialogs import GtkLifecycleUI, choose_line_number, show_about, show_text_document
 from .editor_buffer import GtkTextBufferPort
 
 
@@ -35,6 +36,12 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._implicit_delete_group = False
         self._renderability_notice_pending = False
         self._actions: dict[str, Gio.SimpleAction] = {}
+        self._search_bar: Gtk.SearchBar | None = None
+        self._search_query_entry: Gtk.Entry | None = None
+        self._search_replace_entry: Gtk.Entry | None = None
+        self._search_replace_row: Gtk.Widget | None = None
+        self._search_match_case: Gtk.CheckButton | None = None
+        self._search_status: Gtk.Label | None = None
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add(box)
@@ -79,6 +86,11 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "paste": self._action_paste,
             "delete": self._action_delete,
             "select-all": self._action_select_all,
+            "find": self._action_find,
+            "find-next": self._action_find_next,
+            "find-previous": self._action_find_previous,
+            "replace": self._action_replace,
+            "go-to-line": self._action_go_to_line,
             "user-guide": self._action_user_guide,
             "keyboard-shortcuts": self._action_keyboard_shortcuts,
             "about": self._action_about,
@@ -91,7 +103,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
 
     def _install_menu(self) -> None:
         root = Gio.Menu()
-        for menu_name in ("File", "Edit", "Help"):
+        for menu_name in ("File", "Edit", "Search", "Help"):
             section = Gio.Menu()
             for spec in COMMANDS:
                 if spec.menu == menu_name:
@@ -301,6 +313,321 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _action_select_all(self, *_args) -> None:
         start, end = self.buffer.get_bounds()
         self.buffer.select_range(start, end)
+
+    def _set_search_status(self, message: str) -> None:
+        if self._search_status is not None:
+            self._search_status.set_text(message)
+
+    def _search_entry_key_press(self, _widget, event) -> bool:
+        if event.keyval == Gdk.KEY_Escape:
+            self._close_search_bar()
+            return True
+        return False
+
+    def _ensure_search_bar(self) -> None:
+        if self._search_bar is not None:
+            return
+        bar = Gtk.SearchBar()
+        bar.set_show_close_button(True)
+        grid = Gtk.Grid(column_spacing=8, row_spacing=5)
+        grid.set_border_width(6)
+        bar.add(grid)
+
+        query_label = Gtk.Label(label="Find:")
+        query_label.set_xalign(0.0)
+        query = Gtk.SearchEntry()
+        query.set_width_chars(24)
+        previous = Gtk.Button(label="Previous")
+        next_button = Gtk.Button(label="Next")
+        match_case = Gtk.CheckButton(label="Match Case")
+        status = Gtk.Label(label="")
+        status.set_xalign(0.0)
+
+        grid.attach(query_label, 0, 0, 1, 1)
+        grid.attach(query, 1, 0, 1, 1)
+        grid.attach(previous, 2, 0, 1, 1)
+        grid.attach(next_button, 3, 0, 1, 1)
+        grid.attach(match_case, 4, 0, 1, 1)
+        grid.attach(status, 5, 0, 1, 1)
+
+        replace_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        replace_label = Gtk.Label(label="Replace with:")
+        replacement = Gtk.Entry()
+        replacement.set_width_chars(24)
+        replace_one = Gtk.Button(label="Replace")
+        replace_all = Gtk.Button(label="Replace All")
+        replace_row.pack_start(replace_label, False, False, 0)
+        replace_row.pack_start(replacement, True, True, 0)
+        replace_row.pack_start(replace_one, False, False, 0)
+        replace_row.pack_start(replace_all, False, False, 0)
+        grid.attach(replace_row, 0, 1, 6, 1)
+
+        query.connect("activate", lambda *_args: self._perform_find_next())
+        query.connect("key-press-event", self._search_entry_key_press)
+        replacement.connect("activate", lambda *_args: self._perform_replace_one())
+        replacement.connect("key-press-event", self._search_entry_key_press)
+        previous.connect("clicked", lambda *_args: self._perform_find_previous())
+        next_button.connect("clicked", lambda *_args: self._perform_find_next())
+        replace_one.connect("clicked", lambda *_args: self._perform_replace_one())
+        replace_all.connect("clicked", lambda *_args: self._perform_replace_all())
+        match_case.connect("toggled", self._on_search_option_changed)
+        query.connect("changed", self._on_query_entry_changed)
+        replacement.connect("changed", self._on_replacement_entry_changed)
+        bar.connect_entry(query)
+        bar.connect("notify::search-mode-enabled", self._on_search_mode_changed)
+
+        container = self.get_child()
+        assert isinstance(container, Gtk.Box)
+        container.pack_start(bar, False, False, 0)
+        container.reorder_child(bar, 1)
+
+        self._search_bar = bar
+        self._search_query_entry = query
+        self._search_replace_entry = replacement
+        self._search_replace_row = replace_row
+        self._search_match_case = match_case
+        self._search_status = status
+        bar.show_all()
+        replace_row.hide()
+        bar.set_search_mode(False)
+
+    def _on_search_mode_changed(self, bar: Gtk.SearchBar, _param) -> None:
+        if not bar.get_search_mode():
+            self.text_view.grab_focus()
+
+    def _on_query_entry_changed(self, entry: Gtk.Entry) -> None:
+        query = entry.get_text()
+        if not query:
+            self.core.search.clear_query()
+            self._set_search_status("")
+            return
+        try:
+            self.core.search.configure(query=query)
+            self._set_search_status("")
+        except SearchInputError as exc:
+            self._set_search_status(str(exc))
+
+    def _on_replacement_entry_changed(self, entry: Gtk.Entry) -> None:
+        try:
+            self.core.search.configure(replacement=entry.get_text())
+        except SearchInputError as exc:
+            self._set_search_status(str(exc))
+
+    def _on_search_option_changed(self, button: Gtk.CheckButton) -> None:
+        self.core.search.configure(match_case=button.get_active())
+        self._set_search_status("")
+
+    def _sync_search_fields(self) -> bool:
+        assert self._search_query_entry is not None
+        assert self._search_replace_entry is not None
+        assert self._search_match_case is not None
+        query = self._search_query_entry.get_text()
+        if not query:
+            self.core.search.clear_query()
+            self._set_search_status("Type text to find")
+            self._search_query_entry.grab_focus()
+            return False
+        try:
+            self.core.search.configure(
+                query=query,
+                replacement=self._search_replace_entry.get_text(),
+                match_case=self._search_match_case.get_active(),
+            )
+        except SearchInputError as exc:
+            self._set_search_status(str(exc))
+            self._search_query_entry.grab_focus()
+            return False
+        return True
+
+    def _selected_single_line_text(self) -> str | None:
+        selected = self.buffer.get_selection_bounds()
+        if not selected:
+            return None
+        start, end = selected
+        text = self.buffer.get_text(start, end, True)
+        if not text or "\n" in text or "\r" in text or len(text) > 4096:
+            return None
+        return text
+
+    def _show_search_bar(self, *, replace_mode: bool) -> None:
+        self._ensure_search_bar()
+        assert self._search_bar is not None
+        assert self._search_query_entry is not None
+        assert self._search_replace_entry is not None
+        assert self._search_replace_row is not None
+        assert self._search_match_case is not None
+        selected = self._selected_single_line_text()
+        if selected is not None:
+            self._search_query_entry.set_text(selected)
+        elif self.core.search.has_query and self._search_query_entry.get_text() != self.core.search.query:
+            self._search_query_entry.set_text(self.core.search.query)
+        self._search_replace_entry.set_text(self.core.search.replacement)
+        self._search_match_case.set_active(self.core.search.match_case)
+        self._search_bar.set_search_mode(True)
+        self._search_bar.show_all()
+        self._search_replace_row.set_visible(replace_mode)
+        self._set_search_status("")
+        self._search_query_entry.grab_focus()
+        self._search_query_entry.select_region(0, -1)
+
+    def _close_search_bar(self) -> None:
+        if self._search_bar is not None:
+            self._search_bar.set_search_mode(False)
+        self.text_view.grab_focus()
+
+    def _search_snapshot(self) -> tuple[str, ViewState]:
+        captured = self.buffer_port.capture_full()
+        return captured.text, ViewState(captured.insert_offset, captured.selection_bound_offset)
+
+    def _selection_offsets(self, view: ViewState | None = None) -> tuple[int, int]:
+        if view is None:
+            view = self.buffer_port.capture_view()
+        return min(view.insert_offset, view.selection_bound_offset), max(
+            view.insert_offset, view.selection_bound_offset
+        )
+
+    def _project_view(self, view: ViewState) -> None:
+        insert = self.buffer.get_iter_at_offset(view.insert_offset)
+        bound = self.buffer.get_iter_at_offset(view.selection_bound_offset)
+        self.buffer.select_range(insert, bound)
+        self.text_view.scroll_to_mark(self.buffer.get_insert(), 0.08, False, 0.0, 0.0)
+        self._refresh_projection()
+
+    def _project_match(self, match: SearchMatch) -> None:
+        self._project_view(ViewState(match.end, match.start))
+
+    def _perform_find_next(self) -> None:
+        self._ensure_search_bar()
+        if not self._sync_search_fields():
+            return
+        text, view = self._search_snapshot()
+        start, end = self._selection_offsets(view)
+        anchor = end if end > start else view.insert_offset
+        result = self.core.search.find_next(text, anchor)
+        if result.match is None:
+            self._set_search_status("Not found")
+            return
+        self._project_match(result.match)
+        self._set_search_status("Wrapped" if result.wrapped else "")
+
+    def _perform_find_previous(self) -> None:
+        self._ensure_search_bar()
+        if not self._sync_search_fields():
+            return
+        text, view = self._search_snapshot()
+        start, end = self._selection_offsets(view)
+        anchor = start if end > start else view.insert_offset
+        result = self.core.search.find_previous(text, anchor)
+        if result.match is None:
+            self._set_search_status("Not found")
+            return
+        self._project_match(result.match)
+        self._set_search_status("Wrapped" if result.wrapped else "")
+
+    def _apply_replacement_plan(self, plan) -> None:
+        if plan.changed:
+            self.core.editor.apply_prevalidated_programmatic_group(
+                operations=plan.operations,
+                expected_source_state_id=plan.source_state_id,
+                final_text=plan.final_text,
+                before_view=plan.before_view,
+                target_view=plan.target_view,
+            )
+            self._refresh_projection()
+        else:
+            self._project_view(plan.target_view)
+        self.text_view.scroll_to_mark(self.buffer.get_insert(), 0.08, False, 0.0, 0.0)
+
+    def _perform_replace_one(self) -> None:
+        self._ensure_search_bar()
+        if not self._sync_search_fields():
+            return
+        text, view = self._search_snapshot()
+        start, end = self._selection_offsets(view)
+        try:
+            plan = self.core.search.build_replace_one_plan(
+                source_text=text,
+                source_state_id=self.core.history.current_state_id,
+                before_view=view,
+                selection_start=start,
+                selection_end=end,
+            )
+            if plan is None:
+                self._set_search_status("Not found")
+                return
+            self._apply_replacement_plan(plan)
+            self._set_search_status("Replaced" if plan.changed else "No text change")
+        except Exception as exc:
+            self._ui.show_warning("Replace was not applied", str(exc))
+
+    def _perform_replace_all(self) -> None:
+        self._ensure_search_bar()
+        if not self._sync_search_fields():
+            return
+        text, view = self._search_snapshot()
+        try:
+            plan = self.core.search.build_replace_all_plan(
+                source_text=text,
+                source_state_id=self.core.history.current_state_id,
+                before_view=view,
+            )
+            self._apply_replacement_plan(plan)
+            if plan.changed_count == 0:
+                self._set_search_status("No changes")
+            elif plan.changed_count == 1:
+                self._set_search_status("1 replacement")
+            else:
+                self._set_search_status(f"{plan.changed_count} replacements")
+        except Exception as exc:
+            self._ui.show_warning("Replace All was not applied", str(exc))
+
+    def _action_find(self, *_args) -> None:
+        self._show_search_bar(replace_mode=False)
+
+    def _action_find_next(self, *_args) -> None:
+        if not self.core.search.has_query:
+            self._show_search_bar(replace_mode=False)
+            return
+        search_visible = self._search_bar is not None and self._search_bar.get_search_mode()
+        self._ensure_search_bar()
+        assert self._search_query_entry is not None
+        if not self._search_query_entry.get_text():
+            self._search_query_entry.set_text(self.core.search.query)
+        self._perform_find_next()
+        if not search_visible:
+            self.text_view.grab_focus()
+
+    def _action_find_previous(self, *_args) -> None:
+        if not self.core.search.has_query:
+            self._show_search_bar(replace_mode=False)
+            return
+        search_visible = self._search_bar is not None and self._search_bar.get_search_mode()
+        self._ensure_search_bar()
+        assert self._search_query_entry is not None
+        if not self._search_query_entry.get_text():
+            self._search_query_entry.set_text(self.core.search.query)
+        self._perform_find_previous()
+        if not search_visible:
+            self.text_view.grab_focus()
+
+    def _action_replace(self, *_args) -> None:
+        self._show_search_bar(replace_mode=True)
+
+    def _action_go_to_line(self, *_args) -> None:
+        insert = self.buffer.get_iter_at_mark(self.buffer.get_insert())
+        chosen = choose_line_number(
+            self,
+            current_line=insert.get_line() + 1,
+            max_line=self.buffer.get_line_count(),
+        )
+        if chosen is None:
+            self.text_view.grab_focus()
+            return
+        target = self.buffer.get_iter_at_line(chosen - 1)
+        self.buffer.place_cursor(target)
+        self.text_view.scroll_to_iter(target, 0.08, False, 0.0, 0.0)
+        self._refresh_projection()
+        self.text_view.grab_focus()
 
     @staticmethod
     def _help_path(name: str) -> str:

@@ -11,6 +11,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 
+DEFAULT_MAX_HISTORY_PAYLOAD_CHARS = 16_000_000
+
+
 class EditKind(str, Enum):
     INSERT = "insert"
     DELETE = "delete"
@@ -109,7 +112,7 @@ class DeltaHistory:
     """
 
     max_groups: int = 1000
-    max_payload_chars: int = 16_000_000
+    max_payload_chars: int = DEFAULT_MAX_HISTORY_PAYLOAD_CHARS
     undo_stack: list[EditGroup] = field(default_factory=list)
     redo_stack: list[EditGroup] = field(default_factory=list)
     _current_state_id: int = 0

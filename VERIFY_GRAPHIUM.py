@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed non-desktop verifier for rebuilt Graphium G04."""
+"""Fail-closed non-desktop verifier for Graphium G05, preserving G00-G04 invariants."""
 from __future__ import annotations
 
 import ast
@@ -20,7 +20,7 @@ EXPECTED_CANONICAL = {
     "GRAPHIUM_ROADMAP.md",
     "GRAPHIUM_MEMORIA_OPERATIVA.txt",
 }
-EXPECTED_TESTS = 196
+EXPECTED_TESTS = 238
 EXPECTED_W116 = {
     "calamus_command_catalog.py": "687332708c5323f0639bdfc8e74f5638ed412534677e96e788fa5efcd2e647c3",
     "calamus_dialogs.py": "68a6fcc44d02c8534841ebe24bd53f69134f9b626529759bc648835e1aba4de2",
@@ -59,16 +59,16 @@ def verify_identity() -> None:
     sys.path.insert(0, str(ROOT))
     from graphium.product import DESKTOP_APPLICATION_ID, VERSION, WORK_ITEM, WORK_ITEM_DESCRIPTION
     expected = (
-        "G04",
-        "Native Edit Hardening / Thin GTK Shell / Core File Lifecycle",
-        "0.0.5-g04",
+        "G05",
+        "Search Menu Core / Find / Replace / Go to Line",
+        "0.0.6-g05",
         "io.github.leviagravia.Graphium",
     )
     actual = (WORK_ITEM, WORK_ITEM_DESCRIPTION, VERSION, DESKTOP_APPLICATION_ID)
     if actual != expected:
-        fail(f"unexpected G04 identity: {actual}")
-    print("G04_RUNTIME_IDENTITY=PASS")
-    print("G04_DESKTOP_APPLICATION_ID=PASS")
+        fail(f"unexpected G05 identity: {actual}")
+    print("G05_RUNTIME_IDENTITY=PASS")
+    print("G05_DESKTOP_APPLICATION_ID=PASS")
 
 
 def verify_compile() -> None:
@@ -170,18 +170,20 @@ def verify_ui_scope() -> None:
     runtime = "\n".join(p.read_text(encoding="utf-8") for p in sorted(PACKAGE.rglob("*.py")))
     for forbidden in ("GtkSourceView", "Gtk.Toolbar", "Gio.FileMonitor", "Gtk.Notebook"):
         if forbidden in runtime:
-            fail(f"G04 out-of-scope UI/runtime marker: {forbidden}")
+            fail(f"G05 out-of-scope UI/runtime marker: {forbidden}")
     from graphium.application.commands import COMMANDS
     expected = [
-        "new", "open", "save", "save-as", "quit", "undo", "redo", "cut", "copy",
-        "paste", "delete", "select-all", "user-guide", "keyboard-shortcuts", "about",
+        "new", "open", "save", "save-as", "quit",
+        "undo", "redo", "cut", "copy", "paste", "delete", "select-all",
+        "find", "find-next", "find-previous", "replace", "go-to-line",
+        "user-guide", "keyboard-shortcuts", "about",
     ]
     if [c.action for c in COMMANDS] != expected:
         fail(f"unexpected command surface: {[c.action for c in COMMANDS]}")
     for rel in ("docs/user/GRAPHIUM_USER_GUIDE.txt", "docs/user/GRAPHIUM_KEYBOARD_SHORTCUTS.txt"):
         if not (ROOT / rel).is_file():
             fail(f"Help product file missing: {rel}")
-    print("G04_THIN_GTK_SHELL_SCOPE=PASS")
+    print("G05_COMMAND_SURFACE=PASS")
     print("HELP_INCREMENTAL=PASS")
 
 
@@ -233,7 +235,12 @@ def verify_renderability_policy() -> None:
 
 
 def verify_entrypoints() -> None:
-    for rel in ("bin/graphium", "tools/g04_shortcut_audit.py", "tools/g04_true_gtk_gate.py"):
+    for rel in (
+        "bin/graphium",
+        "tools/g04_shortcut_audit.py", "tools/g04_true_gtk_gate.py",
+        "tools/g05_shortcut_audit.py", "tools/g05_true_gtk_gate.py",
+        "tools/g05_search_performance.py",
+    ):
         text = (ROOT / rel).read_text(encoding="utf-8")
         if "Path(__file__).resolve()" not in text or "sys.path.insert(0" not in text:
             fail(f"entrypoint self-root missing: {rel}")
@@ -267,6 +274,70 @@ def verify_performance_protocol() -> None:
     print("G04_TOPOLOGY_GATE_SOURCE=PASS")
 
 
+def verify_g05_search_architecture() -> None:
+    domain = (ROOT / "graphium/domain/text_search.py").read_text(encoding="utf-8")
+    search = (ROOT / "graphium/application/search.py").read_text(encoding="utf-8")
+    native = (ROOT / "graphium/application/native_editor.py").read_text(encoding="utf-8")
+    buffer = (ROOT / "graphium/adapters/gtk/editor_buffer.py").read_text(encoding="utf-8")
+    window = (ROOT / "graphium/adapters/gtk/window.py").read_text(encoding="utf-8")
+    performance = (TOOLS / "g05_search_performance.py").read_text(encoding="utf-8")
+    true_gtk = (TOOLS / "g05_true_gtk_gate.py").read_text(encoding="utf-8")
+    for marker in (
+        "class SearchScaleError", "def find_next", "def find_previous",
+        "max_matches", "_fold_line", "casefold()",
+    ):
+        if marker not in domain:
+            fail(f"G05 search-domain marker missing: {marker}")
+    if "find_all(text, query" in domain:
+        fail("G05 navigation appears to route through full match materialization")
+    for marker in (
+        "MAX_REPLACE_ALL_MATCHES = 50_000",
+        "max_matches=MAX_REPLACE_ALL_MATCHES",
+        "DEFAULT_MAX_HISTORY_PAYLOAD_CHARS",
+        "ensure_interactive_text_renderable(final_text)",
+        "for match in reversed(matches)",
+    ):
+        if marker not in search:
+            fail(f"G05 replacement-plan marker missing: {marker}")
+    for marker in (
+        "apply_prevalidated_programmatic_group",
+        "stale programmatic edit plan",
+        "bounded Undo payload budget",
+        "_inverse_operations",
+    ):
+        if marker not in native:
+            fail(f"G05 programmatic transaction marker missing: {marker}")
+    if "def apply_operations" not in buffer or "_delete_expected" not in buffer:
+        fail("G05 expected-delete/inverse buffer authority missing")
+    for marker in (
+        "self._search_bar: Gtk.SearchBar | None = None",
+        "def _ensure_search_bar", "Gtk.SearchBar()",
+        "_perform_replace_all", "choose_line_number",
+    ):
+        if marker not in window:
+            fail(f"G05 GTK search projection marker missing: {marker}")
+    for forbidden in ("threading", "Thread(", "background_search", "search_index"):
+        if forbidden in domain + search + window:
+            fail(f"G05 forbidden background-search marker: {forbidden}")
+    for marker in (
+        '"find-ci-10m"', '"replace-all-10m"', '"replace-cap-refusal"',
+        "LIGHTWEIGHT_BUDGET_SEARCH_GATE=PASS",
+    ):
+        if marker not in performance:
+            fail(f"G05 performance gate marker missing: {marker}")
+    for marker in (
+        "G05_TRUE_GTK_UNICODE_FIND_WRAP=PASS",
+        "G05_TRUE_GTK_REPLACE_ALL_ONE_UNDO=PASS",
+        "G05_TRUE_GTK_RENDERABILITY_PREFLIGHT=PASS",
+        "G05_TRUE_GTK_LARGE_MULTILINE_SEARCH=PASS",
+    ):
+        if marker not in true_gtk:
+            fail(f"G05 True-GTK marker missing: {marker}")
+    print("G05_LITERAL_SEARCH_AUTHORITY=PASS")
+    print("G05_REPLACE_ATOMICITY_SOURCE_GATE=PASS")
+    print("G05_SEARCH_LIGHTWEIGHT_ARCHITECTURE=PASS")
+
+
 def verify_shortcuts() -> None:
     from graphium.application.commands import FORBIDDEN_ACCELERATORS, accelerator_map
     if "<Ctrl><Alt>L" not in FORBIDDEN_ACCELERATORS:
@@ -286,10 +357,15 @@ def verify_evidence() -> None:
         "evidence/G04_W116_PROVENANCE.json",
         "evidence/G04_SEVEN_EDITOR_COMPETITIVE_SYNTHESIS.txt",
         "evidence/G04_HUGE_LINE_PRODUCT_FAIL_REAUDIT.txt",
+        "evidence/G05_SOURCE_AUDIT.txt",
+        "evidence/G05_MATURE_SOURCE_AUDIT.txt",
+        "evidence/G05_SCALE_HARDENING_RECEIPT.txt",
+        "evidence/G05_DEAD_CODE_AUDIT.txt",
+        "evidence/G05_SCOPE_AND_BUILD_RECEIPT.txt",
     )
     for rel in required:
         if not (ROOT / rel).is_file():
-            fail(f"G04 evidence missing: {rel}")
+            fail(f"required evidence missing: {rel}")
     audit = (ROOT / "evidence/G04_DEEP_MATURE_SOURCE_AUDIT.txt").read_text(encoding="utf-8")
     for marker in (
         "ASSUMPTION UNDER TEST",
@@ -332,6 +408,8 @@ def verify_evidence() -> None:
     print(f"W116_PROVENANCE=PASS files={len(actual)}")
     print("G04_MATURE_SOURCE_AUDIT=PASS")
     print("G04_DEAD_CODE_AUDIT=PASS")
+    print("G05_SOURCE_AND_MATURE_AUDIT=PASS")
+    print("G05_DEAD_CODE_AUDIT=PASS")
 
 
 def verify_contracts() -> None:
@@ -357,6 +435,19 @@ def verify_contracts() -> None:
     ):
         if marker not in contract:
             fail(f"G04 contract marker missing: {marker}")
+    for marker in (
+        "G05_CONTRACT=FROZEN",
+        "G05_SEARCH_SCOPE=LITERAL_CURRENT_DOCUMENT_ONLY",
+        "G05_HIGHLIGHT_ALL=REJECT",
+        "G05_BACKGROUND_SEARCH=REJECT",
+        "G05_REPLACE_ALL_UNDO_GROUPS=1",
+        "G05_GENERIC_RENDER_GUARD_BYPASS=FORBIDDEN",
+        "G05_REPLACE_UNDO_PAYLOAD_MAX=DELTA_HISTORY_MAX_PAYLOAD",
+        "G05_CASEFOLD_WORKING_SET=LOGICAL_LINE_BOUNDED",
+        "G05_REPLACE_ALL_MATCH_CAP=50000",
+    ):
+        if marker not in contract:
+            fail(f"G05 contract marker missing: {marker}")
     if "e7045e0ce1c79da71c9968bdfa052df25a5378b7" not in roadmap:
         fail("published G03 baseline missing from roadmap")
     if "Native Edit Integration Hardening" not in roadmap:
@@ -381,6 +472,7 @@ def verify_contracts() -> None:
     print("G04_CONTRACT_MARKERS=PASS")
     print("G04_ROADMAP_REBASELINE=PASS")
     print("G04_TARGET_USER_MARKERS=PASS")
+    print("G05_CONTRACT_MARKERS=PASS")
 
 
 def verify_text_integrity() -> None:
@@ -423,6 +515,7 @@ def main() -> None:
     verify_renderability_policy()
     verify_entrypoints()
     verify_performance_protocol()
+    verify_g05_search_architecture()
     verify_shortcuts()
     verify_evidence()
     verify_contracts()
@@ -430,8 +523,8 @@ def main() -> None:
     run_tests()
     print("STRICT_GATES=PASS")
     print("GTK_DESKTOP_VALIDATION=PENDING")
-    print("PERFORMANCE_BASELINE=PENDING_T480")
-    print("FINAL_PHASE=G04_NONDESKTOP_VERIFIED")
+    print("G05_SEARCH_PERFORMANCE_DESKTOP=PENDING_T480")
+    print("FINAL_PHASE=G05_NONDESKTOP_VERIFIED")
 
 
 if __name__ == "__main__":

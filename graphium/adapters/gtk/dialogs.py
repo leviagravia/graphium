@@ -165,3 +165,39 @@ def show_about(parent: Gtk.Window, *, version: str) -> None:
         dialog.run()
     finally:
         dialog.destroy()
+
+
+def choose_line_number(
+    parent: Gtk.Window,
+    *,
+    current_line: int,
+    max_line: int,
+) -> int | None:
+    """Return a 1-based line number without creating navigation/session state."""
+    maximum = max(1, int(max_line))
+    current = min(max(1, int(current_line)), maximum)
+    dialog = Gtk.Dialog(title="Go to Line", transient_for=parent, modal=True)
+    dialog.add_button("Cancel", Gtk.ResponseType.CANCEL)
+    dialog.add_button("Go", Gtk.ResponseType.ACCEPT)
+    dialog.set_default_response(Gtk.ResponseType.ACCEPT)
+    area = dialog.get_content_area()
+    row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+    row.set_border_width(12)
+    label = Gtk.Label(label="Line:")
+    adjustment = Gtk.Adjustment(
+        value=current, lower=1, upper=maximum, step_increment=1, page_increment=10, page_size=0
+    )
+    spin = Gtk.SpinButton(adjustment=adjustment, climb_rate=1, digits=0)
+    spin.set_numeric(True)
+    spin.set_activates_default(True)
+    row.pack_start(label, False, False, 0)
+    row.pack_start(spin, True, True, 0)
+    area.pack_start(row, True, True, 0)
+    dialog.show_all()
+    spin.grab_focus()
+    try:
+        if dialog.run() != Gtk.ResponseType.ACCEPT:
+            return None
+        return min(max(1, spin.get_value_as_int()), maximum)
+    finally:
+        dialog.destroy()

@@ -118,9 +118,13 @@ Certified tree: `42fe5340e1181199db86ed69cfa93b4735e45666`
 Single physical `GuardedFileWriter`, strict pre-mutation serialization, same-directory staging, full-write/fsync semantics, late target revalidation, race-safe Save As, symlink-preserving logical identity, hardlink fail-closed policy and bind-after-commit semantics. No direct-write fallback.
 
 ### G04 — Native Edit Integration Hardening + Thin GTK Shell + File Lifecycle + Scientific Performance Baseline
-Status: **DESKTOP CERTIFIED / PUBLICATION READY / NOT YET PUBLISHED**
+Status: **CLOSED / CERTIFIED / PUBLISHED**
 
-Desktop certification on the T480 completed on 2026-08-14 against validated product tree `9138a273c2363ef2d43adf64470b3273d49c8eae`: 196/196 non-desktop tests PASS, strict gates PASS, True-GTK bounded-responsiveness PASS, NON_UNIQUE topology PASS, active Cinnamon shortcut audit PASS, exact FIRST_EDITABLE admission PASS, common FIRST_VISIBLE comparison PASS against Leafpad/L3afpad/Mousepad/FeatherPad, and human desktop validation 4/4 PASS. The candidate is publication-ready; G05 remains blocked until G04 publication PASS.
+Published commit: `283f1aa5352c2403ac9e0a945b87cc82cd08cff0`
+Certified publication tree: `5e2aa256a47739c45f9c79f39a9685b5c6a454d6`
+Validated product tree: `9138a273c2363ef2d43adf64470b3273d49c8eae`
+
+Desktop certification and publication completed on 2026-08-14: 196/196 non-desktop tests PASS, strict gates PASS, True-GTK bounded-responsiveness PASS, NON_UNIQUE topology PASS, active Cinnamon shortcut audit PASS, exact FIRST_EDITABLE admission PASS, common FIRST_VISIBLE comparison PASS against Leafpad/L3afpad/Mousepad/FeatherPad, human desktop validation 4/4 PASS, product equivalence PASS for 62 runtime/user-help files, HEAD=origin/main=remote main, worktree CLEAN and final publication phase `G04_PUBLICATION_PASS`.
 
 G04 is rebuilt rather than patched after two withdrawn pre-publication candidate transports exposed defects in the harness and, more importantly, weaknesses in the earlier architecture assumptions.
 
@@ -179,9 +183,24 @@ Mandatory G04 outcomes:
    - one final human desktop validation only after all automated gates pass.
 
 ### G05 — Search Menu Core / Find / Replace / Go to Line + Trustworthiness Gate
-Status: PENDING
+Status: **OPEN / CONTRACT FROZEN / IMPLEMENTATION AUTHORIZED / DESKTOP CERTIFIED / PUBLICATION READY / NOT YET PUBLISHED**
 
-Establish the top-level **Search** command authority with Find…, Find Next, Find Previous, Replace… and Go to Line…. Next/Previous are true commands shared by menu/shortcuts/Help rather than UI-private buttons. Find/Replace stays deliberately small: case/whole-word behavior only when justified by mature-source audit; regex, fuzzy and multi-file search are non-MUST. Replace is trust infrastructure: tests must cover ASCII, UTF-8 multibyte text before/inside matches, empty/short/long replacements, selection boundaries, realistic large multiline documents, pathological-line guard interaction and Replace All as one logical Undo transaction.
+Establish the top-level **Search** command authority with Find…, Find Next, Find Previous, Replace… and Go to Line…. Next/Previous are true commands shared by menu/shortcuts/Help rather than UI-private buttons.
+
+Frozen G05 scope after direct G04 source audit and mature-source falsification audit:
+- literal current-document search only; no regex, fuzzy or multi-file search;
+- query and replacement fields are single-line Unicode text; query is non-empty, replacement may be empty;
+- Match Case is adopted; Whole Word and search history are deferred;
+- one automatic wrap for Find Next/Previous, with no wrap preference;
+- current match is the native selection; eager highlight-all/background scanning is rejected;
+- Find/Find Next/Find Previous never alter editor state identity/history/Saved-Modified;
+- Replace One uses one-click acquisition: replace current exact match or acquire the next match and replace it in the same activation;
+- Replace All freezes non-overlapping matches from the original source, precomputes the final text, verifies G04 renderability before mutation, applies changes in descending source-offset order, and advances exactly one DeltaHistory state/Undo group;
+- replacement is applied through Graphium-owned expected-delete/inverse-rollback programmatic delta handling, not legacy full-document snapshot transactions and not a generic renderer-guard bypass;
+- Go to Line is a simple 1-based bounded line navigation command;
+- explicit-command scanning only: no persistent index, worker or background search state; case-insensitive working memory is logical-line bounded; Find Next/Previous do not materialize all matches; Replace All is fail-closed above 50,000 frozen source matches or the DeltaHistory Undo payload budget.
+
+Trustworthiness tests MUST cover ASCII, Unicode casefold and exact original offsets, empty/short/long replacements, selection/navigation boundaries, wrap, zero-change no-op semantics, stale-plan rejection, failure rollback, exact Saved/Modified through Replace/Undo/Redo, realistic large multiline documents, pathological-line guard interaction and Replace All as one logical Undo transaction. G05 closure also requires `LIGHTWEIGHT_BUDGET_GATE=PASS`.
 ### G06 — View Menu Core / Compact Status + Toolbar Decision + Performance Checkpoint
 Status: PENDING
 

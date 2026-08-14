@@ -91,12 +91,18 @@ class GtkTextBufferPort:
         else:
             self._delete_expected(operation.offset, operation.text)
 
-    def apply_replay(self, plan: ReplayPlan) -> None:
-        if not isinstance(plan, ReplayPlan):
-            raise TypeError("plan must be ReplayPlan")
+    def apply_operations(
+        self,
+        operations: tuple[ReplayOperation, ...],
+        target_view: ViewState,
+    ) -> None:
+        if not isinstance(target_view, ViewState):
+            raise TypeError("target_view must be ViewState")
         applied: list[ReplayOperation] = []
         try:
-            for operation in plan.operations:
+            for operation in operations:
+                if not isinstance(operation, ReplayOperation):
+                    raise TypeError("operations must contain ReplayOperation values")
                 self._apply_operation(operation)
                 applied.append(operation)
         except BaseException:
@@ -109,9 +115,14 @@ class GtkTextBufferPort:
                     break
             if rollback_error is not None:
                 raise RuntimeError(
-                    f"delta replay failed and buffer rollback also failed: {rollback_error}"
+                    f"delta operation failed and buffer rollback also failed: {rollback_error}"
                 ) from rollback_error
             raise
-        insert = self.buffer.get_iter_at_offset(plan.target_view.insert_offset)
-        bound = self.buffer.get_iter_at_offset(plan.target_view.selection_bound_offset)
+        insert = self.buffer.get_iter_at_offset(target_view.insert_offset)
+        bound = self.buffer.get_iter_at_offset(target_view.selection_bound_offset)
         self.buffer.select_range(insert, bound)
+
+    def apply_replay(self, plan: ReplayPlan) -> None:
+        if not isinstance(plan, ReplayPlan):
+            raise TypeError("plan must be ReplayPlan")
+        self.apply_operations(plan.operations, plan.target_view)

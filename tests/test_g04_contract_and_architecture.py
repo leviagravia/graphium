@@ -12,14 +12,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class G04ContractArchitectureTests(unittest.TestCase):
-    def test_runtime_identity_is_rebuilt_g04(self):
-        self.assertEqual(WORK_ITEM, "G04")
-        self.assertEqual(VERSION, "0.0.5-g04")
-        self.assertEqual(
-            WORK_ITEM_DESCRIPTION,
-            "Native Edit Hardening / Thin GTK Shell / Core File Lifecycle",
-        )
+    def test_published_g04_identity_is_retained_as_regression_authority(self):
+        roadmap = (ROOT / "docs/canonical/GRAPHIUM_ROADMAP.md").read_text(encoding="utf-8")
+        self.assertIn("283f1aa5352c2403ac9e0a945b87cc82cd08cff0", roadmap)
+        self.assertIn("5e2aa256a47739c45f9c79f39a9685b5c6a454d6", roadmap)
         self.assertEqual(DESKTOP_APPLICATION_ID, "io.github.leviagravia.Graphium")
+        self.assertTrue(WORK_ITEM.startswith("G"))
+        self.assertTrue(VERSION.startswith("0.0."))
+        self.assertTrue(WORK_ITEM_DESCRIPTION)
 
     def test_active_composition_uses_delta_history_not_snapshot_history(self):
         descriptor = describe_composition()
@@ -76,18 +76,17 @@ class G04ContractArchitectureTests(unittest.TestCase):
 
     def test_command_surface_is_small_classic_and_help_is_lazy(self):
         actual = [(c.menu, c.action) for c in COMMANDS]
-        self.assertEqual(
-            actual,
-            [
-                ("File", "new"), ("File", "open"), ("File", "save"),
-                ("File", "save-as"), ("File", "quit"),
-                ("Edit", "undo"), ("Edit", "redo"), ("Edit", "cut"),
-                ("Edit", "copy"), ("Edit", "paste"), ("Edit", "delete"),
-                ("Edit", "select-all"),
-                ("Help", "user-guide"), ("Help", "keyboard-shortcuts"),
-                ("Help", "about"),
-            ],
-        )
+        required_g04 = [
+            ("File", "new"), ("File", "open"), ("File", "save"),
+            ("File", "save-as"), ("File", "quit"),
+            ("Edit", "undo"), ("Edit", "redo"), ("Edit", "cut"),
+            ("Edit", "copy"), ("Edit", "paste"), ("Edit", "delete"),
+            ("Edit", "select-all"),
+            ("Help", "user-guide"), ("Help", "keyboard-shortcuts"),
+            ("Help", "about"),
+        ]
+        for item in required_g04:
+            self.assertIn(item, actual)
         dialogs = (ROOT / "graphium/adapters/gtk/dialogs.py").read_text(encoding="utf-8")
         self.assertIn("def show_text_document", dialogs)
         self.assertIn("Path(path).read_text", dialogs)
