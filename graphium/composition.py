@@ -1,7 +1,7 @@
-"""GTK-free G00 composition descriptor.
+"""GTK-free Graphium composition descriptor.
 
-The real GTK composition root is intentionally deferred. G00 establishes the
-allowed dependency directions before feature code is imported from Calamus.
+The real GTK composition root remains deferred until G04. Foundations added in
+G01-G03 must stay inside the dependency directions frozen by G00.
 """
 from __future__ import annotations
 

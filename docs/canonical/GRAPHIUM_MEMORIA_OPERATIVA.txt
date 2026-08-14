@@ -128,3 +128,345 @@ Pre-canonicalization documentation repair:
 G00 closure identity is intentionally recorded by an external non-canonical
 receipt after the root commit; a canonical document cannot embed the hash of the
 commit that contains itself. A later append to this MO may record that receipt.
+
+================================================================================
+ENTRY G00-006 — 2026-08-14 — G00 PUBLICATION CERTIFIED
+================================================================================
+
+G00 status:
+  CLOSED / CERTIFIED / PUBLISHED
+
+Repository:
+  /home/luciano/Projects/graphium-work
+Remote:
+  https://github.com/leviagravia/graphium.git
+Branch:
+  main
+
+Published commit:
+  1e9db0eed37d0c860c36c1e07c0dc77bbf59ff95
+Certified tree:
+  2023683019894366729e3ddc5f3652dbe9d5d0c2
+
+Publication receipt supplied by user:
+  HEAD = origin/main = remote main = published commit
+  WORKTREE=CLEAN
+  CANONICAL_DOCS=3
+  FINAL_PHASE=PUBLICATION_PASS
+
+================================================================================
+ENTRY G01-001 — 2026-08-14 — AUTHORIZATION / CONTRACT FREEZE
+================================================================================
+
+User authorized opening:
+  G01 — Document Identity / Load / Serialize Foundation
+
+Baseline authority:
+  G00 published commit = 1e9db0eed37d0c860c36c1e07c0dc77bbf59ff95
+  G00 certified tree   = 2023683019894366729e3ddc5f3652dbe9d5d0c2
+
+G01 is headless. No GTK requirement was discovered.
+
+Frozen responsibility split:
+  graphium.domain.document_identity
+    = immutable accepted identity/load values + typed failures
+  graphium.domain.document_serialization
+    = pure encoding/BOM/EOL serialization policy
+  graphium.infrastructure.document_loader
+    = stable local filesystem byte read + observation
+
+Explicitly deferred:
+  DocumentSession/savepoint/history -> G02
+  guarded physical writer / Save    -> G03
+  GTK editor/Open lifecycle         -> G04
+  live file monitor                 -> G11
+
+Codec/EOL policy:
+  BOM-aware UTF-8/UTF-16 LE-BE/UTF-32 LE-BE
+  no BOM = strict UTF-8
+  no locale fallback
+  no heuristic encoding guessing
+  accepted BOM retained as metadata
+  source EOL facts recorded before LF normalization
+  internal editor text = LF normalized
+  new-document serialization default = UTF-8 / no BOM / LF
+  mixed EOL = explicit normalization consent required
+
+Filename policy:
+  extension-neutral regular local text files
+  no Markdown-specific file identity rule
+
+Permanent canonical-document cap remains exactly 3; G01 created no new canonical document.
+
+================================================================================
+ENTRY G01-002 — 2026-08-14 — W116 EXTRACTION / IMPLEMENTATION BUILD
+================================================================================
+
+Selective W116 source authorities:
+  calamus_document_identity.py
+  calamus_document_loader.py
+  calamus_document_serializer.py
+
+Adaptation decisions:
+  identity -> EXTRACT into Graphium domain namespace
+  serializer -> EXTRACT/ADAPT into Graphium domain namespace
+  loader -> ADAPT into Graphium infrastructure layer
+  Calamus runtime imports -> NONE
+  Calamus product/session/save/UI code -> NOT IMPORTED
+
+Material product changes from Calamus source:
+  all user-facing failure text renamed to Graphium
+  plain-text scope replaces Calamus Light-Markdown wording
+  filename/extension behavior explicitly frozen as general-purpose/extension-neutral
+  large-file threshold is an explicit loader parameter with W116-compatible 1,000,000-byte default
+  loader validates retry and threshold arguments
+
+G01 implementation status at build time:
+  headless source built
+  inherited hostile loader/serializer tests ported
+  current Graphium architecture/static gates retained
+  user-side validation still required before any G01 Git finalization/publication
+
+================================================================================
+ENTRY G01-003 — 2026-08-14 — TARGET-USER WEB RESEARCH: LEAFPAD / L3AFPAD / MOUSEPAD
+================================================================================
+
+User authorized research goal:
+  identify who uses Leafpad, L3afpad and Mousepad and which Graphium features
+  could realistically interest them.
+
+Evidence basis reviewed before this entry:
+  Leafpad project documentation and current issue requests;
+  L3afpad project documentation and issue requests;
+  Mousepad/Xfce project documentation and user discussions;
+  Linux user/community discussions about lightweight GUI text editors;
+  comparative lightweight-editor startup/performance material.
+
+Observed target profile — Leafpad / L3afpad:
+  quick-edit rather than IDE workflow;
+  one file / one window mental model is acceptable and often preferred;
+  startup immediacy and low cognitive load are central product values;
+  common jobs include notes, paste/edit/save, configuration files and small text files;
+  users ask for bounded convenience such as persistent word wrap, tab-width control,
+  dark appearance and character counts;
+  richer code-editor features such as syntax highlighting are not necessarily desired
+  and can conflict with the deliberately basic product philosophy.
+
+Observed target profile — Mousepad:
+  Mousepad remains positioned as an easy, fast editor for quick text editing, but its
+  feature surface can also serve a mini-code-editor audience.
+  Graphium should target Mousepad's quick-edit segment, not users whose principal
+  requirement is tabs, syntax highlighting or a richer code-editing environment.
+
+Core inference for Graphium:
+  FEATURE_COUNT_IS_NOT_THE_COMPETITIVE_AXIS=YES
+  TARGET_AXIS=FAST_SIMPLE_SAFE
+  PRIMARY_MIGRATION_SEGMENT=QUICK_EDIT_USERS
+
+================================================================================
+ENTRY G01-004 — 2026-08-14 — KILLER-FEATURE ROUTING / PRODUCT POSITIONING
+================================================================================
+
+Graphium positioning frozen from the target-user findings:
+  FAST + SIMPLE + SAFE + NATIVE GTK
+
+Killer features / differentiators, in priority order:
+
+0. PERFORMANCE / PERCEIVED IMMEDIACY
+   Speed is an admission condition, not a decorative feature. If Graphium feels
+   materially slower than the lightweight-editor class, the rest of the feature
+   advantage will not persuade the core Leafpad/L3afpad audience.
+
+1. TRANSPARENT STRONG FILE SAFETY
+   Preserve a small UI while adding mature behavior behind it:
+     strong accepted file identity;
+     changed/replaced/deleted-file awareness;
+     guarded and atomic writes;
+     savepoint-aware Saved/Modified state;
+     alias/topology/race protection;
+     no silent overwrite after external mutation.
+   Safety should be mostly invisible until it prevents data loss.
+
+2. ENCODING / BOM / EOL CLARITY
+   Status/Properties should make the active representation understandable without
+   forcing technical details into dialogs. Preserve representation safely and allow
+   bounded explicit conversion later if authorized.
+
+3. PERSISTENT ESSENTIAL PREFERENCES
+   Graphium must remember user choices such as wrap, font, line numbers, status bar,
+   tab width/spaces-tabs, appearance and useful window geometry. Minimalism does not
+   mean forcing repetitive setup at every launch.
+
+4. MATURE PRINT WORKFLOW
+   Print / Print Preview / Page Setup belong to the serious desktop-editor experience.
+   They must not enlarge the startup critical path.
+
+5. COMPACT HIGH-VALUE STATUS
+   Line/column, word/character count, encoding, EOL and Saved/Modified state provide
+   concrete utility with very little UI surface.
+
+6. MODERN APPEARANCE WITHOUT THEME BLOAT
+   System / Light / Dark is retained. No theme marketplace/editor or cosmetic platform.
+
+7. SAVE A COPY / SAVE VERSION COPY
+   Distinctive safety/workflow value inherited from Calamus without rebinding the active
+   document or polluting the simple one-file mental model.
+
+Explicit competitive REJECT decisions remain:
+  syntax highlighting in v1;
+  tabs / multi-document window;
+  IDE subsystems;
+  project/workspace/file-browser systems;
+  plugin platform.
+
+Reason:
+  Graphium should not become a smaller Geany/Kate or chase the Mousepad code-editor
+  segment. Its value is mature plain-text editing with unusually strong safety.
+
+================================================================================
+ENTRY G01-005 — 2026-08-14 — PERFORMANCE & PERCEIVED LATENCY BUDGET
+================================================================================
+
+User explicitly authorized addition of:
+  Performance & Perceived Latency Budget
+  with permanent comparative benchmarks against Leafpad, L3afpad and Mousepad.
+
+Canonical routing:
+  Architecture Contract section 12 = binding performance contract;
+  Roadmap = benchmark checkpoints and work-item routing;
+  MO = rationale, history and operational interpretation.
+  CANONICAL_DOCUMENT_COUNT remains exactly 3.
+
+Permanent comparator set:
+  Leafpad
+  L3afpad
+  Mousepad
+
+Permanent benchmark machine for primary qualification:
+  ThinkPad T480 / user's normal Linux desktop, with comparator and environment versions
+  recorded in each non-canonical benchmark receipt.
+
+Mandatory workloads from G04 onward:
+  empty startup -> first editable;
+  5 KiB UTF-8/LF open -> editable;
+  1 MiB UTF-8/LF open -> editable;
+  10 MiB UTF-8/LF open -> editable;
+  idle RSS;
+  RSS after 1 MiB open.
+
+Measurement discipline:
+  >=7 measured runs after one priming run for normal series;
+  report median + p90 for latency;
+  record comparator versions and sample hashes;
+  use isolated Graphium XDG dirs;
+  no root-only global cache manipulation;
+  session-first/cold observations reported separately;
+  no cherry-picking favorable runs.
+
+G04 quick-editor admission ceilings:
+  warm empty latency must not exceed both 2.0x Mousepad and 750 ms median;
+  warm 5 KiB latency must not exceed both 2.0x Mousepad and 900 ms median;
+  idle RSS <= 200 MiB.
+  Failure blocks G05 unless optimized or explicitly rebaselined by user.
+
+G12 competitive targets:
+  empty + 5 KiB median target <= 1.5x Mousepad;
+  1 MiB + 10 MiB median target <= 1.75x Mousepad;
+  idle RSS target <= 150 MiB and <= 2.5x Mousepad where meaningful;
+  Leafpad/L3afpad gaps are always published in the benchmark receipt.
+
+Post-G04 Graphium regression budget:
+  >10% median regression empty/5 KiB = closure blocker;
+  >15% median regression 1 MiB/10 MiB = closure blocker;
+  >15% idle-RSS growth = closure blocker unless explicitly authorized and justified.
+
+Critical protection:
+  PERFORMANCE_OPTIMIZATION_MAY_WEAKEN_SAFETY=NO
+  G01-G03 correctness and guarded-write guarantees are not benchmark toggles.
+
+Startup discipline:
+  dormant Print/Preview/Page Setup, Help and optional spellcheck should be lazy;
+  recent-file maintenance and live-file monitoring must avoid delaying first editability
+  unless correctness requires otherwise.
+
+================================================================================
+ENTRY G01-006 — 2026-08-14 — ROADMAP REBASELINE / G01 CANDIDATE DOCUMENT REISSUE
+================================================================================
+
+User requested creation of an incremental Graphium MO and a roadmap incorporating all
+Leafpad/L3afpad/Mousepad findings and the permanent performance budget.
+
+Roadmap rebaseline effects:
+  G04 now owns first permanent comparator baseline and admission ceiling;
+  G06 repeats benchmark after view/status;
+  G08 checks that printing remains off startup critical path;
+  G10 repeats after preferences/appearance;
+  G11 repeats after live file monitor;
+  G12 owns final competitive qualification.
+
+No new Gxx implementation was authorized by this rebaseline.
+G02 remains PENDING.
+
+G01 runtime/code scope remains unchanged:
+  document identity / load / serialize only;
+  GTK_REQUIRED=NO;
+  TEST_TARGET remains 44 tests.
+
+Transport consequence:
+  the previously generated G01 candidate transport with candidate tree
+  f57e27f0a59d67cff56dacda5f7fe880bd1204a9 is SUPERSEDED BEFORE T480 VALIDATION
+  solely because the three existing canonical authorities have been enriched.
+  This is NOT a product FAIL and NOT a harness FAIL.
+  A documentation-rebased G01 candidate must receive a new exact candidate tree and
+  package manifest before user-side execution.
+
+Canonical-document count after this update:
+  3 / 3
+  no fourth canonical document created.
+
+================================================================================
+ENTRY G01-007 — 2026-08-14 — T480 RUN OF SUPERSEDED G01 TRANSPORT / FINALIZATION ROUTING
+================================================================================
+
+User executed the earlier G01 headless transport after it had already been superseded by
+G01-006 for documentation/performance-authority rebaseline.
+
+Observed T480 result of that superseded transport:
+  PREFLIGHT=PASS
+  PAYLOAD_MANIFEST=PASS files=16
+  CHANGED_PATH_SET=PASS count=16
+  CANONICAL_DOCUMENT_CAP=PASS count=3
+  G01_RUNTIME_IDENTITY=PASS
+  PY_COMPILE=PASS
+  NO_CALAMUS_RUNTIME_IMPORTS=PASS
+  GTK_BOUNDARY=PASS
+  G01_ANTI_SCOPE=PASS
+  G01_DOMAIN_PURITY=PASS
+  W116_PROVENANCE=PASS files=3
+  G01_CONTRACT_MARKERS=PASS
+  TESTS=44/44 PASS
+  CANDIDATE_TREE=f57e27f0a59d67cff56dacda5f7fe880bd1204a9
+  REAL_GIT_INDEX=CLEAN
+  COMMIT_CREATED=NO
+  PUSH_ATTEMPTED=NO
+  FINAL_PHASE=G01_HEADLESS_CANDIDATE_PASS
+  RUNNER_RC=0
+
+Classification:
+  SUPERSEDED_TRANSPORT_RUN=PASS
+  PRODUCT_FAIL=NO
+  HARNESS_FAIL=NO
+  VALID_DESKTOP_ATTEMPT_CONSUMED=NO
+  GTK_DESKTOP_VALIDATION=NOT_APPLICABLE_TO_G01
+
+Reason:
+  runtime G01 code in the superseded transport is the same G01 implementation already
+  retained by the documentation-rebased candidate; only canonical authority content had
+  advanced. Therefore the run provides valid supporting evidence for G01 headless behavior,
+  but the obsolete tree itself must not be committed or published.
+
+Finalization routing:
+  final Graphium G01 source must include the current three canonical authorities;
+  strict gates and the 44-test suite must pass again against that exact final tree;
+  only the user may execute Git stage/commit/push on the T480;
+  no desktop validation is required because G01 contains no GTK product UI.

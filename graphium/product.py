@@ -7,9 +7,9 @@ from __future__ import annotations
 PRODUCT_NAME = "Graphium"
 PACKAGE_NAME = "graphium"
 EXECUTABLE_NAME = "graphium"
-VERSION = "0.0.1-g00"
-WORK_ITEM = "G00"
-WORK_ITEM_DESCRIPTION = "Architecture Bootstrap / Technology & Boundary Contract"
+VERSION = "0.0.2-g01"
+WORK_ITEM = "G01"
+WORK_ITEM_DESCRIPTION = "Document Identity / Load / Serialize Foundation"
 
 # Desktop application ID is deliberately not frozen in G00.  Packaging/repository
 # identity is a separate decision and must not be guessed from Calamus.

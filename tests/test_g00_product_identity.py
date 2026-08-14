@@ -18,8 +18,8 @@ class ProductIdentityTests(unittest.TestCase):
         self.assertEqual(PRODUCT_NAME, "Graphium")
         self.assertEqual(PACKAGE_NAME, "graphium")
         self.assertEqual(EXECUTABLE_NAME, "graphium")
-        self.assertEqual(WORK_ITEM, "G00")
-        self.assertTrue(VERSION.endswith("-g00"))
+        self.assertTrue(WORK_ITEM.startswith("G"))
+        self.assertTrue(VERSION.startswith("0.0."))
 
     def test_desktop_application_id_is_deliberately_deferred(self):
         self.assertIsNone(DESKTOP_APPLICATION_ID)

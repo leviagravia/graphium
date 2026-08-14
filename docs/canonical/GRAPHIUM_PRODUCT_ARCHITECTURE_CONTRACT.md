@@ -2,8 +2,8 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Status: **G00 FROZEN / HEADLESS VERIFIED / INITIAL REPOSITORY BASELINE AUTHORIZED**.
-Repository-baseline authorization: 2026-08-14.
+Status: **G00 CLOSED / CERTIFIED / PUBLISHED; G01 OPEN / CONTRACT FROZEN / HEADLESS VALIDATED / FINALIZATION READY**.
+Published G00 baseline: `1e9db0eed37d0c860c36c1e07c0dc77bbf59ff95` / tree `2023683019894366729e3ddc5f3652dbe9d5d0c2`.
 
 ## 1. Product identity
 
@@ -185,3 +185,170 @@ G00 may close without a desktop run because it implements no product feature and
 - GTK import boundary is mechanically enforced;
 - the canonical-document cap is mechanically enforced;
 - the roadmap and MO identify G00 and the next work item.
+
+## 11. G01 — Document Identity / Load / Serialize Foundation
+
+Freeze: 2026-08-14.
+
+`G01_CONTRACT=FROZEN`
+`G01_SCOPE=DOCUMENT_IDENTITY_LOAD_SERIALIZE_FOUNDATION`
+`G01_GTK_REQUIRED=NO`
+`G01_SECOND_DOCUMENT_AUTHORITY=FORBIDDEN`
+`G01_PHYSICAL_WRITER_IMPLEMENTATION=DEFERRED_TO_G03`
+
+### 11.1 Ownership and layer placement
+
+G01 introduces no document session and no physical writer. It freezes only immutable
+accepted-load values, stable local-file loading, and pure byte serialization policy.
+
+- `graphium.domain.document_identity` owns immutable identity/load metadata values and typed load failures.
+- `graphium.domain.document_serialization` owns pure representation profiles and byte serialization.
+- `graphium.infrastructure.document_loader` owns local filesystem observation/read operations and returns domain values.
+- no G01 module may import `gi`/GTK;
+- G01 does not instantiate a second active-document authority.
+
+The future G02 `DocumentSession` will own one accepted `DocumentFileState`. G01 merely defines the value that G02 may accept atomically. The future G03 guarded writer will be the one physical writer authority and will consume G01 serialization rather than creating a second codec/EOL model.
+
+### 11.2 File visit contract
+
+Graphium G01 visits **regular local files** only. The visit rule is extension-neutral: Graphium does not require `.txt`, `.md` or another filename suffix in order to recognize a document.
+
+The stable loader:
+
+1. preserves an absolute normalized logical path without replacing it by `realpath`;
+2. opens bytes and requires a regular-file target;
+3. observes descriptor identity before and after the read;
+4. rejects torn/unstable reads after one retry by default;
+5. preserves canonical path and `(device, inode)` separately from the logical path;
+6. records exact accepted raw-byte SHA-256 as equivalence evidence, never as filesystem identity;
+7. records size, mtime-ns, mode and read-only mode observation;
+8. derives encoding/BOM/EOL metadata before newline normalization;
+9. returns editor text LF-normalized;
+10. rejects decoded NUL content as outside Graphium's plain-text scope.
+
+FIFO/socket/device visiting and remote URI semantics are outside G01.
+
+### 11.3 Codec policy
+
+- BOM-aware UTF-8, UTF-16 LE/BE and UTF-32 LE/BE are supported.
+- **no BOM means strict UTF-8**.
+- no locale fallback and no heuristic legacy-encoding guessing are allowed.
+- the BOM is removed from editor text and retained as metadata.
+- invalid bytes fail with a typed encoding error.
+
+A future explicit “Open with Encoding…” may add a user-selected decode path, but must not silently weaken the G01 default loader.
+
+### 11.4 EOL and internal text policy
+
+G01 records LF, CRLF and CR counts, dominant style, mixedness and final-newline state from decoded source text. Dominant style is the most frequent style; ties use first occurrence. A file with no separator records `LineEnding.NONE`.
+
+Graphium's in-memory editor representation is **LF-normalized**. Serialization converts only at the byte boundary:
+
+- an accepted source retains its encoding, BOM and dominant EOL profile;
+- a source with no separator uses LF if later editing introduces newlines;
+- a new unbound document defaults to UTF-8, no BOM, LF;
+- mixed-EOL normalization requires explicit consent before serialization can proceed;
+- serialization is strict and may not replace unrepresentable characters.
+
+G01 serialization performs no filesystem mutation.
+
+### 11.5 Hard anti-scope
+
+G01 MUST NOT implement:
+
+- G02 history, editor transaction, savepoint/dirty state or `DocumentSession`;
+- G03 guarded/atomic Save or Save As;
+- G04 GTK shell, Open chooser or buffer wiring;
+- live external-file monitoring;
+- Recent Files, copy/version commands, Properties UI;
+- encoding heuristics, autosave, remote files, tabs or a document registry.
+
+### 11.6 Provenance
+
+G01 is a selective adaptation of the Calamus W116 published `calamus_document_identity.py`, `calamus_document_loader.py` and `calamus_document_serializer.py` semantics. Runtime imports from Calamus remain forbidden. Exact source hashes and adaptation decisions live in non-canonical G01 provenance evidence and are summarized in the MO.
+
+
+## 12. Performance & Perceived Latency Budget
+
+Freeze: 2026-08-14.
+
+`PERFORMANCE_PERCEIVED_LATENCY_BUDGET=FROZEN`
+`PERMANENT_COMPARATORS=Leafpad,L3afpad,Mousepad`
+`PRIMARY_TARGET_SEGMENT=QUICK_EDIT_SIMPLE_TEXT_EDITOR_USERS`
+`SAFETY_MAY_NOT_BE_DISABLED_FOR_BENCHMARKS=YES`
+
+### 12.1 Product-positioning consequence
+
+Web/user research reviewed in G01 confirms that the core Leafpad/L3afpad audience values immediate startup, a small UI, low cognitive load and basic text-file work; the quick-edit segment of Mousepad values the same qualities while tolerating a somewhat richer editor. Graphium therefore freezes the product principle:
+
+**FAST + SIMPLE + SAFE + NATIVE GTK**
+
+The differentiator is not feature count. Graphium must preserve Leafpad/L3afpad-like immediacy while adding stronger file safety, transparent encoding/EOL state, persistent essential preferences, mature print/preview/page setup, a compact useful status bar, and identity-preserving copy/version operations.
+
+Syntax highlighting, tabs, IDE facilities and feature-platform behavior are not admitted merely to compete with Mousepad's richer use cases. Graphium targets Mousepad's quick-edit users, not its mini-code-editor segment.
+
+### 12.2 Permanent comparator set
+
+Performance claims and regression checks must be measured on the same T480 against installed versions of:
+
+- Leafpad;
+- L3afpad;
+- Mousepad.
+
+Each benchmark receipt records application version, package/source identity where available, Linux/GTK/Python versions, power mode, sample-file hashes and measurement method. Comparator versions may change over time; the currently installed versions are the reference for that measurement and must be recorded rather than assumed.
+
+### 12.3 Mandatory workloads and metrics
+
+At minimum, the benchmark harness must cover:
+
+1. empty-window/process start to first editable state;
+2. open a 5 KiB UTF-8/LF plain-text file to editable state;
+3. open a 1 MiB UTF-8/LF plain-text file to editable state;
+4. open a 10 MiB UTF-8/LF plain-text file to editable state;
+5. idle resident memory after first editable state;
+6. resident memory after the 1 MiB workload.
+
+Primary metrics:
+
+- median wall-clock time to first editable state;
+- p90 time to first editable state;
+- median open-to-editable latency;
+- idle RSS MiB;
+- RSS MiB after the 1 MiB open workload.
+
+Normal benchmark series use at least 7 measured runs after one uncounted priming run. Session-first/cold observations are reported separately because filesystem/page-cache state cannot be made perfectly comparable without intrusive system-wide cache manipulation. Graphium benchmarking must not require root or mutate the user's real configuration.
+
+### 12.4 G04 admission ceilings and G12 competitive targets
+
+The first real GTK shell at G04 establishes the initial Graphium performance baseline. G04 may not close as a credible quick editor if, on the T480:
+
+- warm empty time-to-editable exceeds both **2.0x Mousepad** and **750 ms median**; or
+- warm 5 KiB open-to-editable exceeds both **2.0x Mousepad** and **900 ms median**; or
+- idle RSS exceeds **200 MiB**.
+
+These are admission ceilings, not aspirational targets. Missing one requires optimization or an explicit user-authorized contract rebaseline before feature expansion.
+
+For G12 v1 closure, the target is stronger:
+
+- warm empty and 5 KiB median latency: target <= **1.5x Mousepad**;
+- 1 MiB and 10 MiB open median latency: target <= **1.75x Mousepad**;
+- idle RSS: target <= **150 MiB** and <= **2.5x Mousepad** where both conditions are meaningful;
+- Leafpad and L3afpad gaps are always reported even when they are not the hard gate, because they represent the most latency-sensitive target audience.
+
+Graphium may not market itself or document itself as "fast" if the G12 competitive target is materially missed without an explicit documented rebaseline.
+
+### 12.5 Permanent regression budget
+
+After G04, every later desktop-capable published Gxx records the same core benchmark set. Relative to the immediately preceding published Graphium baseline:
+
+- >10% median regression in empty or 5 KiB startup/open latency is a closure blocker until explained and accepted;
+- >15% median regression in 1 MiB/10 MiB open latency is a closure blocker until explained and accepted;
+- >15% idle-RSS growth is a closure blocker unless caused by an explicitly authorized, measurable v1 requirement.
+
+Noise must be handled by rerunning the complete series, not by selecting favorable individual runs.
+
+### 12.6 Startup discipline
+
+Features not needed to make the first document editable must not be eagerly initialized on the startup critical path. In particular, Print/Preview/Page Setup, Help, optional spellcheck and other dormant subsystems should be lazy where technically reasonable. Recent-file maintenance or live-monitor setup must not delay the editor becoming usable unless required for correctness.
+
+Performance optimizations may never weaken G01-G03 document safety, savepoint semantics, encoding/EOL correctness or guarded-write guarantees. Safety is a product invariant, not a benchmark toggle.
