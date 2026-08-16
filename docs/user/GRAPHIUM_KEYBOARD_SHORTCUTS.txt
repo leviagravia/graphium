@@ -1,4 +1,4 @@
-GRAPHIUM KEYBOARD SHORTCUTS — G05
+GRAPHIUM KEYBOARD SHORTCUTS — G06
 =================================
 
 File
@@ -28,7 +28,18 @@ Find Next/Previous are product commands, not private buttons in the search bar. 
 query has been entered, F3 and Shift+F3 continue to work when the search bar is hidden.
 Search wraps once automatically.
 
-Help commands intentionally have no global accelerator in G05.
+
+View
+  Ctrl++          Zoom In
+  Ctrl+-          Zoom Out
+  Ctrl+0          Reset Zoom
+  F11             Full Screen
+
+Status Bar, Line Numbers, Word Wrap and Font… are direct View commands without dedicated
+accelerators in G06. Their persistent state is changed from the View menu rather than
+duplicated in Preferences.
+
+Help commands intentionally have no global accelerator in G06.
 
 Linux Mint/Cinnamon note
 ------------------------

@@ -14,8 +14,12 @@ sys.path.insert(0, _root)
 
 from graphium.product import WORK_ITEM
 
+
+def _g05_or_later() -> bool:
+    return WORK_ITEM.startswith("G") and WORK_ITEM[1:].isdigit() and int(WORK_ITEM[1:]) >= 5
+
 if "--bootstrap-only" in sys.argv:
-    if WORK_ITEM != "G05":
+    if not _g05_or_later():
         raise SystemExit(f"G05_TRUE_GTK_BOOTSTRAP=FAIL work_item={WORK_ITEM}")
     print(f"G05_TRUE_GTK_BOOTSTRAP=PASS root={ROOT}")
     raise SystemExit(0)
@@ -97,7 +101,7 @@ def set_search(window, query: str, replacement: str = "", *, match_case: bool = 
 
 
 def main() -> None:
-    if WORK_ITEM != "G05":
+    if not _g05_or_later():
         fail(f"wrong work item: {WORK_ITEM}")
     app = GraphiumApplication()
     if not (app.get_flags() & Gio.ApplicationFlags.NON_UNIQUE):

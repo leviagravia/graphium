@@ -1,9 +1,10 @@
-"""Small GTK dialog/chooser adapter for the G04 lifecycle UI port."""
+"""Small GTK dialog/chooser adapter for Graphium lifecycle and G06 View UI."""
 from __future__ import annotations
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+gi.require_version("Pango", "1.0")
+from gi.repository import Gtk, Pango
 
 from graphium.application.file_lifecycle import UnsavedDecision
 
@@ -166,6 +167,33 @@ def show_about(parent: Gtk.Window, *, version: str) -> None:
     finally:
         dialog.destroy()
 
+
+
+def choose_font(
+    parent: Gtk.Window,
+    *,
+    family: str,
+    size_points: float,
+) -> tuple[str, float] | None:
+    """Choose only the persistent family+size owned by G06 View -> Font."""
+    dialog = Gtk.FontChooserDialog(title="Font", transient_for=parent)
+    try:
+        if hasattr(dialog, "set_level"):
+            dialog.set_level(Gtk.FontChooserLevel.FAMILY | Gtk.FontChooserLevel.SIZE)
+        initial = Pango.FontDescription()
+        initial.set_family(family)
+        initial.set_size(int(round(float(size_points) * Pango.SCALE)))
+        dialog.set_font_desc(initial)
+        if dialog.run() != Gtk.ResponseType.OK:
+            return None
+        chosen = dialog.get_font_desc()
+        chosen_family = chosen.get_family() or family
+        chosen_size = chosen.get_size() / Pango.SCALE
+        if chosen_size <= 0:
+            chosen_size = float(size_points)
+        return chosen_family, float(chosen_size)
+    finally:
+        dialog.destroy()
 
 def choose_line_number(
     parent: Gtk.Window,

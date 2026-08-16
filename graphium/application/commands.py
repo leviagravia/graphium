@@ -1,8 +1,8 @@
-"""Graphium product-owned command catalog through G05.
+"""Graphium product-owned command catalog through G06.
 
-The first credible quick-edit shell exposes only essential editing/file commands plus
-lazy offline Help. Later work items extend this same product-owned catalog; GTK is not the
-command authority.
+The catalog is the single command authority shared by menus, accelerators and Help.
+Boolean direct View settings are stateful actions; their persistence remains owned by
+G06 view-settings authority, not by GTK widgets.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -14,6 +14,7 @@ class CommandSpec:
     label: str
     accelerator: str | None = None
     menu: str = ""
+    stateful: bool = False
 
 
 COMMANDS = (
@@ -34,6 +35,14 @@ COMMANDS = (
     CommandSpec("find-previous", "Find Previous", "<Shift>F3", "Search"),
     CommandSpec("replace", "Replace…", "<Ctrl>H", "Search"),
     CommandSpec("go-to-line", "Go to Line…", "<Ctrl>G", "Search"),
+    CommandSpec("status-bar", "Status Bar", None, "View", True),
+    CommandSpec("line-numbers", "Line Numbers", None, "View", True),
+    CommandSpec("word-wrap", "Word Wrap", None, "View", True),
+    CommandSpec("font", "Font…", None, "View"),
+    CommandSpec("zoom-in", "Zoom In", "<Ctrl>plus", "View"),
+    CommandSpec("zoom-out", "Zoom Out", "<Ctrl>minus", "View"),
+    CommandSpec("zoom-reset", "Reset Zoom", "<Ctrl>0", "View"),
+    CommandSpec("full-screen", "Full Screen", "F11", "View", True),
     CommandSpec("user-guide", "User Guide", None, "Help"),
     CommandSpec("keyboard-shortcuts", "Keyboard Shortcuts", None, "Help"),
     CommandSpec("about", "About", None, "Help"),

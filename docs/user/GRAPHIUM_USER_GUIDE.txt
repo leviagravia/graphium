@@ -1,9 +1,9 @@
 GRAPHIUM USER GUIDE
 ===================
 
-Graphium is a fast, simple and safety-focused plain-text editor for Linux. G05 keeps the
-single-document quick-edit model from G04 and adds a deliberately small current-document
-Search surface. Graphium does not use tabs, projects, syntax modes, plugins, cloud services
+Graphium is a fast, simple and safety-focused plain-text editor for Linux. G06 keeps the
+single-document quick-edit and Search model from G05 and adds a deliberately small View
+surface plus compact status information. Graphium does not use tabs, projects, syntax modes, plugins, cloud services
 or hidden document databases.
 
 1. THE BASIC MODEL
@@ -119,7 +119,45 @@ Go to Line… (Ctrl+G) accepts a 1-based line number bounded to the current docu
 moves the cursor/view; it does not modify text, history or Saved/Modified and does not create
 a bookmark/navigation-history subsystem.
 
-8. RENDERER SAFETY
+
+8. VIEW AND COMPACT STATUS
+--------------------------
+The View menu changes presentation only. These commands do not change document bytes,
+Undo history, Saved/Modified identity or encoding/EOL representation.
+
+Status Bar
+  Shows a compact event-driven status surface with 1-based line/column, accepted
+  encoding/EOL representation and Saved/Modified. It does not count words or scan the
+  complete document in the background. Visibility is persistent.
+
+Line Numbers
+  Shows logical line numbers in Gtk.TextView's native left border window. Only logical
+  lines currently intersecting the viewport are drawn. Wrapped visual continuations do
+  not receive extra line numbers. Graphium does not use GtkSourceView, a background line
+  index or a second synchronized scrolling widget. Visibility is persistent.
+
+Word Wrap
+  Uses GTK WORD_CHAR wrapping: prefer word boundaries and fall back to grapheme boundaries
+  when a word itself is too wide. The setting is persistent and does not insert line
+  breaks into the file.
+
+Font…
+  Chooses the persistent base font family and size for the editor view. Graphium applies
+  it with a view-local CSS provider; it is presentation state, not document state.
+
+Zoom In / Zoom Out / Reset Zoom
+  Zoom is transient magnification relative to the configured base font. Reset Zoom means
+  100%. Zoom is deliberately not stored as a document or persistent font change.
+
+Full Screen
+  F11 toggles transient full-screen window presentation. It is not session state.
+
+Toolbar
+  Graphium v1 deliberately has no toolbar. The G06 Lightweight Budget audit found that a
+  second button surface would duplicate a small conventional menu/shortcut command set
+  without enough quick-edit value.
+
+9. RENDERER SAFETY
 ------------------
 Large ordinary multiline documents keep normal editing and Undo. A different case is a
 pathological single logical line: G04 demonstrated that very long unbroken lines can drive
@@ -131,12 +169,12 @@ truncates the source, inserts line breaks/markers or silently rewrites it to mak
 Normal insert/paste/newline-join edits cannot create an over-budget line. G05 Replace All
 preflights the complete final result before using its programmatic transaction path.
 
-9. MULTIPLE FILES
------------------
+10. MULTIPLE FILES
+------------------
 Graphium remains single-document but not globally single-process. To keep two files open,
 open two Graphium windows. Each is independently owned by one process and one document.
 
-10. FILE SAFETY
+11. FILE SAFETY
 ---------------
 The current product applies these invariants:
 
@@ -155,29 +193,29 @@ The current product applies these invariants:
 Live external-file notifications remain routed to G11. Save itself already revalidates the
 accepted file state and fails closed on stale data.
 
-11. PERFORMANCE DISCIPLINE
+12. PERFORMANCE DISCIPLINE
 --------------------------
-Graphium targets lightweight quick-edit behavior. Search does no startup scan, idle scan,
-background indexing or eager match highlighting. Text scanning happens only on an explicit
-search/replace command. G05 must qualify this design on realistic multiline documents before
-desktop certification.
+Graphium targets lightweight quick-edit behavior. Search does no startup scan, idle scan, background indexing or eager match highlighting.
+G06 View status is also event-driven: it reads cursor/session metadata and does not scan the
+document. Line-number drawing is viewport-bounded. Persistent View settings are loaded once
+from a small XDG file and written only on explicit user changes.
 
 Performance remains measured separately as common FIRST_VISIBLE for Graphium and permanent
 comparators Leafpad/L3afpad/Mousepad/FeatherPad, plus Graphium's exact internal
 FIRST_EDITABLE handshake.
 
-12. KEYBOARD SHORTCUTS
+13. KEYBOARD SHORTCUTS
 ----------------------
 Choose Help > Keyboard Shortcuts for the current list. Accelerators are audited against the
 active Linux Mint/Cinnamon global bindings before release. Ctrl+Alt+L is reserved in the
 target environment and is not used by Graphium.
 
-13. WHAT G05 DELIBERATELY DOES NOT ADD
+14. WHAT G06 DELIBERATELY DOES NOT ADD
 --------------------------------------
-G05 adds no tabs, sessions, syntax engine, plugin system, project search, regex engine,
-background search index, search-history database or highlight-all subsystem. View controls,
-status bar, recent files, printing, preferences, live external monitoring and recovery remain
-routed to later roadmap work items.
+G06 adds no toolbar, GtkSourceView, syntax engine, tabs, sessions, plugin platform,
+background status analytics, live word/character counting, theme platform or Appearance
+implementation. Appearance remains G10; Statistics remains G07; recent files, printing,
+external monitoring and recovery remain routed to their roadmap work items.
 
 
 SEARCH SCALE SAFETY

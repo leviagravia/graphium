@@ -29,6 +29,10 @@ from graphium.domain.edit_history import ViewState
 from graphium.domain.text_search import SearchScaleError, find_next
 from graphium.product import WORK_ITEM
 
+
+def _g05_or_later() -> bool:
+    return WORK_ITEM.startswith("G") and WORK_ITEM[1:].isdigit() and int(WORK_ITEM[1:]) >= 5
+
 MIB = 1024 * 1024
 
 GATES_MS = {
@@ -162,7 +166,7 @@ def worker(name: str) -> dict[str, object]:
 
 
 def run_parent(output: Path | None) -> None:
-    if WORK_ITEM != "G05":
+    if not _g05_or_later():
         fail(f"wrong work item: {WORK_ITEM}")
     workloads = list(GATES_MS)
     results: list[dict[str, object]] = []
@@ -220,7 +224,7 @@ def main() -> None:
     parser.add_argument("--bootstrap-only", action="store_true")
     args = parser.parse_args()
     if args.bootstrap_only:
-        if WORK_ITEM != "G05":
+        if not _g05_or_later():
             fail(f"bootstrap wrong work item: {WORK_ITEM}")
         print(f"G05_SEARCH_PERFORMANCE_BOOTSTRAP=PASS root={ROOT}")
         return

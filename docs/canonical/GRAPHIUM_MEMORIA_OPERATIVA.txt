@@ -2260,7 +2260,7 @@ G05_CONTRACT=FROZEN
 G05_IMPLEMENTATION_AUTHORIZED=YES
 G05_DESKTOP_CANDIDATE=NO
 GIT_MUTATION=NO_USER_REPO
-G06_STARTED=NO
+G06_STARTED=YES
 
 Lightweight decisions:
   ADOPT literal current-doc search / Match Case / one-wrap / Replace / Go to Line
@@ -2365,5 +2365,298 @@ Markers:
   G05_DESKTOP_CERTIFIED=YES
   G05_PUBLICATION_READY=YES
   G05_PUBLISHED=NO
-  G06_STARTED=NO
+  G06_STARTED=YES
 
+
+
+================================================================================
+ENTRY — G05 PUBLICATION PASS / G06 OPEN + VIEW CONTRACT FREEZE
+Date: 2026-08-15
+================================================================================
+
+G05 real publication completed on the T480:
+  COMMIT=a9083daf22ab23cf6cd20841be643510e35d700d
+  TREE=12d55249263e006cc68fa304f3c3cc2a9ef73acb
+  VALIDATED_PRODUCT_TREE=295fa67e4943c35d80e605e214e51ee861350fe6
+  PRODUCT_EQUIVALENCE=PASS files=72
+  HEAD=ORIGIN_MAIN=REMOTE_MAIN
+  WORKTREE=CLEAN
+  TESTS=238/238_PASS
+  G05_LIGHTWEIGHT_BUDGET_GATE=PASS
+  G05_MANUAL_DESKTOP=4/4_PASS
+  FINAL_PHASE=G05_PUBLICATION_PASS
+  FINALIZER_RC=0
+
+G05_STATUS=CLOSED_CERTIFIED_PUBLISHED
+
+The user authorized G06 source+mature-source audit, line-number proof, contract freeze and
+non-desktop implementation. G06 is OPEN.
+
+Frozen G06 decisions:
+  G06_CONTRACT=FROZEN
+  G06_IMPLEMENTATION_AUTHORIZED=YES
+  G06_WORD_WRAP=ADOPT_GTK_WORD_CHAR
+  G06_COMPACT_STATUS=ADOPT
+  G06_STATUS_FIELDS=LINE_COLUMN,ENCODING_EOL,SAVED_MODIFIED
+  G06_LIVE_WORD_CHAR_COUNT=DEFER_G07_STATISTICS
+  G06_FONT=ADOPT_PERSISTENT_FAMILY_SIZE_CSS
+  G06_ZOOM=ADOPT_TRANSIENT_RELATIVE_100_PERCENT
+  G06_FULL_SCREEN=ADOPT_TRANSIENT
+  G06_TOOLBAR=REJECT_V1
+  G06_APPEARANCE=DEFER_G10
+
+Line Numbers mature-source/API audit:
+- plain Gtk.TextView exposes native LEFT border windows and visible-line coordinate APIs;
+- Graphium can therefore avoid GtkSourceView and a second synchronized scrolling widget;
+- valid architecture is viewport-bounded logical-line drawing only.
+
+NON-CANDIDATE probe R1:
+  CLASSIFICATION=PRE_PRODUCT_PROBE_HARNESS_IMPORT_DEFECT
+  ROOT_CAUSE=unused_Gdk_namespace_version_collision
+  PRODUCT_FAIL=NO
+  LINE_NUMBERS_VERDICT=NOT_REACHED
+
+NON-CANDIDATE probe R2 on T480 / GTK 3.24.41:
+  PREFLIGHT=PASS
+  1MiB_wrap_off: on_median=16.586ms p90=17.399ms delta_median=+1.476ms max_visible_lines=40 mutations=0
+  1MiB_wrap_on:  on_median=16.593ms p90=16.923ms delta_median=-0.157ms max_visible_lines=32 mutations=0
+  10MiB_wrap_off: on_median=15.162ms p90=16.790ms delta_median=-0.640ms max_visible_lines=40 mutations=0
+  MANUAL_ALIGNMENT_SCROLL_WRAP_TOGGLE_RESIZE=PASS
+  FINAL_PHASE=G06_LINE_NUMBERS_NONCANDIDATE_PROBE_PASS
+  PROBE_RC=0
+  PRODUCT_CANDIDATE=NO
+  GIT_MUTATION=NO
+
+Decision:
+  G06_LINE_NUMBERS=ADOPT
+  G06_LINE_NUMBER_MODEL=GTK_TEXTVIEW_NATIVE_LEFT_BORDER_WINDOW
+  G06_LINE_NUMBER_DRAW_SCOPE=VISIBLE_LOGICAL_LINES_ONLY
+  G06_WRAPPED_CONTINUATION_NUMBERS=NO
+  G06_GTKSOURCEVIEW=NO
+  G06_PARALLEL_SCROLL_WIDGET=NO
+  G06_BACKGROUND_LINE_INDEX=NO
+  G06_DOCUMENT_HISTORY_STATE_MUTATION=NO
+
+Persistent View settings boundary:
+- persistent: Word Wrap, Line Numbers, Status Bar visibility, Font family+size;
+- transient: Zoom and Full Screen;
+- one small XDG Graphium config file;
+- read-only load at startup; write only after explicit user setting change;
+- no background writer, settings DB or session semantics;
+- Preferences must not later duplicate these direct View settings.
+
+G06 desktop product candidate is NOT yet authorized/built at this entry.
+GIT_MUTATION=NO_USER_REPO
+
+ENTRY G06-003 — STARTUP ANTI-BLOAT REGRESSION POLICY
+-----------------------------------------------------
+G06_STARTUP_REGRESSION_BASELINE=G04_CERTIFIED_T480
+G06_STARTUP_TIME_REGRESSION_LIMIT=MAX_25_PERCENT_OR_75_MS
+G06_STARTUP_RSS_REGRESSION_LIMIT=MAX_25_PERCENT_OR_20_MIB
+G06_FIRST_EDITABLE_CROSS_PRODUCT_CLAIM=FORBIDDEN_UNTIL_G12
+Reason: G04 absolute admission limits are deliberately broad; G06 View must additionally prove that presentation features did not create material self-regression. Competitor FIRST_VISIBLE remains apples-to-apples informational/comparative evidence; FIRST_EDITABLE cross-product claims remain deferred until a common external oracle exists.
+
+
+================================================================================
+ENTRY — G06 INTEGRATED CHECKPOINT LINE RETIRED / MODAL-LIFECYCLE-TIMEOUT OWNERSHIP FREEZE
+Date: 2026-08-15
+================================================================================
+
+The G06 NON-CANDIDATE integrated-checkpoint line is RETIRED after 2/2 operational failures:
+  R1=PACKAGING_DIRECTORY_MODE_DEFECT; PRODUCT_VERDICT=NOT_REACHED
+  R2=TRUE_GTK_GATE_MODAL_LIFECYCLE_OWNERSHIP_DEFECT; PRODUCT_VERDICT=NOT_REACHED
+No G06 product runtime failure is established by either run.
+
+R2 forensic result:
+- 261/261 + strict PASS;
+- G04 True-GTK regression PASS;
+- G05 True-GTK Search regression PASS;
+- G06 View gate left crlf.txt Modified after its Compact Status mutation check and then
+  attempted to open another fixture;
+- published Graphium lifecycle correctly opened the real synchronous unsaved-changes dialog;
+- the gate owned no response, so the outer 90s watchdog eventually stopped it.
+
+Mature-source closure from Mousepad 0.7.0 + Leafpad + L3afpad and published Graphium G04/G05:
+- modal Gtk lifecycle is synchronously blocking by design;
+- a test that expects a dialog must schedule response ownership BEFORE triggering it;
+- a test that does not expect a dialog must preserve an exact Saved lifecycle boundary;
+- unexpected dialogs in a non-modal gate are unwound only to escape the nested loop and then
+  FAIL the gate; generic auto-cancel-and-continue is forbidden;
+- every GLib timeout/source has explicit ownership/cleanup;
+- outer process timeout is containment only, never semantic dialog authority.
+
+Static harness hardening only; Graphium runtime unchanged:
+- exact state-ID clean-boundary assertions;
+- real Undo closes the Compact Status mutation scenario;
+- clean-only fixture Open helper;
+- unexpected-modal tripwire around modal-capable calls;
+- View performance fixture transitions also require exact clean lifecycle state.
+
+Future qualification topology:
+- NO integrated-checkpoint R3;
+- eventual G06 desktop candidate uses independent fresh-process lanes for G04 regression,
+  G05 regression, G06 View semantics, G06 View performance, topology/shortcuts, startup,
+  four-comparator FIRST_VISIBLE, Search regression/performance and startup self-regression;
+- manual View acceptance begins only after every automated lane passes.
+
+Markers:
+  G06_INTEGRATED_CHECKPOINT_LINE=RETIRED
+  G06_TRUE_GTK_EXPECTED_MODAL_COUNT=0
+  G06_TRUE_GTK_UNEXPECTED_MODAL=UNWIND_THEN_FAIL
+  G06_FIXTURE_OPEN_REQUIRES_EXACT_SAVED_STATE=YES
+  G06_EXPECTED_DIALOG_RESPONSE_OWNERSHIP=SCHEDULE_BEFORE_TRIGGER
+  G06_GLIB_SOURCE_OWNERSHIP=EXPLICIT_CLEANUP_REQUIRED
+  G06_OUTER_TIMEOUT_ROLE=LAST_RESORT_PROCESS_CONTAINMENT_ONLY
+  G06_QUALIFICATION_TOPOLOGY=FRESH_PROCESS_GATE_MATRIX
+  G06_NEXT_T480_RUN=PRODUCT_CANDIDATE_ONLY_AFTER_SEPARATE_AUTHORIZATION
+  GIT_MUTATION=NO_USER_REPO
+
+
+================================================================================
+ENTRY — G06 PRODUCT CANDIDATE FREEZE AFTER RETIRED CHECKPOINT RE-AUDIT
+Date: 2026-08-15
+================================================================================
+
+The user authorized construction of the real G06 product candidate only after closure of the
+modal/lifecycle/timeout ownership audit. The retired integrated NON-CANDIDATE checkpoint line
+remains retired and is not reused.
+
+Candidate qualification topology:
+- every automated GUI/performance lane starts in a fresh process;
+- G04 True-GTK regression owns its own isolated HOME/XDG;
+- G05 True-GTK Search regression owns its own isolated HOME/XDG;
+- G06 True-GTK View semantics/content-neutrality owns its own isolated HOME/XDG and expects zero modals;
+- G06 View performance owns a separate isolated HOME/XDG and requires exact Saved boundaries before fixture transitions;
+- topology/shortcut/startup/comparator/Search-performance lanes remain separate;
+- manual View acceptance starts only after every automated lane PASS.
+
+Packaging qualification topology:
+- archive directories exactly 0755;
+- ordinary files 0644; intentional executable scripts 0755;
+- no pyc/pyo/__pycache__;
+- permission topology is verified before sha256 manifest and exact tree;
+- fresh Info-ZIP extraction must be readable, traversable and removable by an unprivileged user.
+
+Candidate state:
+  G06_PRODUCT_CANDIDATE=READY_FOR_NONDESKTOP_FREEZE
+  G06_INTEGRATED_CHECKPOINT_R3=FORBIDDEN
+  G06_QUALIFICATION_TOPOLOGY=FRESH_PROCESS_GATE_MATRIX
+  G06_PRODUCT_RUNTIME_CHANGED_BY_REAUDIT=NO
+  GIT_MUTATION=NO_USER_REPO
+
+
+================================================================================
+ENTRY — G06 CANDIDATE C1 LANE-4 STOP / VIEW PERFORMANCE ORACLE REBASELINE
+Date: 2026-08-16
+================================================================================
+
+Candidate C1 automated desktop sequence:
+- 263/263 + strict PASS;
+- G04 True-GTK regression PASS;
+- G05 True-GTK Search regression PASS;
+- G06 True-GTK View/content-neutrality PASS, including modal ownership/lifecycle boundaries;
+- old Lane 4 G06 View performance hit its 120 s outer containment timeout;
+- manual desktop validation NOT RUN;
+- Git mutation NONE.
+
+Verdict:
+  C1=STOPPED_NOT_CERTIFIED
+  G06_FUNCTIONAL_VIEW=PASS
+  G06_VIEW_PERFORMANCE=UNRESOLVED
+  PRODUCT_PERFORMANCE_FAIL=NOT_ESTABLISHED
+  PRODUCT_PERFORMANCE_PASS=NOT_ESTABLISHED
+
+Forensic result: the retired Lane-4 tool performed 80 View state transitions before Status,
+including 48 on the live 10 MiB TextView. Wrap and font/zoom invalidate layout, so repeated
+back-and-forth state changes measured cumulative re-layout stress. Metrics were emitted only
+at the end of the lane, preventing exact localization of the timeout. Mature-source review
+of Leafpad, L3afpad, Mousepad and FeatherPad confirmed View settings as single presentation
+transitions rather than an oscillating workload.
+
+Frozen redesigned oracle:
+  G06_VIEW_PERFORMANCE_ORACLE=SINGLE_TRANSITION_FRESH_PROCESS
+  G06_VIEW_PERFORMANCE_PRIMING_PROCESSES=1
+  G06_VIEW_PERFORMANCE_MEASURED_PROCESSES=7
+  G06_VIEW_PERFORMANCE_TRANSITIONS_PER_WORKER=1
+  G06_VIEW_PERFORMANCE_FRAME_ORACLE=FIRST_POST_TRANSITION_AFTER_PAINT
+  G06_VIEW_PERFORMANCE_WORKER_TIMEOUT_SECONDS=30
+  G06_VIEW_PERFORMANCE_FRAME_DEADLINE_SECONDS=15
+  G06_VIEW_PERFORMANCE_FONT_APPLY_10M_P90_MAX_MS=500
+  G06_VIEW_PERFORMANCE_BUDGETS_WEAKENED=NO
+
+Protocol:
+- one fresh priming worker discarded + seven fresh measured workers per scenario;
+- each worker has fresh HOME/XDG and exactly one View transition;
+- Open/startup is setup, not transition latency;
+- latency is action -> first post-transition Gtk frame-clock after-paint;
+- worker timeout names exact scenario/role/index; outer timeout is containment only;
+- shared fixture bytes and exact Saved/history identity must remain unchanged;
+- parent is GTK-free; GTK imports exist only in workers;
+- headless tests own the 1+7 topology and prove fail-closed budgets including Font Apply.
+
+Static redesign closure authority recorded 266/266 PASS and 5/5 strict PASS with Graphium
+runtime byte-for-byte unchanged from C1. Candidate C2 construction is authorized; T480
+execution remains the user's choice after candidate + command delivery.
+GIT_MUTATION=NO_USER_REPO
+
+
+================================================================================
+ENTRY — G06 C2 DESKTOP CERTIFICATION / PUBLICATION HANDOFF
+Date: 2026-08-16
+================================================================================
+
+Published baseline entering G06:
+  G05_COMMIT=a9083daf22ab23cf6cd20841be643510e35d700d
+  G05_TREE=12d55249263e006cc68fa304f3c3cc2a9ef73acb
+
+Certified G06 product candidate:
+  CANDIDATE=C2
+  CANDIDATE_TREE=52d4f07c4757e85f6ebeec87398ec8ec3b6e30bb
+  TESTS=266/266_PASS
+  STRICT_GATES=PASS
+  G04_TRUE_GTK_REGRESSION=PASS
+  G05_TRUE_GTK_REGRESSION=PASS
+  G06_TRUE_GTK=PASS
+  G06_VIEW_PERFORMANCE=PASS
+  G06_LIGHTWEIGHT_BUDGET_GATE=PASS
+  G04_TOPOLOGY=PASS
+  G06_SHORTCUT_COLLISION_AUDIT=PASS
+  G04_FIRST_EDITABLE_REGRESSION=PASS
+  G04_FIRST_VISIBLE_COMPARATORS=PASS
+  G05_SEARCH_PERFORMANCE=PASS
+  G06_STARTUP_SELF_REGRESSION=PASS
+  G06_MANUAL_DESKTOP=4/4_PASS
+  FINAL_PHASE=G06_DESKTOP_CANDIDATE_PASS
+  RUNNER_RC=0
+
+Manual groups all PASS:
+  1. View surface / Compact Status / content neutrality
+  2. Line Numbers / Word Wrap / persistence
+  3. Font persistence / transient Zoom
+  4. Full Screen / realistic 1 MiB responsiveness
+
+View performance C2 p90:
+  line-numbers-1m=86.070ms
+  wrap-1m=74.741ms
+  line-numbers-10m=101.566ms
+  wrap-10m=87.550ms
+  zoom-10m=13.149ms
+  font-apply-10m=95.883ms
+  status-1000-updates=88.991ms
+  max_rss_about=110.65MiB
+
+Retired / forbidden reuse:
+  integrated checkpoint R1 = PACKAGING_DIRECTORY_MODE_DEFECT, product verdict NOT REACHED
+  integrated checkpoint R2 = TRUE_GTK_GATE_MODAL_LIFECYCLE_OWNERSHIP_DEFECT, product verdict NOT REACHED
+  integrated checkpoint R3 = FORBIDDEN
+  Candidate C1 = STOPPED_NOT_CERTIFIED; old Lane4 120s cumulative-relayout oracle retired
+  old repeated-toggle/repeated-reset performance method = FORBIDDEN
+
+Publication truth rule:
+  G06 is NOT to be called published merely because this payload exists. Publication is true only after the supplied finalizer verifies branch main, exact G05 baseline, clean worktree, exact origin URL, real remote main, applies the exact payload, runs strict verification, checks the exact final tree, commits, pushes, fetches, verifies HEAD=origin/main=remote main and clean worktree, then prints FINAL_PHASE=G06_PUBLICATION_PASS.
+
+Next serial work item after publication:
+  G07 — Recent / Save Copy / Version Copy / Properties / Statistics
+  G07_IMPLEMENTATION=FORBIDDEN_BEFORE_AUDIT_AND_CONTRACT_FREEZE
+
+GIT_MUTATION_AT_HANDOVER_BUILD=NONE

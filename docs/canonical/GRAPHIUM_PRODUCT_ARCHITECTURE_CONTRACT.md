@@ -2,8 +2,8 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Status: **G00-G04 CLOSED / CERTIFIED / PUBLISHED; G05 DESKTOP CERTIFIED / PUBLICATION READY / NOT YET PUBLISHED**.
-Published G04 baseline: `283f1aa5352c2403ac9e0a945b87cc82cd08cff0` / tree `5e2aa256a47739c45f9c79f39a9685b5c6a454d6`.
+Status: **G00-G05 CLOSED / CERTIFIED / PUBLISHED; G06 OPEN / CONTRACT FROZEN / IMPLEMENTATION AUTHORIZED / DESKTOP CANDIDATE READY**.
+Published G05 baseline: `a9083daf22ab23cf6cd20841be643510e35d700d` / tree `12d55249263e006cc68fa304f3c3cc2a9ef73acb`.
 
 ## 1. Product identity
 
@@ -822,3 +822,134 @@ Go to Line is 1-based, bounded to the current document line count, and only chan
 G05 performs no startup search scan, idle scan, background worker, persistent index, full-document casefold cache or eager highlight-all computation. Whole Word, canonical-equivalence expansion, regex, fuzzy search and search history remain outside the frozen G05 MUST scope. Explicit command-time text capture is permitted and must be measured on realistic multiline 1 MiB and 10 MiB fixtures; if evidence shows unacceptable responsiveness, architecture must be re-audited rather than silently adding a background subsystem.
 
 G05 cannot close without `LIGHTWEIGHT_BUDGET_GATE=PASS`.
+
+
+## 17. G06 — View Menu Core / Compact Status / Lightweight Presentation
+
+Freeze: 2026-08-15, after audit of published G05 source, target-user/mature-source comparison and the T480 NON-CANDIDATE native `Gtk.TextView` line-number probe.
+
+`G06_CONTRACT=FROZEN`
+`G06_IMPLEMENTATION_AUTHORIZED=YES`
+`G06_VIEW_MENU=STATUS_BAR,LINE_NUMBERS,WORD_WRAP,FONT,ZOOM_IN,ZOOM_OUT,ZOOM_RESET,FULL_SCREEN`
+`G06_APPEARANCE=DEFER_G10`
+`G06_TOOLBAR=REJECT_V1`
+`G06_WORD_WRAP=GTK_WORD_CHAR`
+`G06_LINE_NUMBERS=GTK_TEXTVIEW_LEFT_BORDER_WINDOW`
+`G06_LINE_NUMBER_DRAW_SCOPE=VISIBLE_LOGICAL_LINES_ONLY`
+`G06_WRAPPED_CONTINUATION_NUMBERS=NO`
+`G06_GTKSOURCEVIEW=FORBIDDEN`
+`G06_LINE_NUMBER_BACKGROUND_INDEX=FORBIDDEN`
+`G06_STATUS_FIELDS=LINE_COLUMN,ENCODING_EOL,SAVED_MODIFIED`
+`G06_LIVE_WORD_CHAR_COUNT=DEFER_G07_STATISTICS`
+`G06_FONT=PERSISTENT_FAMILY_SIZE_VIA_CSS_PROVIDER`
+`G06_ZOOM=TRANSIENT_RELATIVE_TO_BASE_FONT`
+`G06_ZOOM_RESET=100_PERCENT`
+`G06_FULL_SCREEN=TRANSIENT`
+`G06_PERSISTENT_DIRECT_VIEW_SETTINGS=WORD_WRAP,LINE_NUMBERS,STATUS_BAR,FONT`
+`G06_SETTINGS_STORAGE=XDG_SMALL_ATOMIC_JSON`
+`G06_SETTINGS_BACKGROUND_WRITE=FORBIDDEN`
+`G06_LIGHTWEIGHT_BUDGET_GATE=REQUIRED`
+`G06_STARTUP_REGRESSION_BASELINE=G04_CERTIFIED_T480`
+`G06_STARTUP_TIME_REGRESSION_LIMIT=MAX_25_PERCENT_OR_75_MS`
+`G06_STARTUP_RSS_REGRESSION_LIMIT=MAX_25_PERCENT_OR_20_MIB`
+`G06_FIRST_EDITABLE_CROSS_PRODUCT_CLAIM=DEFER_G12_COMMON_EXTERNAL_ORACLE`
+
+### 17.1 Single-surface View authority
+
+G06 adds one top-level View menu. Status Bar, Line Numbers and Word Wrap are stateful direct commands whose current state is visible in the menu and persisted from that command surface. Font owns the persistent base family+size. These settings must not later be duplicated in Preferences merely to create a second route. Appearance remains reserved for G10. Toolbar is rejected for v1 rather than hidden behind a preference.
+
+### 17.2 Native line-number gutter
+
+Graphium remains a plain `Gtk.TextView` editor. Line numbers use the widget's native LEFT border window. Gutter width depends on the decimal digit width of the logical line count. Drawing begins from the logical line intersecting the current visible rectangle and advances only through logical lines intersecting that viewport. Wrapped display-line continuations receive no additional number. The gutter must never scan the document, maintain a background line index, create a second scrollable widget, mutate the buffer, allocate history state or require GtkSourceView.
+
+The qualifying T480 NON-CANDIDATE probe on GTK 3.24.41 passed 1 MiB wrap-off, 1 MiB wrap-on and 10 MiB wrap-off. Maximum observed logical lines visited per draw was 40; buffer mutations were zero; manual alignment/scroll/wrap/resize/toggle checks passed. This validates the architecture, not a product candidate.
+
+### 17.3 Compact status and representation projection
+
+The status surface is deliberately cheap and event-driven. Cursor line/column comes from the current `GtkTextIter`; Saved/Modified comes from the published state-ID relation; encoding and EOL come from the accepted document representation metadata. Status refresh must not call whole-document text capture, word counting, character counting or background analytics. New documents project UTF-8/LF. Mixed EOL is shown as observed representation rather than silently normalized.
+
+### 17.4 Font and Zoom separation
+
+Font stores only base family+size. GTK presentation uses a view-local CSS provider; deprecated `Gtk.Widget.override_font` is forbidden. Zoom is a transient multiplier over that configured base font, bounded to a small product range and reset to 100%. Zoom does not change the persistent base font, document text, history, savepoint or representation.
+
+### 17.5 Persistent settings boundary
+
+Persistent direct View settings are a small GTK-free value object backed by one product-local XDG JSON file. Load is read-only and fail-soft. The file is created or replaced only after an explicit setting change, using same-directory temporary staging plus atomic replace. There is no watcher, background writer, settings database, synchronization service or session semantics. A persistence failure must not publish a new in-memory setting as though it were durable.
+
+### 17.6 Lightweight Budget and closure
+
+G06 rejects Toolbar v1 because it duplicates a small conventional menu/shortcut command set without sufficient quick-edit value. Live word/character counts remain deferred to on-demand Statistics. G06 must preserve the G04/G05 startup and comparator gates, measure integrated View responsiveness, and close only with `LIGHTWEIGHT_BUDGET_GATE=PASS`.
+
+
+### 17.4 G06 automated GTK ownership contract
+
+The retired G06 integrated NON-CANDIDATE checkpoint established a harness-ownership rule,
+not a product exception. G06 product qualification MUST preserve the published synchronous
+unsaved-change lifecycle and MUST NOT suppress its dialogs to simplify testing.
+
+Frozen markers:
+
+`G06_INTEGRATED_CHECKPOINT_LINE=RETIRED`
+`G06_TRUE_GTK_EXPECTED_MODAL_COUNT=0`
+`G06_TRUE_GTK_UNEXPECTED_MODAL=UNWIND_THEN_FAIL`
+`G06_FIXTURE_OPEN_REQUIRES_EXACT_SAVED_STATE=YES`
+`G06_EXPECTED_DIALOG_RESPONSE_OWNERSHIP=SCHEDULE_BEFORE_TRIGGER`
+`G06_GLIB_SOURCE_OWNERSHIP=EXPLICIT_CLEANUP_REQUIRED`
+`G06_OUTER_TIMEOUT_ROLE=LAST_RESORT_PROCESS_CONTAINMENT_ONLY`
+`G06_QUALIFICATION_TOPOLOGY=FRESH_PROCESS_GATE_MATRIX`
+
+For a G06 View semantic/performance scenario, replacing the active fixture is legal only
+when `session.modified == False` and the current editor state identity equals the Saved
+state identity. If a scenario intentionally tests a modal, its deterministic response must
+be armed before the product call. G06 View semantics intentionally expects zero modals; an
+unexpected visible `GtkDialog` may be responded to only to unwind a nested loop and MUST
+then fail the gate. A generic dialog auto-canceller that lets the scenario continue is
+forbidden.
+
+The eventual G06 candidate runner orchestrates independent fresh-process gates. No new
+R3 of the retired integrated checkpoint is permitted.
+
+### 17.7 G06 View performance oracle rebaseline after Candidate C1
+
+Candidate C1 passed the full functional G06 True-GTK View gate and stopped only in the
+old monolithic View-performance lane. Static mature-source re-audit established that the
+retired oracle repeatedly oscillated layout-affecting state in one 10 MiB TextView and
+therefore measured cumulative re-layout stress rather than one interactive user request.
+The old repeated-toggle/repeated-reset oracle is forbidden.
+
+Frozen markers:
+
+`G06_VIEW_PERFORMANCE_ORACLE=SINGLE_TRANSITION_FRESH_PROCESS`
+`G06_VIEW_PERFORMANCE_PRIMING_PROCESSES=1`
+`G06_VIEW_PERFORMANCE_MEASURED_PROCESSES=7`
+`G06_VIEW_PERFORMANCE_TRANSITIONS_PER_WORKER=1`
+`G06_VIEW_PERFORMANCE_FRAME_ORACLE=FIRST_POST_TRANSITION_AFTER_PAINT`
+`G06_VIEW_PERFORMANCE_WORKER_TIMEOUT_SECONDS=30`
+`G06_VIEW_PERFORMANCE_FRAME_DEADLINE_SECONDS=15`
+`G06_VIEW_PERFORMANCE_FONT_APPLY_10M_P90_MAX_MS=500`
+`G06_VIEW_PERFORMANCE_BUDGETS_WEAKENED=NO`
+
+Each scenario owns one discarded fresh-process priming sample and seven measured fresh
+processes, each with isolated HOME/XDG and exactly one View transition. Open/startup is
+setup and remains outside the transition latency because G04 already owns startup/open
+performance. The clock begins immediately before the View action and ends at the first
+post-transition GTK frame-clock `after-paint`. A worker timeout names the exact scenario,
+role and sample; the outer candidate-lane watchdog is last-resort containment only.
+
+Measured scenarios are Line Numbers at 1/10 MiB, Word Wrap at 1/10 MiB, Zoom at 10 MiB,
+Font Apply at 10 MiB, and 1000 Compact Status updates. Font Apply replaces only human
+chooser input with deterministic Monospace 14; the real Graphium persistence -> base-font
+-> CSS path remains measured. Existing budgets are retained and Font Apply adds a 500 ms
+p90 ceiling. A budget miss is product-performance evidence; the oracle must not be relaxed
+to manufacture a PASS.
+
+
+## G06 desktop certification and publication closure payload — 2026-08-16
+
+G06 Candidate C2 exact certified tree is `52d4f07c4757e85f6ebeec87398ec8ec3b6e30bb`. T480 certification completed with 266/266 non-desktop tests PASS, strict gates PASS, G04/G05/G06 True-GTK lanes PASS, redesigned single-transition fresh-process View performance PASS, Lightweight Budget PASS, topology and Cinnamon shortcut gates PASS, startup self-regression PASS, common FIRST_VISIBLE comparison PASS, and manual View validation 4/4 PASS.
+
+The certified product scope is Status Bar, native Gtk.TextView visible-logical-line numbers, Word Wrap, persistent Font family+size, transient Zoom, transient Full Screen and Compact Status. Toolbar remains REJECT v1; Appearance remains DEFER G10; live document-wide counts remain DEFER G07 on-demand Statistics.
+
+The two retired integrated NON-CANDIDATE checkpoints remain historical evidence only and MUST NOT be reused. C1's repeated-toggle performance oracle also remains retired. The accepted performance oracle is one priming process plus seven fresh measured processes per scenario, exactly one View transition per worker, action to first post-transition `after-paint`, fail-closed hard budgets.
+
+This file belongs to the G06 publication payload. G06 is considered `CLOSED / CERTIFIED / PUBLISHED` only when `RUN_G06_FINALIZE_AND_PUBLISH.sh` completes with `FINAL_PHASE=G06_PUBLICATION_PASS` and verifies the real remote.

@@ -10,10 +10,13 @@ ROOT=Path(__file__).resolve().parents[1]
 
 
 class G05ContractArchitectureTests(unittest.TestCase):
-    def test_runtime_identity_is_g05(self):
-        self.assertEqual(WORK_ITEM,"G05")
-        self.assertEqual(VERSION,"0.0.6-g05")
-        self.assertEqual(WORK_ITEM_DESCRIPTION,"Search Menu Core / Find / Replace / Go to Line")
+    def test_published_g05_identity_is_retained_as_regression_authority(self):
+        roadmap=(ROOT/"docs/canonical/GRAPHIUM_ROADMAP.md").read_text(encoding="utf-8")
+        self.assertIn("a9083daf22ab23cf6cd20841be643510e35d700d", roadmap)
+        self.assertIn("12d55249263e006cc68fa304f3c3cc2a9ef73acb", roadmap)
+        self.assertTrue(WORK_ITEM.startswith("G"))
+        self.assertTrue(VERSION.startswith("0.0."))
+        self.assertTrue(WORK_ITEM_DESCRIPTION)
 
     def test_search_commands_are_product_owned_and_exact(self):
         search=[(c.action,c.label,c.accelerator) for c in COMMANDS if c.menu=="Search"]

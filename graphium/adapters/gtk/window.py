@@ -1,4 +1,4 @@
-"""Thin GTK3 single-document editor window through Graphium G05."""
+"""Thin GTK3 single-document editor window through Graphium G06."""
 from __future__ import annotations
 
 import os
@@ -10,6 +10,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk, Gio, GLib, GObject, Gtk
 
 from graphium.application.commands import COMMANDS, command_availability
+from graphium.application.view_status import project_compact_status
 from graphium.domain.text_search import SearchInputError, SearchMatch
 from graphium.composition import build_core
 from graphium.domain.edit_history import ViewState
@@ -19,8 +20,11 @@ from graphium.application.renderability import (
     ensure_join_renderable,
 )
 from graphium.product import PRODUCT_NAME, VERSION
-from .dialogs import GtkLifecycleUI, choose_line_number, show_about, show_text_document
+from .dialogs import (
+    GtkLifecycleUI, choose_font, choose_line_number, show_about, show_text_document,
+)
 from .editor_buffer import GtkTextBufferPort
+from .editor_view import GraphiumTextView
 
 
 class GraphiumWindow(Gtk.ApplicationWindow):
@@ -42,15 +46,17 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._search_replace_row: Gtk.Widget | None = None
         self._search_match_case: Gtk.CheckButton | None = None
         self._search_status: Gtk.Label | None = None
+        self._status_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        self._status_bar.set_border_width(4)
+        self._status_position = Gtk.Label(label="Ln 1, Col 1")
+        self._status_position.set_xalign(0.0)
+        self._status_document = Gtk.Label(label="UTF-8 · LF · Saved")
+        self._status_document.set_xalign(1.0)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add(box)
 
-        self.text_view = Gtk.TextView()
-        self.text_view.set_wrap_mode(Gtk.WrapMode.NONE)
-        self.text_view.set_monospace(True)
-        self.text_view.set_left_margin(6)
-        self.text_view.set_right_margin(6)
+        self.text_view = GraphiumTextView()
         self.buffer = self.text_view.get_buffer()
         self.buffer_port = GtkTextBufferPort(self.buffer)
 
@@ -59,17 +65,24 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         scroller.add(self.text_view)
         box.pack_start(scroller, True, True, 0)
 
+        self._status_bar.pack_start(self._status_position, False, False, 4)
+        self._status_bar.pack_end(self._status_document, False, False, 4)
+        box.pack_end(self._status_bar, False, False, 0)
+
         ui = GtkLifecycleUI(self)
         self._ui = ui
         self.core = build_core(buffer=self.buffer_port, ui=ui)
         self.core.editor.initialize_new_text("", clean=True)
+        self._apply_initial_view_settings()
 
         self._install_actions()
         self._install_menu()
         self._connect_native_edit_signals()
         self.buffer.connect("notify::has-selection", self._on_selection_changed)
+        self.buffer.connect("notify::cursor-position", self._on_cursor_position_changed)
         self.connect("delete-event", self._on_delete_event)
         self.connect("map-event", self._on_mapped)
+        self.connect("window-state-event", self._on_window_state_event)
         self._refresh_projection()
 
     def _install_actions(self) -> None:
@@ -91,19 +104,41 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "find-previous": self._action_find_previous,
             "replace": self._action_replace,
             "go-to-line": self._action_go_to_line,
+            "status-bar": self._action_status_bar,
+            "line-numbers": self._action_line_numbers,
+            "word-wrap": self._action_word_wrap,
+            "font": self._action_font,
+            "zoom-in": self._action_zoom_in,
+            "zoom-out": self._action_zoom_out,
+            "zoom-reset": self._action_zoom_reset,
+            "full-screen": self._action_full_screen,
             "user-guide": self._action_user_guide,
             "keyboard-shortcuts": self._action_keyboard_shortcuts,
             "about": self._action_about,
         }
         for spec in COMMANDS:
-            action = Gio.SimpleAction.new(spec.action, None)
+            if spec.stateful:
+                action = Gio.SimpleAction.new_stateful(
+                    spec.action, None, GLib.Variant.new_boolean(self._initial_action_state(spec.action))
+                )
+            else:
+                action = Gio.SimpleAction.new(spec.action, None)
             action.connect("activate", callbacks[spec.action])
             self.add_action(action)
             self._actions[spec.action] = action
 
+    def _initial_action_state(self, action: str) -> bool:
+        settings = self.core.view_settings.current
+        return {
+            "status-bar": settings.status_bar,
+            "line-numbers": settings.line_numbers,
+            "word-wrap": settings.word_wrap,
+            "full-screen": False,
+        }[action]
+
     def _install_menu(self) -> None:
         root = Gio.Menu()
-        for menu_name in ("File", "Edit", "Search", "Help"):
+        for menu_name in ("File", "Edit", "Search", "View", "Help"):
             section = Gio.Menu()
             for spec in COMMANDS:
                 if spec.menu == menu_name:
@@ -115,6 +150,41 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         container.pack_start(menubar, False, False, 0)
         container.reorder_child(menubar, 0)
         menubar.show_all()
+
+    def _apply_initial_view_settings(self) -> None:
+        settings = self.core.view_settings.current
+        self.text_view.set_wrap_mode(
+            Gtk.WrapMode.WORD_CHAR if settings.word_wrap else Gtk.WrapMode.NONE
+        )
+        self.text_view.set_line_numbers_visible(settings.line_numbers)
+        self.text_view.set_base_font(settings.font_family, settings.font_size_points)
+        self._set_status_bar_visible(settings.status_bar)
+
+    def _set_status_bar_visible(self, visible: bool) -> None:
+        # Gtk.Window.show_all() must not resurrect a persistently hidden status bar.
+        self._status_bar.set_no_show_all(not visible)
+        if visible:
+            self._status_bar.show_all()
+        else:
+            self._status_bar.hide()
+
+    @staticmethod
+    def _boolean_action_value(action: Gio.SimpleAction) -> bool:
+        state = action.get_state()
+        assert state is not None
+        return state.get_boolean()
+
+    @staticmethod
+    def _set_boolean_action(action: Gio.SimpleAction, value: bool) -> None:
+        action.set_state(GLib.Variant.new_boolean(bool(value)))
+
+    def _persist_view_setting(self, **changes) -> bool:
+        try:
+            self.core.view_settings.update(**changes)
+            return True
+        except Exception as exc:
+            self._ui.show_warning("View setting was not saved", str(exc))
+            return False
 
     def _connect_native_edit_signals(self) -> None:
         # Real semantic boundaries come from GtkTextBuffer user actions and structural
@@ -236,6 +306,9 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _on_selection_changed(self, _buffer, _pspec) -> None:
         self._refresh_projection()
 
+    def _on_cursor_position_changed(self, _buffer, _pspec) -> None:
+        self._refresh_status()
+
     def _title(self) -> str:
         path = self.core.session.logical_path
         name = Path(path).name if path else "Untitled"
@@ -258,6 +331,18 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._actions["cut"].set_enabled(availability.cut)
         self._actions["copy"].set_enabled(availability.copy)
         self._actions["delete"].set_enabled(availability.delete)
+        self._refresh_status()
+
+    def _refresh_status(self) -> None:
+        insert = self.buffer.get_iter_at_mark(self.buffer.get_insert())
+        status = project_compact_status(
+            line=insert.get_line() + 1,
+            column=insert.get_line_offset() + 1,
+            file_state=self.core.session.file_state,
+            modified=self.core.session.modified,
+        )
+        self._status_position.set_text(status.position_text)
+        self._status_document.set_text(status.document_text)
 
     def _action_new(self, *_args) -> None:
         self.core.lifecycle.new_document()
@@ -628,6 +713,70 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self.text_view.scroll_to_iter(target, 0.08, False, 0.0, 0.0)
         self._refresh_projection()
         self.text_view.grab_focus()
+
+    def _action_status_bar(self, action: Gio.SimpleAction, _parameter) -> None:
+        value = not self._boolean_action_value(action)
+        if not self._persist_view_setting(status_bar=value):
+            return
+        self._set_boolean_action(action, value)
+        self._set_status_bar_visible(value)
+
+    def _action_line_numbers(self, action: Gio.SimpleAction, _parameter) -> None:
+        value = not self._boolean_action_value(action)
+        if not self._persist_view_setting(line_numbers=value):
+            return
+        self._set_boolean_action(action, value)
+        self.text_view.set_line_numbers_visible(value)
+
+    def _action_word_wrap(self, action: Gio.SimpleAction, _parameter) -> None:
+        value = not self._boolean_action_value(action)
+        if not self._persist_view_setting(word_wrap=value):
+            return
+        self._set_boolean_action(action, value)
+        self.text_view.set_wrap_mode(
+            Gtk.WrapMode.WORD_CHAR if value else Gtk.WrapMode.NONE
+        )
+
+    def _action_font(self, *_args) -> None:
+        settings = self.core.view_settings.current
+        chosen = choose_font(
+            self, family=settings.font_family, size_points=settings.font_size_points
+        )
+        if chosen is None:
+            self.text_view.grab_focus()
+            return
+        family, size_points = chosen
+        if self._persist_view_setting(font_family=family, font_size_points=size_points):
+            current = self.core.view_settings.current
+            self.text_view.set_base_font(current.font_family, current.font_size_points)
+        self.text_view.grab_focus()
+
+    def _action_zoom_in(self, *_args) -> None:
+        self.text_view.zoom_in()
+        self.text_view.grab_focus()
+
+    def _action_zoom_out(self, *_args) -> None:
+        self.text_view.zoom_out()
+        self.text_view.grab_focus()
+
+    def _action_zoom_reset(self, *_args) -> None:
+        self.text_view.reset_zoom()
+        self.text_view.grab_focus()
+
+    def _action_full_screen(self, action: Gio.SimpleAction, _parameter) -> None:
+        value = not self._boolean_action_value(action)
+        self._set_boolean_action(action, value)
+        if value:
+            self.fullscreen()
+        else:
+            self.unfullscreen()
+
+    def _on_window_state_event(self, _window, event) -> bool:
+        fullscreen = bool(event.new_window_state & Gdk.WindowState.FULLSCREEN)
+        action = self._actions.get("full-screen")
+        if action is not None and self._boolean_action_value(action) != fullscreen:
+            self._set_boolean_action(action, fullscreen)
+        return False
 
     @staticmethod
     def _help_path(name: str) -> str:

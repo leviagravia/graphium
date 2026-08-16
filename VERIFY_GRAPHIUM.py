@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed non-desktop verifier for Graphium G05, preserving G00-G04 invariants."""
+"""Fail-closed non-desktop verifier for Graphium G06, preserving G00-G05 invariants."""
 from __future__ import annotations
 
 import ast
@@ -20,7 +20,7 @@ EXPECTED_CANONICAL = {
     "GRAPHIUM_ROADMAP.md",
     "GRAPHIUM_MEMORIA_OPERATIVA.txt",
 }
-EXPECTED_TESTS = 238
+EXPECTED_TESTS = 266
 EXPECTED_W116 = {
     "calamus_command_catalog.py": "687332708c5323f0639bdfc8e74f5638ed412534677e96e788fa5efcd2e647c3",
     "calamus_dialogs.py": "68a6fcc44d02c8534841ebe24bd53f69134f9b626529759bc648835e1aba4de2",
@@ -59,16 +59,16 @@ def verify_identity() -> None:
     sys.path.insert(0, str(ROOT))
     from graphium.product import DESKTOP_APPLICATION_ID, VERSION, WORK_ITEM, WORK_ITEM_DESCRIPTION
     expected = (
-        "G05",
-        "Search Menu Core / Find / Replace / Go to Line",
-        "0.0.6-g05",
+        "G06",
+        "View Menu Core / Compact Status / Lightweight Presentation",
+        "0.0.7-g06",
         "io.github.leviagravia.Graphium",
     )
     actual = (WORK_ITEM, WORK_ITEM_DESCRIPTION, VERSION, DESKTOP_APPLICATION_ID)
     if actual != expected:
-        fail(f"unexpected G05 identity: {actual}")
-    print("G05_RUNTIME_IDENTITY=PASS")
-    print("G05_DESKTOP_APPLICATION_ID=PASS")
+        fail(f"unexpected G06 identity: {actual}")
+    print("G06_RUNTIME_IDENTITY=PASS")
+    print("G06_DESKTOP_APPLICATION_ID=PASS")
 
 
 def verify_compile() -> None:
@@ -123,15 +123,24 @@ def verify_single_writer() -> None:
                 writer_classes.append((path.relative_to(ROOT).as_posix(), node.name))
     if writer_classes != [(writer_rel, "GuardedFileWriter")]:
         fail(f"unexpected writer authorities: {writer_classes}")
-    # High-risk namespace/document mutation primitives remain confined to the writer.
+    # High-risk DOCUMENT namespace mutation primitives remain confined to the writer.
+    # G06 may atomically replace its own product-local XDG settings file; that store is
+    # explicitly non-document authority and must not import document persistence code.
+    config_store_rel = "graphium/infrastructure/view_settings_store.py"
     for path in sorted(PACKAGE.rglob("*.py")):
         rel = path.relative_to(ROOT).as_posix()
-        if rel == writer_rel:
+        if rel in (writer_rel, config_store_rel):
             continue
         text = path.read_text(encoding="utf-8")
         for marker in ("os.replace(", "os.link(", "os.rename(", "os.fsync(", ".write_bytes("):
             if marker in text:
                 fail(f"document-writer marker outside authority: {rel}: {marker}")
+    config_store = ROOT / config_store_rel
+    if config_store.is_file():
+        text = config_store.read_text(encoding="utf-8")
+        for forbidden in ("GuardedFileWriter", "DocumentSave", "load_document", "logical_target_path"):
+            if forbidden in text:
+                fail(f"XDG settings store crossed into document authority: {forbidden}")
     print("SINGLE_PHYSICAL_WRITER=PASS count=1")
 
 
@@ -170,20 +179,29 @@ def verify_ui_scope() -> None:
     runtime = "\n".join(p.read_text(encoding="utf-8") for p in sorted(PACKAGE.rglob("*.py")))
     for forbidden in ("GtkSourceView", "Gtk.Toolbar", "Gio.FileMonitor", "Gtk.Notebook"):
         if forbidden in runtime:
-            fail(f"G05 out-of-scope UI/runtime marker: {forbidden}")
+            fail(f"G06 out-of-scope UI/runtime marker: {forbidden}")
     from graphium.application.commands import COMMANDS
     expected = [
         "new", "open", "save", "save-as", "quit",
         "undo", "redo", "cut", "copy", "paste", "delete", "select-all",
         "find", "find-next", "find-previous", "replace", "go-to-line",
+        "status-bar", "line-numbers", "word-wrap", "font",
+        "zoom-in", "zoom-out", "zoom-reset", "full-screen",
         "user-guide", "keyboard-shortcuts", "about",
     ]
     if [c.action for c in COMMANDS] != expected:
-        fail(f"unexpected command surface: {[c.action for c in COMMANDS]}")
+        fail(f"unexpected G06 command surface: {[c.action for c in COMMANDS]}")
+    by_action = {c.action: c for c in COMMANDS}
+    for action in ("status-bar", "line-numbers", "word-wrap", "full-screen"):
+        if not by_action[action].stateful:
+            fail(f"G06 View action must be stateful: {action}")
+    if any(c.action in ("toolbar", "appearance") for c in COMMANDS):
+        fail("G06 prematurely added toolbar or appearance command")
     for rel in ("docs/user/GRAPHIUM_USER_GUIDE.txt", "docs/user/GRAPHIUM_KEYBOARD_SHORTCUTS.txt"):
         if not (ROOT / rel).is_file():
             fail(f"Help product file missing: {rel}")
-    print("G05_COMMAND_SURFACE=PASS")
+    print("G06_COMMAND_SURFACE=PASS")
+    print("G06_TOOLBAR_ABSENT=PASS")
     print("HELP_INCREMENTAL=PASS")
 
 
@@ -240,6 +258,9 @@ def verify_entrypoints() -> None:
         "tools/g04_shortcut_audit.py", "tools/g04_true_gtk_gate.py",
         "tools/g05_shortcut_audit.py", "tools/g05_true_gtk_gate.py",
         "tools/g05_search_performance.py",
+        "tools/g06_shortcut_audit.py", "tools/g06_true_gtk_gate.py",
+        "tools/g06_view_performance.py",
+        "tools/g06_startup_regression.py",
     ):
         text = (ROOT / rel).read_text(encoding="utf-8")
         if "Path(__file__).resolve()" not in text or "sys.path.insert(0" not in text:
@@ -338,6 +359,143 @@ def verify_g05_search_architecture() -> None:
     print("G05_SEARCH_LIGHTWEIGHT_ARCHITECTURE=PASS")
 
 
+def verify_g06_view_architecture() -> None:
+    settings = (ROOT / "graphium/application/view_settings.py").read_text(encoding="utf-8")
+    status = (ROOT / "graphium/application/view_status.py").read_text(encoding="utf-8")
+    store = (ROOT / "graphium/infrastructure/view_settings_store.py").read_text(encoding="utf-8")
+    view = (ROOT / "graphium/adapters/gtk/editor_view.py").read_text(encoding="utf-8")
+    window = (ROOT / "graphium/adapters/gtk/window.py").read_text(encoding="utf-8")
+    composition = (ROOT / "graphium/composition.py").read_text(encoding="utf-8")
+    perf = (TOOLS / "g06_view_performance.py").read_text(encoding="utf-8")
+    startup = (TOOLS / "g06_startup_regression.py").read_text(encoding="utf-8")
+    true_gtk = (TOOLS / "g06_true_gtk_gate.py").read_text(encoding="utf-8")
+
+    for marker in (
+        "class ViewSettings", "class ViewSettingsController",
+        "word_wrap: bool = False", "line_numbers: bool = False",
+        "status_bar: bool = True", "font_family", "font_size_points",
+    ):
+        if marker not in settings:
+            fail(f"G06 view-settings marker missing: {marker}")
+    settings_tree = ast.parse(settings, filename="graphium/application/view_settings.py")
+    persistent_fields: set[str] = set()
+    for node in settings_tree.body:
+        if isinstance(node, ast.ClassDef) and node.name == "ViewSettings":
+            for item in node.body:
+                if isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
+                    persistent_fields.add(item.target.id)
+    if persistent_fields != {
+        "word_wrap", "line_numbers", "status_bar", "font_family", "font_size_points"
+    }:
+        fail(f"unexpected G06 persistent View fields: {sorted(persistent_fields)}")
+    if persistent_fields & {"zoom", "zoom_percent", "fullscreen", "full_screen"}:
+        fail(f"transient G06 state leaked into persistent model: {sorted(persistent_fields)}")
+
+    for marker in ("class JsonViewSettingsStore", "tempfile.mkstemp", "os.fsync", "os.replace"):
+        if marker not in store:
+            fail(f"G06 XDG settings-store marker missing: {marker}")
+    for forbidden in ("GuardedFileWriter", "DocumentSaveService", "load_document", "logical_target_path"):
+        if forbidden in store:
+            fail(f"G06 config store crossed document authority: {forbidden}")
+
+    for marker in (
+        "class GraphiumTextView(Gtk.TextView)",
+        "Gtk.TextWindowType.LEFT",
+        "get_visible_rect()",
+        "get_line_at_y",
+        "get_line_yrange",
+        "forward_line()",
+        "Gtk.render_layout",
+        "Gtk.CssProvider",
+    ):
+        if marker not in view:
+            fail(f"G06 thin view marker missing: {marker}")
+    view_imports = imports_in(ROOT / "graphium/adapters/gtk/editor_view.py")
+    for forbidden_import in ("threading", "concurrent.futures", "multiprocessing"):
+        if any(name == forbidden_import or name.startswith(forbidden_import + ".") for name in view_imports):
+            fail(f"G06 forbidden view worker infrastructure: {forbidden_import}")
+    for forbidden in ("GtkSourceView", "Gtk.Toolbar", "Thread("):
+        if forbidden in view:
+            fail(f"G06 forbidden view infrastructure: {forbidden}")
+    if "set_border_window_size(Gtk.TextWindowType.LEFT, 0)" not in view:
+        fail("G06 line-number gutter does not have native disable path")
+
+    for marker in ("project_compact_status", "Ln {self.line}, Col {self.column}", "Saved", "Modified"):
+        if marker not in status:
+            fail(f"G06 compact-status marker missing: {marker}")
+    for forbidden in ("get_text(", "get_char_count(", "split(", "word_count", "character_count"):
+        if forbidden in status:
+            fail(f"G06 status projection appears document-scanning: {forbidden}")
+    refresh = window[window.index("def _refresh_status"):window.index("def _action_new")]
+    for forbidden in ("capture_text", "get_text(", "get_char_count("):
+        if forbidden in refresh:
+            fail(f"G06 status refresh scans/copies document: {forbidden}")
+
+    if "ViewSettingsController" not in composition or composition.count("ViewSettingsController(") != 1:
+        fail("G06 persistent View settings authority is not composed exactly once")
+    for marker in ("Gtk.WrapMode.WORD_CHAR", "set_line_numbers_visible", "set_base_font", "zoom_in", "zoom_out", "reset_zoom", "fullscreen()", "unfullscreen()"):
+        if marker not in window:
+            fail(f"G06 GTK View projection marker missing: {marker}")
+    for forbidden in ("override_font", "modify_font"):
+        if forbidden in view + window:
+            fail(f"deprecated G06 font path detected: {forbidden}")
+
+    for marker in (
+        "G06_TRUE_GTK_VIEW_ACTIONS=PASS",
+        "G06_TRUE_GTK_SETTINGS_PERSISTENCE=PASS",
+        "G06_TRUE_GTK_LINE_NUMBERS_NATIVE_GUTTER=PASS",
+        "G06_TRUE_GTK_WORD_WRAP=PASS",
+        "G06_TRUE_GTK_FONT_ZOOM_SPLIT=PASS",
+        "G06_TRUE_GTK_COMPACT_STATUS=PASS",
+        "G06_TRUE_GTK_VIEW_CONTENT_NEUTRAL=PASS",
+        "G06_TRUE_GTK_LARGE_MULTILINE_VIEW=PASS",
+        "G06_TRUE_GTK_TOOLBAR_ABSENT=PASS",
+        "G06_TRUE_GTK_MODAL_OWNERSHIP=PASS",
+        "G06_TRUE_GTK_LIFECYCLE_BOUNDARIES=PASS",
+    ):
+        if marker not in true_gtk:
+            fail(f"G06 True-GTK marker missing: {marker}")
+    for marker in (
+        "LIGHTWEIGHT_BUDGET_VIEW_GATE=PASS",
+        "G06_VIEW_PERFORMANCE_LIFECYCLE_BOUNDARIES=PASS",
+        "G06_VIEW_PERFORMANCE_ORACLE=SINGLE_TRANSITION_FRESH_PROCESS",
+        "PRIMING_PROCESSES = 1",
+        "MEASURED_PROCESSES = 7",
+        "WORKER_TIMEOUT_SECONDS = 30",
+        "FRAME_DEADLINE_SECONDS = 15.0",
+        "after-paint",
+        "line-numbers-10m",
+        "wrap-10m",
+        "zoom-10m",
+        "font-apply-10m",
+        "status-1000-updates",
+        "MAX_FONT_APPLY_10M_P90_MS",
+        "G06_VIEW_PERFORMANCE_FRESH_PROCESS_PROTOCOL=PASS",
+        "G06_VIEW_PERFORMANCE_FIRST_POST_TRANSITION_FRAME=PASS",
+    ):
+        if marker not in perf:
+            fail(f"G06 View performance marker missing: {marker}")
+    for retired in ("def benchmark_toggle", "def benchmark_zoom"):
+        if retired in perf:
+            fail(f"retired cumulative G06 performance oracle returned: {retired}")
+    if perf.index("import gi") < perf.index("def run_worker("):
+        fail("G06 performance parent imported GTK instead of remaining GTK-free")
+    for marker in (
+        "G04_FIRST_EDITABLE_BASELINE_MS",
+        "G04_FIRST_VISIBLE_GRAPHIUM_BASELINE_MS",
+        "G06_STARTUP_REGRESSION_GATE=PASS",
+        "G06_FIRST_EDITABLE_CROSS_PRODUCT_CLAIM=FORBIDDEN_UNTIL_G12",
+    ):
+        if marker not in startup:
+            fail(f"G06 startup regression marker missing: {marker}")
+
+    print("G06_VIEW_SETTINGS_AUTHORITY=PASS")
+    print("G06_NATIVE_LINE_NUMBER_GUTTER=PASS")
+    print("G06_COMPACT_STATUS_CHEAP_PROJECTION=PASS")
+    print("G06_FONT_ZOOM_TRANSIENT_SPLIT=PASS")
+    print("G06_VIEW_LIGHTWEIGHT_ARCHITECTURE=PASS")
+
+
 def verify_shortcuts() -> None:
     from graphium.application.commands import FORBIDDEN_ACCELERATORS, accelerator_map
     if "<Ctrl><Alt>L" not in FORBIDDEN_ACCELERATORS:
@@ -362,6 +520,14 @@ def verify_evidence() -> None:
         "evidence/G05_SCALE_HARDENING_RECEIPT.txt",
         "evidence/G05_DEAD_CODE_AUDIT.txt",
         "evidence/G05_SCOPE_AND_BUILD_RECEIPT.txt",
+        "evidence/G06_SOURCE_AUDIT.txt",
+        "evidence/G06_MATURE_SOURCE_AUDIT.txt",
+        "evidence/G06_LINE_NUMBERS_NONCANDIDATE_PROBE_RECEIPT_20260815.txt",
+        "evidence/G06_DEAD_CODE_AUDIT.txt",
+        "evidence/G06_SCOPE_AND_BUILD_RECEIPT.txt",
+        "evidence/G06_INTEGRATED_CHECKPOINT_FAILURE_REAUDIT_20260815.txt",
+        "evidence/G06_TRUE_GTK_MODAL_LIFECYCLE_TIMEOUT_OWNERSHIP_AUDIT_20260815.txt",
+        "evidence/G06_VIEW_PERFORMANCE_TIMEOUT_REAUDIT_20260815.txt",
     )
     for rel in required:
         if not (ROOT / rel).is_file():
@@ -397,6 +563,55 @@ def verify_evidence() -> None:
     ):
         if marker not in huge_audit:
             fail(f"huge-line mature audit marker missing: {marker}")
+    g06_audit = (ROOT / "evidence/G06_MATURE_SOURCE_AUDIT.txt").read_text(encoding="utf-8")
+    for marker in (
+        "ASSUMPTION UNDER TEST", "CONTRADICTORY / STRESSING EVIDENCE",
+        "ALTERNATIVE MATURE MODEL", "GRAPHIUM CONSEQUENCE", "DECISION",
+        "Leafpad", "L3afpad", "Mousepad", "Gtk.TextView",
+        "REJECT v1", "MATURE_AUDIT=PASS", "CONFIRMATION_BIAS_COUNTERMEASURE=PASS",
+    ):
+        if marker not in g06_audit:
+            fail(f"G06 mature audit marker missing: {marker}")
+    g06_probe = (ROOT / "evidence/G06_LINE_NUMBERS_NONCANDIDATE_PROBE_RECEIPT_20260815.txt").read_text(encoding="utf-8")
+    for marker in (
+        "PRE_PRODUCT_PROBE_HARNESS_IMPORT_DEFECT",
+        "G06_LINE_NUMBERS_NONCANDIDATE_PROBE=PASS",
+        "FINAL_PHASE=G06_LINE_NUMBERS_NONCANDIDATE_PROBE_PASS",
+        "G06_LINE_NUMBERS=ADOPT",
+    ):
+        if marker not in g06_probe:
+            fail(f"G06 line-number probe receipt marker missing: {marker}")
+    g06_ownership = (ROOT / "evidence/G06_TRUE_GTK_MODAL_LIFECYCLE_TIMEOUT_OWNERSHIP_AUDIT_20260815.txt").read_text(encoding="utf-8")
+    for marker in (
+        "Mousepad 0.7.0", "Leafpad", "L3afpad",
+        "G06_INTEGRATED_CHECKPOINT_LINE=RETIRED",
+        "G06_TRUE_GTK_EXPECTED_MODAL_COUNT=0",
+        "G06_TRUE_GTK_UNEXPECTED_MODAL=UNWIND_THEN_FAIL",
+        "G06_FIXTURE_OPEN_REQUIRES_EXACT_SAVED_STATE=YES",
+        "G06_EXPECTED_DIALOG_RESPONSE_OWNERSHIP=SCHEDULE_BEFORE_TRIGGER",
+        "G06_GLIB_SOURCE_OWNERSHIP=EXPLICIT_CLEANUP_REQUIRED",
+        "G06_OUTER_TIMEOUT_ROLE=LAST_RESORT_PROCESS_CONTAINMENT_ONLY",
+        "G06_QUALIFICATION_TOPOLOGY=FRESH_PROCESS_GATE_MATRIX",
+        "G06_NEXT_T480_RUN=PRODUCT_CANDIDATE_ONLY_AFTER_SEPARATE_AUTHORIZATION",
+        "MATURE_SOURCE_AUDIT=PASS",
+        "CONFIRMATION_BIAS_COUNTERMEASURE=PASS",
+    ):
+        if marker not in g06_ownership:
+            fail(f"G06 modal/lifecycle/timeout ownership audit marker missing: {marker}")
+    g06_perf_audit = (ROOT / "evidence/G06_VIEW_PERFORMANCE_TIMEOUT_REAUDIT_20260815.txt").read_text(encoding="utf-8")
+    for marker in (
+        "OLD_ORACLE=RETIRED",
+        "SINGLE_TRANSITION_PER_FRESH_PROCESS=ADOPT",
+        "FIRST_POST_TRANSITION_FRAME=ADOPT",
+        "PRIMING_PROCESSES=1",
+        "MEASURED_PROCESSES_PER_SCENARIO=7",
+        "MAX_FONT_APPLY_10M_P90_MS=500",
+        "BUDGETS_WEAKENED=NO",
+        "MATURE_SOURCE_REAUDIT=PASS",
+        "CONFIRMATION_BIAS_COUNTERMEASURE=PASS",
+    ):
+        if marker not in g06_perf_audit:
+            fail(f"G06 View performance timeout re-audit marker missing: {marker}")
     data = json.loads((ROOT / "evidence/G04_W116_PROVENANCE.json").read_text(encoding="utf-8"))
     if data.get("calamus_commit") != "33331672f5ba8fcc6a7e1ede9ab849638579f0c7":
         fail("wrong Calamus W116 provenance commit")
@@ -410,6 +625,11 @@ def verify_evidence() -> None:
     print("G04_DEAD_CODE_AUDIT=PASS")
     print("G05_SOURCE_AND_MATURE_AUDIT=PASS")
     print("G05_DEAD_CODE_AUDIT=PASS")
+    print("G06_SOURCE_AND_MATURE_AUDIT=PASS")
+    print("G06_LINE_NUMBERS_PROBE_EVIDENCE=PASS")
+    print("G06_MODAL_LIFECYCLE_TIMEOUT_OWNERSHIP_AUDIT=PASS")
+    print("G06_VIEW_PERFORMANCE_TIMEOUT_REAUDIT=PASS")
+    print("G06_DEAD_CODE_AUDIT=PASS")
 
 
 def verify_contracts() -> None:
@@ -448,6 +668,47 @@ def verify_contracts() -> None:
     ):
         if marker not in contract:
             fail(f"G05 contract marker missing: {marker}")
+    for marker in (
+        "G06_CONTRACT=FROZEN",
+        "G06_IMPLEMENTATION_AUTHORIZED=YES",
+        "G06_VIEW_MENU=STATUS_BAR,LINE_NUMBERS,WORD_WRAP,FONT,ZOOM_IN,ZOOM_OUT,ZOOM_RESET,FULL_SCREEN",
+        "G06_APPEARANCE=DEFER_G10",
+        "G06_TOOLBAR=REJECT_V1",
+        "G06_WORD_WRAP=GTK_WORD_CHAR",
+        "G06_LINE_NUMBERS=GTK_TEXTVIEW_LEFT_BORDER_WINDOW",
+        "G06_LINE_NUMBER_DRAW_SCOPE=VISIBLE_LOGICAL_LINES_ONLY",
+        "G06_WRAPPED_CONTINUATION_NUMBERS=NO",
+        "G06_GTKSOURCEVIEW=FORBIDDEN",
+        "G06_STATUS_FIELDS=LINE_COLUMN,ENCODING_EOL,SAVED_MODIFIED",
+        "G06_LIVE_WORD_CHAR_COUNT=DEFER_G07_STATISTICS",
+        "G06_FONT=PERSISTENT_FAMILY_SIZE_VIA_CSS_PROVIDER",
+        "G06_ZOOM=TRANSIENT_RELATIVE_TO_BASE_FONT",
+        "G06_FULL_SCREEN=TRANSIENT",
+        "G06_SETTINGS_STORAGE=XDG_SMALL_ATOMIC_JSON",
+        "G06_SETTINGS_BACKGROUND_WRITE=FORBIDDEN",
+        "G06_LIGHTWEIGHT_BUDGET_GATE=REQUIRED",
+        "G06_STARTUP_REGRESSION_BASELINE=G04_CERTIFIED_T480",
+        "G06_STARTUP_TIME_REGRESSION_LIMIT=MAX_25_PERCENT_OR_75_MS",
+        "G06_STARTUP_RSS_REGRESSION_LIMIT=MAX_25_PERCENT_OR_20_MIB",
+        "G06_FIRST_EDITABLE_CROSS_PRODUCT_CLAIM=DEFER_G12_COMMON_EXTERNAL_ORACLE",
+        "G06_INTEGRATED_CHECKPOINT_LINE=RETIRED",
+        "G06_TRUE_GTK_EXPECTED_MODAL_COUNT=0",
+        "G06_TRUE_GTK_UNEXPECTED_MODAL=UNWIND_THEN_FAIL",
+        "G06_FIXTURE_OPEN_REQUIRES_EXACT_SAVED_STATE=YES",
+        "G06_EXPECTED_DIALOG_RESPONSE_OWNERSHIP=SCHEDULE_BEFORE_TRIGGER",
+        "G06_GLIB_SOURCE_OWNERSHIP=EXPLICIT_CLEANUP_REQUIRED",
+        "G06_OUTER_TIMEOUT_ROLE=LAST_RESORT_PROCESS_CONTAINMENT_ONLY",
+        "G06_VIEW_PERFORMANCE_ORACLE=SINGLE_TRANSITION_FRESH_PROCESS",
+        "G06_VIEW_PERFORMANCE_PRIMING_PROCESSES=1",
+        "G06_VIEW_PERFORMANCE_MEASURED_PROCESSES=7",
+        "G06_VIEW_PERFORMANCE_TRANSITIONS_PER_WORKER=1",
+        "G06_VIEW_PERFORMANCE_FRAME_ORACLE=FIRST_POST_TRANSITION_AFTER_PAINT",
+        "G06_VIEW_PERFORMANCE_FONT_APPLY_10M_P90_MAX_MS=500",
+        "G06_VIEW_PERFORMANCE_BUDGETS_WEAKENED=NO",
+        "G06_QUALIFICATION_TOPOLOGY=FRESH_PROCESS_GATE_MATRIX",
+    ):
+        if marker not in contract:
+            fail(f"G06 contract marker missing: {marker}")
     if "e7045e0ce1c79da71c9968bdfa052df25a5378b7" not in roadmap:
         fail("published G03 baseline missing from roadmap")
     if "Native Edit Integration Hardening" not in roadmap:
@@ -473,6 +734,7 @@ def verify_contracts() -> None:
     print("G04_ROADMAP_REBASELINE=PASS")
     print("G04_TARGET_USER_MARKERS=PASS")
     print("G05_CONTRACT_MARKERS=PASS")
+    print("G06_CONTRACT_MARKERS=PASS")
 
 
 def verify_text_integrity() -> None:
@@ -516,6 +778,7 @@ def main() -> None:
     verify_entrypoints()
     verify_performance_protocol()
     verify_g05_search_architecture()
+    verify_g06_view_architecture()
     verify_shortcuts()
     verify_evidence()
     verify_contracts()
@@ -523,8 +786,8 @@ def main() -> None:
     run_tests()
     print("STRICT_GATES=PASS")
     print("GTK_DESKTOP_VALIDATION=PENDING")
-    print("G05_SEARCH_PERFORMANCE_DESKTOP=PENDING_T480")
-    print("FINAL_PHASE=G05_NONDESKTOP_VERIFIED")
+    print("G06_VIEW_PERFORMANCE_DESKTOP=PENDING_T480")
+    print("FINAL_PHASE=G06_NONDESKTOP_VERIFIED")
 
 
 if __name__ == "__main__":

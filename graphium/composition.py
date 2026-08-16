@@ -1,4 +1,4 @@
-"""Graphium composition root through G05: one document, one writer, thin GTK adapters."""
+"""Graphium composition root through G06: document core plus lightweight view settings."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,10 +9,13 @@ from .application.document_session import DocumentSession
 from .application.file_lifecycle import FileLifecycleController, LifecycleUI
 from .application.native_editor import NativeEditorBufferPort, NativeEditorController
 from .application.search import SearchController
+from .application.view_settings import ViewSettingsController, ViewSettingsStorePort
 from .domain.document_identity import DocumentLoadResult
 from .domain.edit_history import DeltaHistory
 from .infrastructure.document_loader import load_document
 from .infrastructure.guarded_file_writer import GuardedFileWriter
+from .infrastructure.view_settings_store import JsonViewSettingsStore
+from .paths import resolve_xdg_paths
 from .product import PRODUCT_NAME, VERSION, WORK_ITEM
 
 
@@ -36,6 +39,7 @@ class GraphiumCore:
     save_service: DocumentSaveService
     lifecycle: FileLifecycleController
     search: SearchController
+    view_settings: ViewSettingsController
 
 
 def describe_composition() -> CompositionDescriptor:
@@ -55,6 +59,7 @@ def build_core(
     buffer: NativeEditorBufferPort,
     ui: LifecycleUI,
     loader: Callable[[str], DocumentLoadResult] = load_document,
+    view_settings_store: ViewSettingsStorePort | None = None,
 ) -> GraphiumCore:
     session = DocumentSession()
     history = DeltaHistory()
@@ -62,6 +67,9 @@ def build_core(
     writer = GuardedFileWriter()
     save_service = DocumentSaveService(session=session, writer=writer)
     search = SearchController()
+    if view_settings_store is None:
+        view_settings_store = JsonViewSettingsStore(resolve_xdg_paths().config / "view.json")
+    view_settings = ViewSettingsController(view_settings_store)
     lifecycle = FileLifecycleController(
         session=session,
         editor=editor,
@@ -77,4 +85,5 @@ def build_core(
         save_service=save_service,
         lifecycle=lifecycle,
         search=search,
+        view_settings=view_settings,
     )

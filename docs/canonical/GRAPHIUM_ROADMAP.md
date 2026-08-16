@@ -183,7 +183,11 @@ Mandatory G04 outcomes:
    - one final human desktop validation only after all automated gates pass.
 
 ### G05 — Search Menu Core / Find / Replace / Go to Line + Trustworthiness Gate
-Status: **OPEN / CONTRACT FROZEN / IMPLEMENTATION AUTHORIZED / DESKTOP CERTIFIED / PUBLICATION READY / NOT YET PUBLISHED**
+Status: **CLOSED / CERTIFIED / PUBLISHED**
+
+Published commit: `a9083daf22ab23cf6cd20841be643510e35d700d`
+Certified tree: `12d55249263e006cc68fa304f3c3cc2a9ef73acb`
+Validated product tree: `295fa67e4943c35d80e605e214e51ee861350fe6`
 
 Establish the top-level **Search** command authority with Find…, Find Next, Find Previous, Replace… and Go to Line…. Next/Previous are true commands shared by menu/shortcuts/Help rather than UI-private buttons.
 
@@ -201,13 +205,25 @@ Frozen G05 scope after direct G04 source audit and mature-source falsification a
 - explicit-command scanning only: no persistent index, worker or background search state; case-insensitive working memory is logical-line bounded; Find Next/Previous do not materialize all matches; Replace All is fail-closed above 50,000 frozen source matches or the DeltaHistory Undo payload budget.
 
 Trustworthiness tests MUST cover ASCII, Unicode casefold and exact original offsets, empty/short/long replacements, selection/navigation boundaries, wrap, zero-change no-op semantics, stale-plan rejection, failure rollback, exact Saved/Modified through Replace/Undo/Redo, realistic large multiline documents, pathological-line guard interaction and Replace All as one logical Undo transaction. G05 closure also requires `LIGHTWEIGHT_BUDGET_GATE=PASS`.
-### G06 — View Menu Core / Compact Status + Toolbar Decision + Performance Checkpoint
-Status: PENDING
+### G06 — View Menu Core / Compact Status + Lightweight Presentation + Performance Checkpoint
+Status: **OPEN / CONTRACT FROZEN / IMPLEMENTATION AUTHORIZED / DESKTOP CANDIDATE READY**
 
-Implement the direct **View** surface: Word Wrap, Line Numbers, Status Bar, Font family+size, Zoom In/Out/Reset, Full Screen and the view-side command authority needed later for System/Light/Dark. Compact status MUST show line/column + Saved/Modified + encoding/EOL. Word/character counts are not mandatory live status fields; include them only if an incremental/cheap implementation is proven not to create eager whole-document work, otherwise keep counts on demand in G07 Statistics. Direct View settings are persistent and must not later be duplicated in Preferences.
+Implement the direct **View** surface: Status Bar, Line Numbers, Word Wrap, Font family+size, Zoom In/Out/Reset and Full Screen. Appearance remains routed to G10 and is not implemented early. Compact status MUST show line/column + Saved/Modified + encoding/EOL without whole-document scanning. Word/character counts remain on-demand in G07 Statistics because G06 has no cheapness proof that would justify live document-wide analytics.
 
-Evaluate, by falsification-oriented mature-source and target-user audit, whether a small optional `View -> Toolbar` serves the product without bloat. Toolbar remains DEFERRED until that audit; if adopted, default-off is the leading hypothesis, visibility is persistent, command set is deliberately small and command availability remains owned by the common command authority. Repeat performance checkpoint against the permanent four-comparator set.
-### G07 — Recent / Save Copy / Version Copy / Properties / Statistics
+Frozen G06 decisions after direct G05 source audit, mature-source falsification audit and the T480 NON-CANDIDATE line-number probe:
+- **Word Wrap = ADOPT**, using native `Gtk.WrapMode.WORD_CHAR`; persistent direct View setting.
+- **Line Numbers = ADOPT**, using the native `Gtk.TextView` LEFT border window; draw only visible logical lines; wrapped display-line continuations receive no additional number; persistent direct View setting; no GtkSourceView, parallel scrolling widget, background index or line cache.
+- **Status Bar = ADOPT**, compact and event-driven; persistent visibility; MUST fields only line/column + encoding/EOL + Saved/Modified.
+- **Font = ADOPT**, persistent family+size applied through CSS/provider rather than deprecated `override_font`.
+- **Zoom = ADOPT**, transient 100%-relative magnification separate from the configured font; Reset Zoom means 100%; no document/history/config mutation.
+- **Full Screen = ADOPT**, transient window presentation state.
+- **Toolbar = REJECT v1** after Lightweight Budget audit: the small Graphium command surface does not justify a duplicate button surface or toolbar state.
+- **Appearance = DEFER G10**, preserving the serial roadmap.
+
+Persistent direct View settings are stored in one small XDG product config and are written only on explicit user changes. No background settings writer, session database, scanner or settings platform is introduced. Repeat FIRST_EDITABLE and common FIRST_VISIBLE performance checkpoint against Leafpad/L3afpad/Mousepad/FeatherPad before G06 closure. G06 cannot close without `LIGHTWEIGHT_BUDGET_GATE=PASS`.
+#- Performance checkpoint must include self-regression against the certified G04 T480 FIRST_EDITABLE/FIRST_VISIBLE Graphium baseline; time limit = max(+25%, +75 ms), RSS = max(+25%, +20 MiB). Cross-product FIRST_EDITABLE remains forbidden until G12.
+
+## G07 — Recent / Save Copy / Version Copy / Properties / Statistics
 Status: PENDING
 
 Complete the high-value **File/Document** conveniences without adding session/workspace state: Open Recent, Save a Copy, Save Version Copy, Graphium-specific Properties and on-demand Statistics. Recent is file history only, not session restoration. Properties is the compact visible surface for logical path/location, size and accepted disk observation, encoding/BOM/EOL, Saved/Modified, writable state and appropriate symlink/hard-link facts. It also owns an explicit **Check Now** disk-state action backed by strong observation; no separate permanent `Document -> Check File on Disk` command is required. Statistics provides document/selection counts on demand so G06 need not perform eager global analytics.
@@ -257,3 +273,43 @@ Evaluate bounded offline spellcheck only after v1/recovery fundamentals. It must
 10. Safety and content neutrality are never performance toggles.
 11. Permanent competitive qualification uses Leafpad, L3afpad, Mousepad and FeatherPad; missing comparator evidence blocks the comparative receipt rather than being silently omitted.
 12. Recovery, if implemented post-v1, is a cache separate from the user target and never gains implicit Save authority.
+
+
+G06 qualification rebaseline after the retired integrated NON-CANDIDATE line:
+- `G06_INTEGRATED_CHECKPOINT_LINE=RETIRED`; no R3;
+- next T480 run is a separately authorized **G06 product candidate**, not another checkpoint;
+- candidate validation is a fresh-process gate matrix: published G04 regression, published
+  G05 regression, G06 View semantics with exact clean lifecycle boundaries and zero expected
+  modals, G06 View performance, topology/shortcut audit, FIRST_EDITABLE, common FIRST_VISIBLE
+  comparators, G05 Search performance and G06 startup self-regression;
+- outer timeouts are last-resort process containment; modal/lifecycle ownership belongs to
+  the individual gate;
+- manual G06 validation starts only after all automated lanes PASS.
+
+G06 product-candidate freeze after modal/lifecycle re-audit:
+- the product runtime is byte-for-byte unchanged from the pre-re-audit G06 implementation;
+- only qualification harness/tests/authority/evidence changed during the re-audit;
+- candidate automation uses separate fresh-process/fresh-XDG lanes and does not reuse the retired integrated checkpoint state;
+- candidate packaging must pass directory/file permission-topology validation before manifest/tree checks.
+
+G06 Candidate C1 performance stop and Lane-4 rebaseline:
+- C1 functional G04/G05/G06 True-GTK lanes PASS; C1 stopped before manual validation in the
+  old G06 View-performance lane; performance verdict remained UNRESOLVED;
+- old repeated toggle/reset performance oracle is RETIRED as cumulative re-layout stress;
+- new oracle is `SINGLE_TRANSITION_FRESH_PROCESS`: one discarded priming process plus seven
+  measured fresh processes per scenario, fresh HOME/XDG, exactly one View transition each;
+- latency ends on the first post-transition GTK `after-paint`; worker-local timeout is 30 s
+  with a 15 s frame deadline; parent/lane timeout is containment only;
+- scenarios: line-numbers-1m, wrap-1m, line-numbers-10m, wrap-10m, zoom-10m,
+  font-apply-10m, status-1000-updates;
+- all previous budgets remain frozen; Font Apply 10 MiB adds p90 <= 500 ms;
+- no Graphium runtime change is permitted merely to repair the retired oracle;
+- Candidate C2 may be built only from this redesigned qualification boundary and must be
+  fully fresh-package qualified before any optional T480 execution.
+
+
+### G06 closure / G07 handoff — 2026-08-16
+
+G06 has a desktop-certified C2 product tree `52d4f07c4757e85f6ebeec87398ec8ec3b6e30bb`. The G06 publication payload changes canonical authority/evidence only; it does not alter the certified Graphium runtime. After the publication finalizer proves the remote real state, G06 is CLOSED/CERTIFIED/PUBLISHED.
+
+**Next serial item: G07 — Recent / Save Copy / Version Copy / Properties / Statistics.** G07 MUST NOT implement before: read-only audit of the published G06 source, direct mature-source falsification audit, explicit ADOPT/ADAPT/REJECT/DEFER matrix, Lightweight Budget review and contract freeze. Priority mature sources are Mousepad 0.7.0, FeatherPad source-derived authority already preserved in the bundle, gedit/GNOME Text Editor, Leafpad/L3afpad for minimalism contrast, and Calamus W115/W116 provenance only as a design reference for Copy/Version Copy/Properties semantics (never as a runtime dependency).
