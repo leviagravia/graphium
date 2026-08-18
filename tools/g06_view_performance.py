@@ -25,9 +25,14 @@ sys.path.insert(0, _root)
 
 from graphium.product import WORK_ITEM
 
+
+def _g06_or_later() -> bool:
+    return WORK_ITEM.startswith("G") and WORK_ITEM[1:].isdigit() and int(WORK_ITEM[1:]) >= 6
+
 PRIMING_PROCESSES = 1
 MEASURED_PROCESSES = 7
 WORKER_TIMEOUT_SECONDS = 30
+INPUT_CONTAMINATION_EXIT_CODE = 3
 FRAME_DEADLINE_SECONDS = 15.0
 MAX_RSS_MIB = 220.0
 MAX_LINE_NUMBERS_10M_P90_MS = 250.0
@@ -46,6 +51,10 @@ SCENARIOS = (
     "font-apply-10m",
     "status-1000-updates",
 )
+
+
+class DesktopInputContamination(RuntimeError):
+    pass
 
 
 def fail(message: str) -> None:
@@ -143,8 +152,12 @@ def rss_mib() -> float:
 def run_worker(scenario: str, fixture_path: Path) -> None:
     # GTK imports are worker-local by contract. The parent/orchestrator remains GTK-free.
     import gi
+    # Freeze the complete GTK3 display stack before importing either namespace.
+    # Importing Gdk without an explicit version can select Gdk 4 on hosts that
+    # install both GI typelibs, which is incompatible with Graphium's GTK3 UI.
+    gi.require_version("Gdk", "3.0")
     gi.require_version("Gtk", "3.0")
-    from gi.repository import Gtk
+    from gi.repository import Gdk, Gtk
 
     from graphium.adapters.gtk.application import GraphiumApplication
     import graphium.adapters.gtk.window as gtk_window_module
@@ -216,12 +229,69 @@ def run_worker(scenario: str, fixture_path: Path) -> None:
         app = GraphiumApplication()
         if not app.register(None):
             fail(f"{scenario}: Gtk.Application registration failed")
-        app.activate(); drain(0.10)
+        app.activate()
         window = app.window
         if window is None:
             fail(f"{scenario}: window missing")
 
+        # Candidate desktop measurements run on the user's real X11 desktop. Mature editors
+        # normally present/focus their editing window, so keyboard/mouse input can legitimately
+        # reach a fresh worker. Treat such input as an invalid execution boundary, never as a
+        # product mutation. No inserted text is logged.
+        input_events: list[dict[str, int | str]] = []
+        key_seen: set[tuple[int, int, int]] = set()
+        button_seen: set[tuple[int, int]] = set()
+        phase = {"name": "preopen"}
+
+        def on_key(_widget, event):
+            ident = (int(getattr(event, "time", 0)), int(event.keyval), int(getattr(event, "hardware_keycode", 0)))
+            if ident not in key_seen:
+                key_seen.add(ident)
+                input_events.append({
+                    "kind": "key-press",
+                    "phase": phase["name"],
+                    "keyval": int(event.keyval),
+                    "hardware_keycode": int(getattr(event, "hardware_keycode", 0)),
+                    "modifiers": int(event.state),
+                })
+            return False
+
+        def on_button(_widget, event):
+            ident = (int(getattr(event, "time", 0)), int(getattr(event, "button", 0)))
+            if ident not in button_seen:
+                button_seen.add(ident)
+                input_events.append({
+                    "kind": "button-press",
+                    "phase": phase["name"],
+                    "button": int(getattr(event, "button", 0)),
+                })
+            return False
+
+        window.connect("key-press-event", on_key)
+        window.connect("button-press-event", on_button)
+        window.text_view.connect("key-press-event", on_key)
+        window.text_view.connect("button-press-event", on_button)
+
+        def abort_if_input(label: str) -> None:
+            if not input_events:
+                return
+            payload = {
+                "scenario": scenario,
+                "label": label,
+                "events": input_events[-8:],
+                "event_count": len(input_events),
+                "text_logging": "NONE",
+            }
+            print("G06_VIEW_INPUT_CONTAMINATION=" + json.dumps(payload, sort_keys=True), flush=True)
+            window.destroy(); drain(0.02); app.quit()
+            raise SystemExit(INPUT_CONTAMINATION_EXIT_CODE)
+
+        drain(0.10)
+        abort_if_input(f"{scenario} pre-open")
+        phase["name"] = "open"
         open_clean(window, fixture_path, label=f"{scenario} fixture")
+        abort_if_input(f"{scenario} post-open")
+        phase["name"] = "transition"
         baseline_state = window.core.history.current_state_id
         baseline_saved = window.core.session.saved_editor_state_id
 
@@ -269,6 +339,9 @@ def run_worker(scenario: str, fixture_path: Path) -> None:
         else:
             fail(f"unknown worker scenario: {scenario}")
 
+        drain(0.01)
+        abort_if_input(f"{scenario} post-transition")
+        phase["name"] = "final"
         assert_clean_lifecycle(window, label=f"{scenario} final")
         if window.core.history.current_state_id != baseline_state or baseline_state != baseline_saved:
             fail(f"{scenario}: View action mutated document/history identity")
@@ -316,6 +389,11 @@ def run_worker_process(scenario: str, fixture_path: Path, *, role: str, index: i
             f"{scenario} {role} worker {index}: process timeout after "
             f"{WORKER_TIMEOUT_SECONDS}s"
         )
+    if proc.returncode == INPUT_CONTAMINATION_EXIT_CODE:
+        detail = (proc.stdout + "\n" + proc.stderr).strip().splitlines()
+        records = [line for line in detail if line.startswith("G06_VIEW_INPUT_CONTAMINATION=")]
+        tail = records[-1] if records else (" | ".join(detail[-6:]) if detail else "no diagnostic output")
+        raise DesktopInputContamination(f"{scenario} {role} worker {index}: {tail}")
     if proc.returncode != 0:
         detail = (proc.stderr or proc.stdout).strip().splitlines()
         tail = " | ".join(detail[-6:]) if detail else "no diagnostic output"
@@ -329,8 +407,8 @@ def run_worker_process(scenario: str, fixture_path: Path, *, role: str, index: i
     return payload
 
 
-def run_parent() -> None:
-    if WORK_ITEM != "G06":
+def _run_parent_measured() -> None:
+    if not _g06_or_later():
         fail(f"wrong work item: {WORK_ITEM}")
     print("G06_VIEW_PERFORMANCE_ORACLE=SINGLE_TRANSITION_FRESH_PROCESS", flush=True)
     print(
@@ -383,7 +461,18 @@ def run_parent() -> None:
     print("G06_VIEW_PERFORMANCE_FRESH_PROCESS_PROTOCOL=PASS")
     print("G06_VIEW_PERFORMANCE_FIRST_POST_TRANSITION_FRAME=PASS")
     print("LIGHTWEIGHT_BUDGET_VIEW_GATE=PASS")
+    print("G06_VIEW_PERFORMANCE_INPUT_CONTAMINATION_TRIPWIRE=PASS")
     print("FINAL_PHASE=G06_VIEW_PERFORMANCE_PASS")
+
+
+def run_parent() -> None:
+    try:
+        _run_parent_measured()
+    except DesktopInputContamination as exc:
+        print(f"G06_VIEW_PERFORMANCE_INPUT_CONTAMINATION={exc}", flush=True)
+        print("PRODUCT_VERDICT=NOT_REACHED", flush=True)
+        print("FINAL_PHASE=G06_VIEW_PERFORMANCE_INVALID_DESKTOP_INPUT_CONTAMINATION", flush=True)
+        raise SystemExit(INPUT_CONTAMINATION_EXIT_CODE)
 
 
 def parse_args() -> argparse.Namespace:
@@ -399,7 +488,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     if args.bootstrap_only:
-        if WORK_ITEM != "G06":
+        if not _g06_or_later():
             raise SystemExit(f"G06_VIEW_PERFORMANCE_BOOTSTRAP=FAIL work_item={WORK_ITEM}")
         print(f"G06_VIEW_PERFORMANCE_BOOTSTRAP=PASS root={ROOT}")
         return

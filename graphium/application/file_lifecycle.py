@@ -12,6 +12,7 @@ from typing import Callable, Protocol
 
 from graphium.application.document_save_service import DocumentSaveService
 from graphium.application.document_session import DocumentSession
+from graphium.application.recent_files import RecentFilesController
 from graphium.domain.document_identity import DocumentLoadResult
 from graphium.domain.document_save import SaveDisposition
 from graphium.domain.document_serialization import MixedLineEndingConfirmationRequired
@@ -52,7 +53,7 @@ class LifecycleResult:
 
 
 class FileLifecycleController:
-    __slots__ = ("session", "editor", "save_service", "loader", "ui")
+    __slots__ = ("session", "editor", "save_service", "loader", "ui", "recent_files")
 
     def __init__(
         self,
@@ -62,6 +63,7 @@ class FileLifecycleController:
         save_service: DocumentSaveService,
         loader: Callable[[str], DocumentLoadResult],
         ui: LifecycleUI,
+        recent_files: RecentFilesController | None = None,
     ) -> None:
         if not isinstance(session, DocumentSession):
             raise TypeError("session must be DocumentSession")
@@ -81,6 +83,19 @@ class FileLifecycleController:
         self.save_service = save_service
         self.loader = loader
         self.ui = ui
+        self.recent_files = recent_files
+
+
+    def _touch_recent_nonfatal(self, path: str) -> None:
+        if self.recent_files is None:
+            return
+        try:
+            self.recent_files.touch(path)
+        except Exception as exc:
+            self.ui.show_warning(
+                "Recent file history was not saved",
+                str(exc),
+            )
 
     def _prepare_save(self) -> bool:
         try:
@@ -121,6 +136,7 @@ class FileLifecycleController:
         return LifecycleResult(True, saved=True)
 
     def save_as(self, path: str | None = None, *, _prepared: bool = False) -> LifecycleResult:
+        previous_logical_path = self.session.logical_path
         if not _prepared and not self._prepare_save():
             return LifecycleResult(False)
         target_path = path if path is not None else self.ui.choose_save_path(self.session.logical_path)
@@ -150,6 +166,8 @@ class FileLifecycleController:
             self.ui.show_error("Could not save file", str(exc))
             return LifecycleResult(False)
         self._show_save_warnings(result)
+        if self.session.logical_path is not None and self.session.logical_path != previous_logical_path:
+            self._touch_recent_nonfatal(self.session.logical_path)
         return LifecycleResult(True, saved=True)
 
     def _resolve_modified_before_replace(self, action_label: str) -> bool:
@@ -202,6 +220,7 @@ class FileLifecycleController:
         except Exception as exc:
             self.ui.show_error("Could not install opened file", str(exc))
             return LifecycleResult(False)
+        self._touch_recent_nonfatal(result.file_state.binding.logical_path)
         return LifecycleResult(True, changed_document=True)
 
     def request_close(self) -> LifecycleResult:

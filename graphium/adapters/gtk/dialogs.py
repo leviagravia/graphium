@@ -229,3 +229,152 @@ def choose_line_number(
         return min(max(1, spin.get_value_as_int()), maximum)
     finally:
         dialog.destroy()
+
+
+def choose_copy_path(
+    parent: Gtk.Window,
+    *,
+    current_path: str | None,
+    suggested_name: str | None = None,
+    title: str = "Save a Copy",
+) -> str | None:
+    """Choose a non-binding copy destination; caller owns guarded observation/commit."""
+    dialog = Gtk.FileChooserNative.new(
+        title, parent, Gtk.FileChooserAction.SAVE, "Save", "Cancel"
+    )
+    dialog.set_do_overwrite_confirmation(False)
+    if suggested_name:
+        if current_path:
+            dialog.set_current_folder(str(__import__('pathlib').Path(current_path).parent))
+        dialog.set_current_name(suggested_name)
+    elif current_path:
+        current = __import__('pathlib').Path(current_path)
+        dialog.set_current_folder(str(current.parent))
+        dialog.set_current_name(current.name)
+    else:
+        dialog.set_current_name("Untitled.txt")
+    try:
+        response = dialog.run()
+        return dialog.get_filename() if response == Gtk.ResponseType.ACCEPT else None
+    finally:
+        dialog.destroy()
+
+
+def _format_mtime_ns(value: int | None) -> str:
+    if value is None:
+        return "Not available"
+    from datetime import datetime
+    try:
+        return datetime.fromtimestamp(value / 1_000_000_000).astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+    except Exception:
+        return str(value)
+
+
+def show_properties(parent: Gtk.Window, controller) -> None:
+    """Show accepted document facts; Check Now observes but never accepts/reloads."""
+    from graphium.application.document_properties import CheckNowStatus
+
+    props = controller.snapshot()
+    dialog = Gtk.Dialog(title="Properties", transient_for=parent, modal=True)
+    CHECK_RESPONSE = 1001
+    check_button = dialog.add_button("Check Now", CHECK_RESPONSE)
+    dialog.add_button("Close", Gtk.ResponseType.CLOSE)
+    check_button.set_sensitive(props.logical_path is not None)
+    dialog.set_default_size(640, 360)
+    grid = Gtk.Grid(column_spacing=14, row_spacing=7)
+    grid.set_border_width(14)
+    grid.set_column_homogeneous(False)
+    area = dialog.get_content_area()
+    area.pack_start(grid, True, True, 0)
+
+    eol_text = "Mixed" if props.eol_mixed else props.eol.value.upper()
+    if eol_text == "NONE":
+        eol_text = "None"
+    resolved = props.canonical_path or "Not available"
+    if props.logical_path and resolved == props.logical_path:
+        resolved = "Same as logical path"
+    facts = (
+        ("Path", props.logical_path or "Not saved"),
+        ("Resolved target", resolved if props.logical_path else "Not available"),
+        ("Accepted size", f"{props.size} bytes" if props.size is not None else "Not available"),
+        ("Accepted modified", _format_mtime_ns(props.mtime_ns)),
+        ("Encoding", props.encoding.upper()),
+        ("BOM", props.bom.value),
+        ("Line endings", eol_text),
+        ("Document state", "Modified" if props.modified else "Saved"),
+        ("Access", "Read-only" if props.read_only else ("Writable" if props.read_only is False else "Not available")),
+        ("Hard links", str(props.nlink) if props.nlink is not None else "Not available"),
+    )
+    for row, (name, value) in enumerate(facts):
+        left = Gtk.Label(label=name + ":")
+        left.set_xalign(0.0)
+        right = Gtk.Label(label=value)
+        right.set_xalign(0.0)
+        right.set_selectable(True)
+        right.set_line_wrap(True)
+        grid.attach(left, 0, row, 1, 1)
+        grid.attach(right, 1, row, 1, 1)
+
+    status_title = Gtk.Label(label="Disk check:")
+    status_title.set_xalign(0.0)
+    status = Gtk.Label(label="Not checked in this dialog")
+    status.set_xalign(0.0)
+    status.set_line_wrap(True)
+    grid.attach(status_title, 0, len(facts), 1, 1)
+    grid.attach(status, 1, len(facts), 1, 1)
+    dialog.show_all()
+
+    labels = {
+        CheckNowStatus.UNCHANGED: "Unchanged — disk matches the accepted baseline",
+        CheckNowStatus.CONTENT_CHANGED: "Content changed on disk",
+        CheckNowStatus.METADATA_CHANGED: "Metadata changed on disk",
+        CheckNowStatus.REPLACED_OR_RETARGETED: "File was replaced or the logical path was retargeted",
+        CheckNowStatus.MISSING: "File is missing",
+        CheckNowStatus.UNAVAILABLE_OR_UNSTABLE: "Disk state is unavailable or unstable",
+    }
+    try:
+        while True:
+            response = dialog.run()
+            if response != CHECK_RESPONSE:
+                break
+            result = controller.check_now()
+            text = labels[result.status]
+            if result.detail:
+                text += f" — {result.detail}"
+            status.set_text(text)
+    finally:
+        dialog.destroy()
+
+
+def show_statistics(parent: Gtk.Window, *, document, selection) -> None:
+    """Render precomputed on-demand statistics; no live subscription is created."""
+    dialog = Gtk.Dialog(title="Statistics", transient_for=parent, modal=True)
+    dialog.add_button("Close", Gtk.ResponseType.CLOSE)
+    grid = Gtk.Grid(column_spacing=18, row_spacing=8)
+    grid.set_border_width(14)
+    area = dialog.get_content_area()
+    area.pack_start(grid, True, True, 0)
+
+    headers = ("", "Lines", "Words", "Characters")
+    for col, text in enumerate(headers):
+        label = Gtk.Label(label=text)
+        label.set_xalign(0.0)
+        grid.attach(label, col, 0, 1, 1)
+    rows = [("Document", document)]
+    if selection is not None:
+        rows.append(("Selection", selection))
+    for row, (name, stats) in enumerate(rows, start=1):
+        values = (name, str(stats.lines), str(stats.words), str(stats.characters))
+        for col, text in enumerate(values):
+            label = Gtk.Label(label=text)
+            label.set_xalign(0.0)
+            grid.attach(label, col, row, 1, 1)
+    if selection is None:
+        label = Gtk.Label(label="Selection: No selection")
+        label.set_xalign(0.0)
+        grid.attach(label, 0, 2, 4, 1)
+    dialog.show_all()
+    try:
+        dialog.run()
+    finally:
+        dialog.destroy()

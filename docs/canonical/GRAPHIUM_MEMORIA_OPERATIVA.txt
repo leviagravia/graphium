@@ -2660,3 +2660,196 @@ Next serial work item after publication:
   G07_IMPLEMENTATION=FORBIDDEN_BEFORE_AUDIT_AND_CONTRACT_FREEZE
 
 GIT_MUTATION_AT_HANDOVER_BUILD=NONE
+
+
+================================================================================
+ENTRY — G06 PUBLICATION PASS / G07 AUDIT + R1 IMPLEMENTATION BUILD
+Date: 2026-08-16
+================================================================================
+
+G06 publication completed successfully on the canonical T480 repository.
+  G06_PUBLISHED_COMMIT=aae14ef000ea44674cb9bbb7b3a87e3af00c0b18
+  G06_PUBLISHED_TREE=c2b372082cf44280f9717045578822e7b92bef12
+  HEAD_ORIGIN_REMOTE_EQUAL=YES
+  WORKTREE=CLEAN
+  FINAL_PHASE=G06_PUBLICATION_PASS
+
+G07 opened only after publication. Direct published-G06 source audit and direct mature-source audit passed, including the newly supplied FeatherPad source archive SHA-256 1651a43c8541d6921f6ece30a82bcb38e1341fbee2e17be9081468fe6ea548ac. Lightweight Budget PASS and contract frozen before implementation.
+
+Frozen G07 architecture:
+  G07_CONTRACT=FROZEN
+  G07_IMPLEMENTATION_AUTHORIZED=YES
+  G07_RECENT=BOUNDED_PATH_ONLY_MRU_MAX_10_LAZY_XDG_STATE
+  G07_COPY_AND_VERSION_COPY=NON_BINDING_EXISTING_GUARDED_WRITER
+  G07_PROPERTIES_CHECK_NOW=SHARED_STRONG_READ_ONLY_OBSERVER
+  G07_STATISTICS=ON_DEMAND_PURE_O_N_NO_BACKGROUND
+  G07_DOCUMENT_AUTHORITY_COUNT=1
+  G07_PHYSICAL_WRITER_AUTHORITY_COUNT=1
+  G07_FILE_MONITOR_AND_RELOAD=DEFER_G11
+
+Implementation R1 was built from the exact published G06 runtime source in an isolated copy; canonical Git was not mutated. New authorities remain GTK-free: bounded recent history/store, shared document observer, non-binding copy service, Properties classifier, pure text statistics. The loader delegates physical observation to the shared strong observer and composition still creates exactly one GuardedFileWriter. File lifecycle touches Recent only after successful Open or successful binding-changing Save As/first Save. GTK wiring adds Open Recent, Save a Copy, Save Version Copy, Properties and top-level Document -> Statistics without new G07 accelerator or future placeholders.
+
+Qualification status at this entry is intentionally not desktop certification. Headless/strict/performance gates must finish before a T480 real-App True-GTK run and user manual validation. No commit/push is authorized by this implementation entry.
+  G07_R1_IMPLEMENTATION=BUILT_ISOLATED
+  G07_DESKTOP_CERTIFICATION=NOT_YET_ESTABLISHED
+  GIT_MUTATION=NO_USER_REPO
+
+
+================================================================================
+ENTRY — G07 R1 LOCAL PREDESKTOP QUALIFICATION PASS / T480 NON-CANDIDATE REQUIRED
+Date: 2026-08-16
+================================================================================
+
+R1 isolated implementation completed its local non-desktop qualification:
+  TESTS=304/304_PASS
+  STRICT_GATES=PASS
+  FINAL_PHASE=G07_NONDESKTOP_VERIFIED
+  G07_STATISTICS_PERFORMANCE=PASS
+  LOCAL_STATS_1M_MEDIAN_MS=33.191
+  LOCAL_STATS_1M_P90_MS=36.939
+  LOCAL_STATS_10M_MEDIAN_MS=406.509
+  LOCAL_STATS_10M_P90_MS=559.885
+  LOCAL_STATS_MAX_RSS_MIB=147.97
+
+The local build environment has no PyGObject/gi, therefore it cannot establish the frozen real-App True-GTK prerequisite. No product failure is inferred. Before any desktop candidate is declared ready, the exact R1 source must run as a fresh T480 NON-CANDIDATE qualification probe covering G04/G05/G06 regressions, G07 True-GTK, View regression, G07 Statistics performance, topology, shortcuts, Search regression and startup/load performance. This probe consumes no candidate attempt.
+
+  G07_TRUE_GTK_T480=PENDING
+  DESKTOP_CANDIDATE=NOT_YET_DECLARED
+  GIT_MUTATION=NO_USER_REPO
+
+
+================================================================================
+ENTRY — G07 R1 T480 NON-CANDIDATE STARTUP REGRESSION / DIRECT MATURE RE-AUDIT / REPAIR
+Date: 2026-08-16
+================================================================================
+
+Fresh T480 NON-CANDIDATE qualification proved all functional G04-G07 True-GTK, View, Statistics, topology, shortcut and Search lanes PASS, but startup self-regression failed on FIRST_EDITABLE 5KiB and FIRST_VISIBLE 1MiB. No candidate attempt was consumed. Exact R1 source audit isolated a fixed post-Open cost: RecentFilesController.touch() synchronously persisted the MRU using both file fsync and parent-directory fsync.
+
+Failure-specific direct mature-source re-audit used only uploaded/local sources, never web evidence. FeatherPad mutates recentFiles_ in memory and writes config at teardown; GNOME Text Editor records seen files in memory and persists later through session save; Mousepad and gedit delegate recent addition after successful Open without product-owned fsync barriers; NEdit is the strongest synchronous contrast and still uses only fopen/fprintf/fclose; Leafpad/L3afpad have no Recent subsystem. Mature evidence therefore rejects document-grade durability for MRU convenience state.
+
+Frozen user semantics remain unchanged. Repair clarification:
+  G07_RECENT_DURABILITY=ATOMIC_CONVENIENCE_NO_FSYNC
+  retain 0600 temporary JSON + close + atomic os.replace
+  remove Recent file fsync and directory fsync only
+  GuardedFileWriter/document Save durability remains untouched
+  no thread, timer, idle service, GtkRecentManager, XBEL or session manager introduced
+
+Repair remains NON-CANDIDATE until a fresh T480 startup qualification passes.
+  G07_R1_T480_FUNCTIONAL_TRUE_GTK=PASS
+  G07_R1_STARTUP_SELF_REGRESSION=FAIL
+  G07_R1_REPAIR_STATUS=BUILT_ISOLATED_PENDING_REQUALIFICATION
+  CANDIDATE_ATTEMPT_CONSUMED=NO
+  GIT_MUTATION=NO_USER_REPO
+
+2026-08-17 — G07 comparator-stop mature-source re-audit
+A NON-CANDIDATE startup-repair rerun stopped only when Leafpad failed once to expose a new X11 top-level
+for its exact spawned PID. Direct source audit confirms Leafpad/L3afpad direct window ownership,
+Mousepad --disable-server -> G_APPLICATION_NON_UNIQUE, and FeatherPad --standalone process ownership.
+No Graphium runtime repair is justified. The G04 comparator harness is hardened to wait for X11
+quiescence after each exited measured PID, preserve partial receipts, classify launch/window anomalies
+as comparator blocks (rc=3) with diagnostics, and never silently retry a failed sample. The G06 startup
+anti-bloat self-gate is decoupled from competitor completeness; comparative receipt completeness remains
+mandatory independently. Mature-source-before-repair rule reaffirmed.
+
+
+================================================================================
+ENTRY — G07 CANDIDATE R1 INVALID DESKTOP EXECUTION / INPUT-CONTAMINATION REISSUE
+Date: 2026-08-18
+================================================================================
+
+Candidate R1 automatic validation reached G06 View performance and stopped at wrap-10m measured worker 4 because the initially blank worker was Modified at the fixture pre-open boundary. The user reported concurrent typing in another editor on the same X11/Cinnamon desktop. Per the binding mature-source-before-repair rule, no product repair was made. Direct source audit of Leafpad, L3afpad, Mousepad, gedit, GNOME Text Editor and FeatherPad confirms that normal editor windows are shown/presented and editing views may receive focus; suppressing Graphium focus would therefore be a product distortion, not a valid harness repair.
+
+Forensic diagnostics then established:
+  G06_PUBLISHED_10M_LIFECYCLE=30/30_CLEAN
+  G07_REPAIR_10M_LIFECYCLE=30/30_CLEAN
+  INPUT_DIAGNOSTIC_R2=30/30_CLEAN
+  INPUT_DIAGNOSTIC_FOCUS_EXPOSURE=30/30
+  INPUT_DIAGNOSTIC_CAPTURED_INPUT=0/30
+  INPUT_DIAGNOSTIC_CLASSIFICATION=NO_MUTATION_REPRODUCED
+
+The prior R1 execution is therefore INVALID / DESKTOP INPUT CONTAMINATION PLAUSIBLE / PRODUCT_VERDICT_NOT_REACHED, not a valid product FAIL. Valid candidate attempts consumed remain 0/2. The authorized R1 Reissue keeps graphium/ and bin/ byte-identical and changes only qualification harness/evidence: View performance now detects key/button contamination, logs no typed text, exits with dedicated rc=3 and PRODUCT_VERDICT=NOT_REACHED, and never retries/discards a contaminated sample. Unattributed lifecycle mutation remains fail-closed.
+
+G07_CANDIDATE_R1_REISSUE=AUTHORIZED
+VALID_CANDIDATE_ATTEMPTS_CONSUMED=0/2
+PRODUCT_RUNTIME_MUTATION=NO
+GIT_MUTATION=NO_USER_REPO
+
+
+================================================================================
+ENTRY — G07 R1 REISSUE GDK NAMESPACE HARNESS STOP / DIRECT MATURE-SOURCE REAUDIT
+Date: 2026-08-18
+================================================================================
+
+The first contamination-aware R1 Reissue passed 304/304 + strict and G04/G05/G06/G07 True-GTK, then stopped before the first View-performance product measurement because the newly added harness tripwire imported Gdk before a major version had been frozen. On the T480 PyGObject loaded Gdk 4.0 and Gtk3 then rejected the mixed namespace.
+
+Failure-specific direct source audit used only the preserved mature corpus. L3afpad, Mousepad and gedit bind a coherent GTK3/GDK3 family; GNOME Text Editor binds a coherent GTK4/GDK4 family; FeatherPad is coherently Qt. The defect was therefore qualification namespace ownership, not Graphium runtime. The worker-only repair requires both `gi.require_version("Gdk", "3.0")` and `gi.require_version("Gtk", "3.0")` before importing either namespace.
+
+A fresh T480 NON-CANDIDATE repair probe then proved:
+  TESTS=304/304_PASS
+  STRICT_GATES=PASS
+  G07_GDK3_NAMESPACE_IMPORT=PASS
+  GTK_MAJOR=3
+  G06_VIEW_PERFORMANCE=PASS
+  G06_LIGHTWEIGHT_BUDGET_GATE=PASS
+  G06_VIEW_PERFORMANCE_INPUT_CONTAMINATION_TRIPWIRE=PASS
+  PRODUCT_RUNTIME_MUTATION=NO
+  CANDIDATE_ATTEMPT_CONSUMED=NO
+  FINAL_PHASE=G07_GDK3_NAMESPACE_REPAIR_NONCANDIDATE_PASS
+
+The stopped reissue never reached a product verdict and consumes no valid product attempt.
+
+
+================================================================================
+ENTRY — G07 DESKTOP CERTIFICATION / PUBLICATION HANDOFF
+Date: 2026-08-18
+================================================================================
+
+Published baseline entering G07:
+  G06_COMMIT=aae14ef000ea44674cb9bbb7b3a87e3af00c0b18
+  G06_TREE=c2b372082cf44280f9717045578822e7b92bef12
+
+Certified G07 publication-line candidate:
+  CANDIDATE=R1_REISSUE_GDK3
+  CERTIFIED_SOURCE_TREE=12f24dbc265247bd9c014e2494fb91fc82f07af1
+  TESTS=304/304_PASS
+  STRICT_GATES=PASS
+  G04_TRUE_GTK_REGRESSION=PASS
+  G05_TRUE_GTK_REGRESSION=PASS
+  G06_TRUE_GTK_REGRESSION=PASS
+  G07_TRUE_GTK=PASS
+  G06_VIEW_PERFORMANCE_CONTAMINATION_AWARE=PASS
+  G06_LIGHTWEIGHT_BUDGET_GATE=PASS
+  G07_STATISTICS_PERFORMANCE=PASS
+  G04_TOPOLOGY=PASS
+  G06_SHORTCUT_COLLISION_AUDIT=PASS
+  G04_FIRST_EDITABLE=PASS
+  G04_FIRST_VISIBLE_COMPARATORS=PASS
+  G05_SEARCH_PERFORMANCE=PASS
+  G06_STARTUP_SELF_REGRESSION=PASS
+  AUTOMATED_FINAL_PHASE=G07_DESKTOP_CANDIDATE_R1_REISSUE_GDK3_AUTOMATED_PASS_MANUAL_PENDING
+  G07_MANUAL_DESKTOP=7/7_PASS_USER_REPORTED
+  VALID_CANDIDATE_ATTEMPTS_CONSUMED=1/2
+
+Manual desktop validation consisted of exactly seven frozen tests and the user reported Tests 1-7 ALL PASS. No product repair followed the successful automated run.
+
+Retired / invalid / forbidden reuse:
+  - initial R1 startup line before Recent durability repair: startup self-regression FAIL; do not restore Recent fsync barriers;
+  - lifecycle single-worker Modified stop: NOT_REPRODUCED in 30 G06 + 30 G07 fresh processes; no lifecycle repair was justified;
+  - comparator STOP: harness failure-domain defect; exact-PID ownership remains, comparator block is rc=3 and self-regression is independent of comparator completeness;
+  - original Candidate R1 desktop run: INVALID / shared-desktop input contamination plausible / PRODUCT_VERDICT_NOT_REACHED; do not suppress product focus;
+  - input diagnostic R1 global timeout: harness timeout-contract defect; superseded by R2 30/30 CLEAN;
+  - first R1 Reissue GDK namespace stop: harness-only major-version ownership defect; never mix Gdk4 with Gtk3;
+  - any patch that reintroduces document-grade fsync into Recent, hides input contamination, retries/discards comparator samples, suppresses editor focus for testing, or weakens GuardedFileWriter is FORBIDDEN.
+
+Publication truth rule:
+  G07 is NOT PUBLISHED merely because this source exists. Publication is true only after the supplied finalizer verifies exact published G06 HEAD/tree/remote/clean worktree, verifies candidate non-authority equivalence, applies only the final authority/evidence delta, runs strict verification, proves the exact publication tree through a temporary index, stages, commits, pushes, fetches, verifies `HEAD=origin/main=remote main`, and leaves the worktree CLEAN.
+
+Next serial work item after publication:
+  G08 — Page Setup / Print Preview / Print + Startup-Isolation Checkpoint
+  G08_IMPLEMENTATION=FORBIDDEN_BEFORE_PUBLISHED_G07_READONLY_AUDIT
+  G08_MATURE_SOURCE_AUDIT=REQUIRED
+  G08_ADOPT_ADAPT_REJECT_DEFER_MATRIX=REQUIRED
+  G08_LIGHTWEIGHT_BUDGET=REQUIRED
+  G08_CONTRACT_FREEZE=REQUIRED_BEFORE_IMPLEMENTATION
+
+GIT_MUTATION_AT_PUBLICATION_PAYLOAD_BUILD=NONE

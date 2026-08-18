@@ -206,7 +206,11 @@ Frozen G05 scope after direct G04 source audit and mature-source falsification a
 
 Trustworthiness tests MUST cover ASCII, Unicode casefold and exact original offsets, empty/short/long replacements, selection/navigation boundaries, wrap, zero-change no-op semantics, stale-plan rejection, failure rollback, exact Saved/Modified through Replace/Undo/Redo, realistic large multiline documents, pathological-line guard interaction and Replace All as one logical Undo transaction. G05 closure also requires `LIGHTWEIGHT_BUDGET_GATE=PASS`.
 ### G06 — View Menu Core / Compact Status + Lightweight Presentation + Performance Checkpoint
-Status: **OPEN / CONTRACT FROZEN / IMPLEMENTATION AUTHORIZED / DESKTOP CANDIDATE READY**
+Status: **CLOSED / CERTIFIED / PUBLISHED**
+
+Published commit: `aae14ef000ea44674cb9bbb7b3a87e3af00c0b18`
+Published tree: `c2b372082cf44280f9717045578822e7b92bef12`
+Certified C2 tree: `52d4f07c4757e85f6ebeec87398ec8ec3b6e30bb`
 
 Implement the direct **View** surface: Status Bar, Line Numbers, Word Wrap, Font family+size, Zoom In/Out/Reset and Full Screen. Appearance remains routed to G10 and is not implemented early. Compact status MUST show line/column + Saved/Modified + encoding/EOL without whole-document scanning. Word/character counts remain on-demand in G07 Statistics because G06 has no cheapness proof that would justify live document-wide analytics.
 
@@ -224,9 +228,13 @@ Persistent direct View settings are stored in one small XDG product config and a
 #- Performance checkpoint must include self-regression against the certified G04 T480 FIRST_EDITABLE/FIRST_VISIBLE Graphium baseline; time limit = max(+25%, +75 ms), RSS = max(+25%, +20 MiB). Cross-product FIRST_EDITABLE remains forbidden until G12.
 
 ## G07 — Recent / Save Copy / Version Copy / Properties / Statistics
-Status: PENDING
+Status: **CLOSED / DESKTOP CERTIFIED / PUBLICATION READY / IMPLEMENTATION R1 BUILT**
 
-Complete the high-value **File/Document** conveniences without adding session/workspace state: Open Recent, Save a Copy, Save Version Copy, Graphium-specific Properties and on-demand Statistics. Recent is file history only, not session restoration. Properties is the compact visible surface for logical path/location, size and accepted disk observation, encoding/BOM/EOL, Saved/Modified, writable state and appropriate symlink/hard-link facts. It also owns an explicit **Check Now** disk-state action backed by strong observation; no separate permanent `Document -> Check File on Disk` command is required. Statistics provides document/selection counts on demand so G06 need not perform eager global analytics.
+Baseline: published G06 commit `aae14ef000ea44674cb9bbb7b3a87e3af00c0b18`, tree `c2b372082cf44280f9717045578822e7b92bef12`.
+
+Complete the high-value **File/Document** conveniences without adding session/workspace state: Open Recent, Save a Copy, Save Version Copy, Graphium-specific Properties and on-demand Statistics. Recent is bounded file history only, not session restoration. Copy and Version Copy reuse the sole guarded writer but never rebind the active document, move the savepoint/history or touch Recent. Properties is a compact read-only surface for accepted logical/canonical identity, disk/representation facts and Saved/Modified; **Check Now** performs a fresh strong read-only observation and never accepts/reloads the session baseline. Statistics captures the live buffer only on explicit activation and computes document/selection Lines/Words/Characters in a pure GTK-free O(n) function.
+
+Frozen G07 constraints: recent state is lazy atomic `XDG_STATE_HOME/graphium/recent-files.json`, schema `{"version":1,"paths":[...]}`, cap 10 and mode 0600; no DB/XBEL/global recent authority, session restoration, automatic backup, version timeline/index, background statistics, file monitor, Reload, second writer or second document authority. No new default G07 accelerator. Desktop/manual validation is forbidden until headless/strict architecture, Statistics performance, Lightweight Budget and real-App True-GTK gates pass.
 ### G08 — Page Setup / Print Preview / Print + Startup-Isolation Checkpoint
 Status: PENDING
 
@@ -313,3 +321,27 @@ G06 Candidate C1 performance stop and Lane-4 rebaseline:
 G06 has a desktop-certified C2 product tree `52d4f07c4757e85f6ebeec87398ec8ec3b6e30bb`. The G06 publication payload changes canonical authority/evidence only; it does not alter the certified Graphium runtime. After the publication finalizer proves the remote real state, G06 is CLOSED/CERTIFIED/PUBLISHED.
 
 **Next serial item: G07 — Recent / Save Copy / Version Copy / Properties / Statistics.** G07 MUST NOT implement before: read-only audit of the published G06 source, direct mature-source falsification audit, explicit ADOPT/ADAPT/REJECT/DEFER matrix, Lightweight Budget review and contract freeze. Priority mature sources are Mousepad 0.7.0, FeatherPad source-derived authority already preserved in the bundle, gedit/GNOME Text Editor, Leafpad/L3afpad for minimalism contrast, and Calamus W115/W116 provenance only as a design reference for Copy/Version Copy/Properties semantics (never as a runtime dependency).
+
+
+### G07 R1 startup qualification correction — 2026-08-16
+
+The first exact R1 T480 NON-CANDIDATE qualification passed all functional/True-GTK G04-G07 lanes, Statistics, View, topology, shortcut and Search gates but failed the startup self-regression gate. Failure-specific direct mature-source re-audit isolated document-grade `fsync(file)+fsync(directory)` in the new Recent convenience-store write on every successful Open. FeatherPad, GNOME Text Editor, Mousepad, gedit and NEdit all contradict the need for that durability level; Leafpad/L3afpad remain the minimalism negative oracle. The frozen Recent contract is clarified as `G07_RECENT_DURABILITY=ATOMIC_CONVENIENCE_NO_FSYNC`: retain 0600 complete-temp + atomic replace, remove only Recent fsync barriers. No document-save safety is weakened and no background service is introduced. A fresh T480 NON-CANDIDATE startup requalification is mandatory before any G07 desktop candidate.
+
+G07 R1 comparator-stop re-audit (2026-08-17): a startup-repair NON-CANDIDATE rerun reached and passed
+all Graphium product/view/statistics gates through Graphium FIRST_VISIBLE, then a single Leafpad launch
+produced no new X11 top-level for the exact spawned PID. Direct mature-source re-audit of Leafpad,
+L3afpad, Mousepad 0.7.0, FeatherPad and GNOME Text Editor confirms the exact-PID ownership oracle but
+exposes two harness defects: missing explicit post-process X11 quiescence/block diagnostics, and an
+anti-bloat Graphium self-gate incorrectly dependent on complete competitor telemetry. Runtime product
+changes are forbidden for this stop. Harness-only repair: comparator blocks are exit-3 comparative
+blocks with incremental partial receipts and no silent retry; G06 startup self-regression consumes only
+Graphium measurements. Full comparative evidence remains mandatory before candidate promotion.
+
+
+### G07 closure / G08 handoff — 2026-08-18
+
+G07 completed the full desktop qualification on the T480. The certified publication-line source tree before authority-only closure is `12f24dbc265247bd9c014e2494fb91fc82f07af1`. Automated qualification passed 304/304 tests, strict architecture, G04/G05/G06/G07 True-GTK, contamination-aware G06 View performance, G07 Statistics performance, topology, Cinnamon shortcut audit, exact Graphium FIRST_EDITABLE, complete Graphium/Leafpad/L3afpad/Mousepad/FeatherPad FIRST_VISIBLE comparison, G05 Search performance and G06 startup self-regression. The user then reported **7/7 manual desktop tests PASS**. One valid product candidate attempt was consumed; earlier R1 desktop stops were classified as invalid execution/oracle-harness defects after failure-specific direct mature-source audits and do not count as product FAILs.
+
+Publication may alter only the three canonical authority documents plus additive certification evidence; `graphium/`, `bin/`, user-facing product documentation, tests and qualification tools remain byte-for-byte equivalent to the certified G07 publication-line source. G07 is not called PUBLISHED until the finalizer proves the exact final tree, commits, pushes, fetches, verifies `HEAD=origin/main=remote main`, and leaves the worktree clean.
+
+**Next serial item after publication: G08 — Page Setup / Print Preview / Print + Startup-Isolation Checkpoint.** G08 implementation is forbidden until a read-only audit of the real published G07 repository, a direct mature-source printing audit, an explicit ADOPT / ADAPT / REJECT / DEFER matrix, Lightweight Budget review, startup-isolation design and contract freeze are complete. Priority source authorities: Leafpad `src/gtkprint.c` as the thin GTK3 print-operation model; Mousepad `mousepad-print.c/.h` as the mature GTK3 print/settings model; gedit print job/preview/app page-setup code as the richer GTK3 contrast; FeatherPad `featherpad/printing.cpp/.h` and print-dialog call sites as the Qt lightweight-power contrast; GNOME Text Editor as a GTK4 modern contrast where printing support exists in the supplied source; L3afpad as minimalism/feature-pressure contrast. No web substitute is permitted for this audit.

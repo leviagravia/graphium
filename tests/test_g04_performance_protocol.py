@@ -60,7 +60,16 @@ class G04PerformanceProtocolTests(unittest.TestCase):
         self.assertIn('commands["FeatherPad"].append("--standalone")', text)
         self.assertIn('exact spawned-PID oracle requires process isolation', text)
         self.assertIn('pid_for_window(wid) == proc.pid', text)
+        self.assertIn('wait_pid_windows_gone', text)
+        self.assertIn('FIRST_VISIBLE_COMPARATOR_BLOCKED', text)
+        self.assertIn('failed_samples_retried', text)
+        self.assertIn('raise SystemExit(3)', text)
         self.assertNotIn('accept_any_featherpad_pid', text)
+
+        startup = (Path(__file__).resolve().parents[1] / "tools/g06_startup_regression.py").read_text(encoding="utf-8")
+        self.assertIn('Graphium anti-bloat *self* gate', startup)
+        self.assertIn('if "Graphium" not in visible_apps:', startup)
+        self.assertNotIn('for app in ("Graphium", "Leafpad", "L3afpad", "Mousepad", "FeatherPad")', startup)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed non-desktop verifier for Graphium G06, preserving G00-G05 invariants."""
+"""Fail-closed non-desktop verifier for Graphium G07, preserving G00-G06 invariants."""
 from __future__ import annotations
 
 import ast
@@ -20,7 +20,7 @@ EXPECTED_CANONICAL = {
     "GRAPHIUM_ROADMAP.md",
     "GRAPHIUM_MEMORIA_OPERATIVA.txt",
 }
-EXPECTED_TESTS = 266
+EXPECTED_TESTS = 304
 EXPECTED_W116 = {
     "calamus_command_catalog.py": "687332708c5323f0639bdfc8e74f5638ed412534677e96e788fa5efcd2e647c3",
     "calamus_dialogs.py": "68a6fcc44d02c8534841ebe24bd53f69134f9b626529759bc648835e1aba4de2",
@@ -59,16 +59,16 @@ def verify_identity() -> None:
     sys.path.insert(0, str(ROOT))
     from graphium.product import DESKTOP_APPLICATION_ID, VERSION, WORK_ITEM, WORK_ITEM_DESCRIPTION
     expected = (
-        "G06",
-        "View Menu Core / Compact Status / Lightweight Presentation",
-        "0.0.7-g06",
+        "G07",
+        "Recent / Save Copy / Version Copy / Properties / Statistics",
+        "0.0.8-g07",
         "io.github.leviagravia.Graphium",
     )
     actual = (WORK_ITEM, WORK_ITEM_DESCRIPTION, VERSION, DESKTOP_APPLICATION_ID)
     if actual != expected:
-        fail(f"unexpected G06 identity: {actual}")
-    print("G06_RUNTIME_IDENTITY=PASS")
-    print("G06_DESKTOP_APPLICATION_ID=PASS")
+        fail(f"unexpected G07 identity: {actual}")
+    print("G07_RUNTIME_IDENTITY=PASS")
+    print("G07_DESKTOP_APPLICATION_ID=PASS")
 
 
 def verify_compile() -> None:
@@ -124,23 +124,25 @@ def verify_single_writer() -> None:
     if writer_classes != [(writer_rel, "GuardedFileWriter")]:
         fail(f"unexpected writer authorities: {writer_classes}")
     # High-risk DOCUMENT namespace mutation primitives remain confined to the writer.
-    # G06 may atomically replace its own product-local XDG settings file; that store is
-    # explicitly non-document authority and must not import document persistence code.
+    # G06/G07 may atomically replace their own product-local XDG convenience files; those
+    # stores are explicitly non-document authority and must not import document persistence.
     config_store_rel = "graphium/infrastructure/view_settings_store.py"
+    recent_store_rel = "graphium/infrastructure/recent_files_store.py"
     for path in sorted(PACKAGE.rglob("*.py")):
         rel = path.relative_to(ROOT).as_posix()
-        if rel in (writer_rel, config_store_rel):
+        if rel in (writer_rel, config_store_rel, recent_store_rel):
             continue
         text = path.read_text(encoding="utf-8")
         for marker in ("os.replace(", "os.link(", "os.rename(", "os.fsync(", ".write_bytes("):
             if marker in text:
                 fail(f"document-writer marker outside authority: {rel}: {marker}")
-    config_store = ROOT / config_store_rel
-    if config_store.is_file():
-        text = config_store.read_text(encoding="utf-8")
-        for forbidden in ("GuardedFileWriter", "DocumentSave", "load_document", "logical_target_path"):
-            if forbidden in text:
-                fail(f"XDG settings store crossed into document authority: {forbidden}")
+    for store_rel in (config_store_rel, recent_store_rel):
+        store_path = ROOT / store_rel
+        if store_path.is_file():
+            text = store_path.read_text(encoding="utf-8")
+            for forbidden in ("GuardedFileWriter", "DocumentSave", "load_document", "logical_target_path"):
+                if forbidden in text:
+                    fail(f"XDG convenience store crossed into document authority: {store_rel}: {forbidden}")
     print("SINGLE_PHYSICAL_WRITER=PASS count=1")
 
 
@@ -182,15 +184,16 @@ def verify_ui_scope() -> None:
             fail(f"G06 out-of-scope UI/runtime marker: {forbidden}")
     from graphium.application.commands import COMMANDS
     expected = [
-        "new", "open", "save", "save-as", "quit",
+        "new", "open", "open-recent", "clear-recent", "save", "save-as",
+        "save-copy", "save-version-copy", "properties", "quit",
         "undo", "redo", "cut", "copy", "paste", "delete", "select-all",
         "find", "find-next", "find-previous", "replace", "go-to-line",
         "status-bar", "line-numbers", "word-wrap", "font",
         "zoom-in", "zoom-out", "zoom-reset", "full-screen",
-        "user-guide", "keyboard-shortcuts", "about",
+        "statistics", "user-guide", "keyboard-shortcuts", "about",
     ]
     if [c.action for c in COMMANDS] != expected:
-        fail(f"unexpected G06 command surface: {[c.action for c in COMMANDS]}")
+        fail(f"unexpected G07 command surface: {[c.action for c in COMMANDS]}")
     by_action = {c.action: c for c in COMMANDS}
     for action in ("status-bar", "line-numbers", "word-wrap", "full-screen"):
         if not by_action[action].stateful:
@@ -200,7 +203,7 @@ def verify_ui_scope() -> None:
     for rel in ("docs/user/GRAPHIUM_USER_GUIDE.txt", "docs/user/GRAPHIUM_KEYBOARD_SHORTCUTS.txt"):
         if not (ROOT / rel).is_file():
             fail(f"Help product file missing: {rel}")
-    print("G06_COMMAND_SURFACE=PASS")
+    print("G07_COMMAND_SURFACE=PASS")
     print("G06_TOOLBAR_ABSENT=PASS")
     print("HELP_INCREMENTAL=PASS")
 
@@ -261,6 +264,7 @@ def verify_entrypoints() -> None:
         "tools/g06_shortcut_audit.py", "tools/g06_true_gtk_gate.py",
         "tools/g06_view_performance.py",
         "tools/g06_startup_regression.py",
+        "tools/g07_statistics_performance.py", "tools/g07_true_gtk_gate.py",
     ):
         text = (ROOT / rel).read_text(encoding="utf-8")
         if "Path(__file__).resolve()" not in text or "sys.path.insert(0" not in text:
@@ -496,6 +500,81 @@ def verify_g06_view_architecture() -> None:
     print("G06_VIEW_LIGHTWEIGHT_ARCHITECTURE=PASS")
 
 
+def verify_g07_architecture() -> None:
+    recent = (ROOT / "graphium/application/recent_files.py").read_text(encoding="utf-8")
+    recent_store = (ROOT / "graphium/infrastructure/recent_files_store.py").read_text(encoding="utf-8")
+    copy = (ROOT / "graphium/application/document_copy.py").read_text(encoding="utf-8")
+    props = (ROOT / "graphium/application/document_properties.py").read_text(encoding="utf-8")
+    observer = (ROOT / "graphium/infrastructure/document_observer.py").read_text(encoding="utf-8")
+    loader = (ROOT / "graphium/infrastructure/document_loader.py").read_text(encoding="utf-8")
+    stats = (ROOT / "graphium/application/text_statistics.py").read_text(encoding="utf-8")
+    composition = (ROOT / "graphium/composition.py").read_text(encoding="utf-8")
+    lifecycle = (ROOT / "graphium/application/file_lifecycle.py").read_text(encoding="utf-8")
+    window = (ROOT / "graphium/adapters/gtk/window.py").read_text(encoding="utf-8")
+    perf = (TOOLS / "g07_statistics_performance.py").read_text(encoding="utf-8")
+    true_gtk = (TOOLS / "g07_true_gtk_gate.py").read_text(encoding="utf-8")
+
+    for marker in ("MAX_RECENT_FILES = 10", "_ensure_loaded", "self.store.save(candidate)"):
+        if marker not in recent:
+            fail(f"G07 Recent marker missing: {marker}")
+    for marker in ('{"version": 1, "paths": list(values)}', "0o600", "os.replace"):
+        if marker not in recent_store:
+            fail(f"G07 Recent store marker missing: {marker}")
+    if "os.fsync" in recent_store:
+        fail("G07 Recent convenience state must not impose document-grade fsync barriers")
+    for marker in ("DocumentCopyService", "self.writer.commit", "plan_named_version_copy", "_v"):
+        if marker not in copy:
+            fail(f"G07 copy marker missing: {marker}")
+    if "accept_committed_save" in copy:
+        fail("G07 non-binding copy entered savepoint acceptance lane")
+    for marker in ("CheckNowStatus", "CONTENT_CHANGED", "REPLACED_OR_RETARGETED", "self.session.snapshot() != before"):
+        if marker not in props:
+            fail(f"G07 Properties marker missing: {marker}")
+    for marker in ("hashlib.sha256", "os.fstat", "stat.S_ISREG", "capture_bytes"):
+        if marker not in observer:
+            fail(f"G07 strong observer marker missing: {marker}")
+    if "observe_document(path, capture_bytes=True" not in loader:
+        fail("G07 loader does not delegate to shared strong observer")
+    for marker in ("def count_text_statistics", ".isspace()", "text.count(\"\\n\") + 1"):
+        if marker not in stats:
+            fail(f"G07 Statistics marker missing: {marker}")
+    for rel in (
+        "graphium/application/recent_files.py", "graphium/application/document_copy.py",
+        "graphium/application/document_properties.py", "graphium/application/text_statistics.py",
+        "graphium/infrastructure/document_observer.py", "graphium/infrastructure/recent_files_store.py",
+    ):
+        imports = imports_in(ROOT / rel)
+        if any(name == "gi" or name.startswith("gi.") for name in imports):
+            fail(f"G07 GTK leaked outside adapter boundary: {rel}")
+    if composition.count("GuardedFileWriter()") != 1 or "DocumentCopyService(session=session, writer=writer)" not in composition:
+        fail("G07 composition did not preserve one physical writer")
+    if '_touch_recent_nonfatal(result.file_state.binding.logical_path)' not in lifecycle or '_touch_recent_nonfatal(self.session.logical_path)' not in lifecycle:
+        fail("G07 lifecycle Recent hooks missing")
+    for marker in ("open-recent", "save-copy", "save-version-copy", "properties", "statistics", "self.core.lifecycle.open_document(path)"):
+        if marker not in window:
+            fail(f"G07 GTK wiring marker missing: {marker}")
+    for forbidden in ("Gio.FileMonitor", "sqlite3", "SessionManager", "Thread(", "threading"):
+        if forbidden in recent + copy + props + stats + observer:
+            fail(f"G07 forbidden background/heavy authority marker: {forbidden}")
+    for marker in ("G07_STATISTICS_PERFORMANCE=PASS", "1024*1024,1000.0", "10*1024*1024,1500.0", "RSS_MAX_MIB=260.0"):
+        if marker not in perf:
+            fail(f"G07 Statistics performance marker missing: {marker}")
+    for marker in (
+        "G07_TRUE_GTK_RECENT=PASS", "G07_TRUE_GTK_COPY=PASS", "G07_TRUE_GTK_VERSION_COPY=PASS",
+        "G07_TRUE_GTK_PROPERTIES=PASS", "G07_TRUE_GTK_STATISTICS=PASS",
+        "G07_TRUE_GTK_MODAL_LIFECYCLE=PASS", "G07_TRUE_GTK_1M_RESPONSIVENESS=PASS",
+    ):
+        if marker not in true_gtk:
+            fail(f"G07 True-GTK marker missing: {marker}")
+    print("G07_RECENT_GTK_FREE=PASS")
+    print("G07_COPY_GTK_FREE=PASS")
+    print("G07_PROPERTIES_GTK_FREE=PASS")
+    print("G07_STATISTICS_GTK_FREE=PASS")
+    print("G07_SHARED_STRONG_OBSERVER=PASS")
+    print("G07_ONE_WRITER_COMPOSITION=PASS")
+    print("G07_NO_BACKGROUND_OR_MONITOR=PASS")
+
+
 def verify_shortcuts() -> None:
     from graphium.application.commands import FORBIDDEN_ACCELERATORS, accelerator_map
     if "<Ctrl><Alt>L" not in FORBIDDEN_ACCELERATORS:
@@ -528,6 +607,12 @@ def verify_evidence() -> None:
         "evidence/G06_INTEGRATED_CHECKPOINT_FAILURE_REAUDIT_20260815.txt",
         "evidence/G06_TRUE_GTK_MODAL_LIFECYCLE_TIMEOUT_OWNERSHIP_AUDIT_20260815.txt",
         "evidence/G06_VIEW_PERFORMANCE_TIMEOUT_REAUDIT_20260815.txt",
+        "evidence/G07_SOURCE_AUDIT.txt",
+        "evidence/G07_MATURE_SOURCE_AUDIT.txt",
+        "evidence/G07_LIGHTWEIGHT_BUDGET_AND_CONTRACT_FREEZE.txt",
+        "evidence/G07_FEATHERPAD_SOURCE_RECEIPT.txt",
+        "evidence/G07_R1_STARTUP_FAILURE_MATURE_REAUDIT_20260816.txt",
+        "evidence/G07_COMPARATOR_FAILURE_MATURE_SOURCE_REAUDIT_20260817.txt",
     )
     for rel in required:
         if not (ROOT / rel).is_file():
@@ -612,6 +697,51 @@ def verify_evidence() -> None:
     ):
         if marker not in g06_perf_audit:
             fail(f"G06 View performance timeout re-audit marker missing: {marker}")
+    g07_source = (ROOT / "evidence/G07_SOURCE_AUDIT.txt").read_text(encoding="utf-8")
+    for marker in (
+        "Baseline commit: aae14ef000ea44674cb9bbb7b3a87e3af00c0b18",
+        "Verdict: PASS", "physical_writer_authority_count=1",
+        "GTK-free non-binding copy service", "strong observation",
+    ):
+        if marker not in g07_source:
+            fail(f"G07 source audit marker missing: {marker}")
+    g07_mature = (ROOT / "evidence/G07_MATURE_SOURCE_AUDIT.txt").read_text(encoding="utf-8")
+    for marker in ("Verdict: PASS", "Mousepad 0.7.0", "FeatherPad", "GNOME Text Editor", "L3afpad", "Graphium disposition: ADAPT"):
+        if marker not in g07_mature:
+            fail(f"G07 mature audit marker missing: {marker}")
+    g07_budget = (ROOT / "evidence/G07_LIGHTWEIGHT_BUDGET_AND_CONTRACT_FREEZE.txt").read_text(encoding="utf-8")
+    for marker in (
+        "G07_CONTRACT=FROZEN", "QUICK-EDIT VALUE: PASS", "PERSISTENT/BACKGROUND COST: PASS",
+        'JSON schema: {"version": 1, "paths":',
+        "NO second physical writer", "NO second document/session authority",
+    ):
+        if marker not in g07_budget:
+            fail(f"G07 lightweight/contract audit marker missing: {marker}")
+    startup_reaudit = (ROOT / "evidence/G07_R1_STARTUP_FAILURE_MATURE_REAUDIT_20260816.txt").read_text(encoding="utf-8")
+    for marker in (
+        "G06_STARTUP_REGRESSION_GATE=FAIL", "FeatherPad", "GNOME Text Editor", "Mousepad 0.7.0",
+        "gedit", "NEdit", "G07_RECENT_DURABILITY=ATOMIC_CONVENIENCE_NO_FSYNC",
+        "MATURE_REAUDIT=PASS", "CONFIRMATION_BIAS_COUNTERMEASURE=PASS",
+    ):
+        if marker not in startup_reaudit:
+            fail(f"G07 startup failure mature re-audit marker missing: {marker}")
+    comparator_reaudit = (ROOT / "evidence/G07_COMPARATOR_FAILURE_MATURE_SOURCE_REAUDIT_20260817.txt").read_text(encoding="utf-8")
+    for marker in (
+        "MATURE SOURCE: LEAFPAD 0.8.19", "MATURE SOURCE: L3AFPAD", "MATURE SOURCE: MOUSEPAD 0.7.0",
+        "MATURE SOURCE: FEATHERPAD", "CURRENT_STOP=COMPARATOR_OR_X11_INFRASTRUCTURE_BLOCK",
+        "PRODUCT_RUNTIME_CHANGE_REQUIRED=NO", "HARNESS_REPAIR_REQUIRED=YES",
+        "MATURE_REAUDIT=PASS", "CONFIRMATION_BIAS_COUNTERMEASURE=PASS",
+    ):
+        if marker not in comparator_reaudit:
+            fail(f"G07 comparator failure mature re-audit marker missing: {marker}")
+    feather = (ROOT / "evidence/G07_FEATHERPAD_SOURCE_RECEIPT.txt").read_text(encoding="utf-8")
+    if (
+        "1651a43c8541d6921f6ece30a82bcb38e1341fbee2e17be9081468fe6ea548ac" not in feather
+        or "ZIP integrity:" not in feather
+        or "PASS" not in feather
+    ):
+        fail("G07 FeatherPad source receipt mismatch")
+
     data = json.loads((ROOT / "evidence/G04_W116_PROVENANCE.json").read_text(encoding="utf-8"))
     if data.get("calamus_commit") != "33331672f5ba8fcc6a7e1ede9ab849638579f0c7":
         fail("wrong Calamus W116 provenance commit")
@@ -630,6 +760,10 @@ def verify_evidence() -> None:
     print("G06_MODAL_LIFECYCLE_TIMEOUT_OWNERSHIP_AUDIT=PASS")
     print("G06_VIEW_PERFORMANCE_TIMEOUT_REAUDIT=PASS")
     print("G06_DEAD_CODE_AUDIT=PASS")
+    print("G07_SOURCE_AND_MATURE_AUDIT=PASS")
+    print("G07_LIGHTWEIGHT_BUDGET_AUDIT=PASS")
+    print("G07_FEATHERPAD_DIRECT_SOURCE=PASS")
+    print("G07_COMPARATOR_FAILURE_MATURE_REAUDIT=PASS")
 
 
 def verify_contracts() -> None:
@@ -709,6 +843,30 @@ def verify_contracts() -> None:
     ):
         if marker not in contract:
             fail(f"G06 contract marker missing: {marker}")
+    for marker in (
+        "G07_CONTRACT=FROZEN",
+        "G07_IMPLEMENTATION_AUTHORIZED=YES",
+        "G07_RECENT_CAP=10",
+        "G07_RECENT_STORAGE=XDG_STATE_ATOMIC_JSON_0600",
+        "G07_RECENT_DURABILITY=ATOMIC_CONVENIENCE_NO_FSYNC",
+        "G07_RECENT_JSON_SCHEMA=VERSION_1_PATHS_ONLY",
+        "G07_RECENT_SESSION_RESTORE=FORBIDDEN",
+        "G07_COPY_WRITER=EXISTING_GUARDED_FILE_WRITER_ONLY",
+        "G07_COPY_BINDING_CHANGE=FORBIDDEN",
+        "G07_COPY_SAVEPOINT_HISTORY_CHANGE=FORBIDDEN",
+        "G07_VERSION_COPY_PATTERN=STEM_vNNNN_SUFFIX_MAX_PLUS_ONE",
+        "G07_CHECK_NOW=STRONG_READ_ONLY_OBSERVATION",
+        "G07_CHECK_NOW_ACCEPT_BASELINE=FORBIDDEN",
+        "G07_CHECK_NOW_RELOAD=FORBIDDEN",
+        "G07_STRONG_OBSERVER=SHARED_BY_LOADER_AND_PROPERTIES",
+        "G07_STATISTICS=EXPLICIT_ON_DEMAND_ONLY",
+        "G07_STATISTICS_WORKER_TIMER_CACHE=FORBIDDEN",
+        "G07_DOCUMENT_AUTHORITY_COUNT=1",
+        "G07_PHYSICAL_WRITER_AUTHORITY_COUNT=1",
+        "G07_LIGHTWEIGHT_BUDGET_GATE=REQUIRED",
+    ):
+        if marker not in contract:
+            fail(f"G07 contract marker missing: {marker}")
     if "e7045e0ce1c79da71c9968bdfa052df25a5378b7" not in roadmap:
         fail("published G03 baseline missing from roadmap")
     if "Native Edit Integration Hardening" not in roadmap:
@@ -735,6 +893,7 @@ def verify_contracts() -> None:
     print("G04_TARGET_USER_MARKERS=PASS")
     print("G05_CONTRACT_MARKERS=PASS")
     print("G06_CONTRACT_MARKERS=PASS")
+    print("G07_CONTRACT_MARKERS=PASS")
 
 
 def verify_text_integrity() -> None:
@@ -779,6 +938,7 @@ def main() -> None:
     verify_performance_protocol()
     verify_g05_search_architecture()
     verify_g06_view_architecture()
+    verify_g07_architecture()
     verify_shortcuts()
     verify_evidence()
     verify_contracts()
@@ -786,8 +946,9 @@ def main() -> None:
     run_tests()
     print("STRICT_GATES=PASS")
     print("GTK_DESKTOP_VALIDATION=PENDING")
-    print("G06_VIEW_PERFORMANCE_DESKTOP=PENDING_T480")
-    print("FINAL_PHASE=G06_NONDESKTOP_VERIFIED")
+    print("G07_TRUE_GTK_DESKTOP=PENDING_T480")
+    print("G07_STATISTICS_PERFORMANCE=RUN_SEPARATELY")
+    print("FINAL_PHASE=G07_NONDESKTOP_VERIFIED")
 
 
 if __name__ == "__main__":

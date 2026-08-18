@@ -1,4 +1,4 @@
-GRAPHIUM KEYBOARD SHORTCUTS — G06
+GRAPHIUM KEYBOARD SHORTCUTS — G07
 =================================
 
 File
@@ -36,10 +36,18 @@ View
   F11             Full Screen
 
 Status Bar, Line Numbers, Word Wrap and Font… are direct View commands without dedicated
-accelerators in G06. Their persistent state is changed from the View menu rather than
+accelerators in G07. Their persistent state is changed from the View menu rather than
 duplicated in Preferences.
 
-Help commands intentionally have no global accelerator in G06.
+Document
+  Statistics… has no dedicated accelerator in G07.
+
+G07 commands without dedicated accelerators
+--------------------------------------------
+Open Recent, Clear Recent, Save a Copy…, Save Version Copy…, Properties… and Statistics…
+are intentionally menu-driven in G07. No new default accelerator was added.
+
+Help commands intentionally have no global accelerator in G07.
 
 Linux Mint/Cinnamon note
 ------------------------

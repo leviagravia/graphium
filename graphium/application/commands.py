@@ -1,4 +1,4 @@
-"""Graphium product-owned command catalog through G06.
+"""Graphium product-owned command catalog through G07.
 
 The catalog is the single command authority shared by menus, accelerators and Help.
 Boolean direct View settings are stateful actions; their persistence remains owned by
@@ -20,8 +20,13 @@ class CommandSpec:
 COMMANDS = (
     CommandSpec("new", "New", "<Ctrl>N", "File"),
     CommandSpec("open", "Open…", "<Ctrl>O", "File"),
+    CommandSpec("open-recent", "Open Recent", None, "File"),
+    CommandSpec("clear-recent", "Clear Recent", None, "Recent"),
     CommandSpec("save", "Save", "<Ctrl>S", "File"),
     CommandSpec("save-as", "Save As…", "<Ctrl><Shift>S", "File"),
+    CommandSpec("save-copy", "Save a Copy…", None, "File"),
+    CommandSpec("save-version-copy", "Save Version Copy…", None, "File"),
+    CommandSpec("properties", "Properties…", None, "File"),
     CommandSpec("quit", "Quit", "<Ctrl>Q", "File"),
     CommandSpec("undo", "Undo", "<Ctrl>Z", "Edit"),
     CommandSpec("redo", "Redo", "<Ctrl><Shift>Z", "Edit"),
@@ -43,6 +48,7 @@ COMMANDS = (
     CommandSpec("zoom-out", "Zoom Out", "<Ctrl>minus", "View"),
     CommandSpec("zoom-reset", "Reset Zoom", "<Ctrl>0", "View"),
     CommandSpec("full-screen", "Full Screen", "F11", "View", True),
+    CommandSpec("statistics", "Statistics…", None, "Document"),
     CommandSpec("user-guide", "User Guide", None, "Help"),
     CommandSpec("keyboard-shortcuts", "Keyboard Shortcuts", None, "Help"),
     CommandSpec("about", "About", None, "Help"),

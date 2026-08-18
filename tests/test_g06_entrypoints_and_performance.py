@@ -81,6 +81,17 @@ class G06EntrypointAndPerformanceTests(unittest.TestCase):
         self.assertIn("open_clean(window, fixture_path", text)
         self.assertIn("G06_VIEW_PERFORMANCE_LIFECYCLE_BOUNDARIES=PASS", text)
         self.assertIn("shared read-only fixture bytes changed", text)
+        for marker in (
+            "INPUT_CONTAMINATION_EXIT_CODE = 3",
+            "key-press-event",
+            "button-press-event",
+            "G06_VIEW_INPUT_CONTAMINATION=",
+            "PRODUCT_VERDICT=NOT_REACHED",
+            "G06_VIEW_PERFORMANCE_INVALID_DESKTOP_INPUT_CONTAMINATION",
+            "G06_VIEW_PERFORMANCE_INPUT_CONTAMINATION_TRIPWIRE=PASS",
+            '"text_logging": "NONE"',
+        ):
+            self.assertIn(marker, text)
         self.assertEqual(text.count("window.open_path("), 1)
 
     def test_view_performance_gate_covers_1m_10m_and_lightweight_budget(self):
@@ -122,6 +133,13 @@ class G06EntrypointAndPerformanceTests(unittest.TestCase):
         self.assertNotIn("def benchmark_zoom", text)
         # Parent imports remain GTK-free; worker-local imports are below run_worker().
         self.assertGreater(text.index('import gi'), text.index('def run_worker('))
+        # The mature-toolkit boundary is version-coherent: Gdk and Gtk must both be
+        # frozen to GTK3 before either GI namespace is imported.
+        gdk_req = text.index('gi.require_version("Gdk", "3.0")')
+        gtk_req = text.index('gi.require_version("Gtk", "3.0")', gdk_req)
+        gi_import = text.index('from gi.repository import Gdk, Gtk', gtk_req)
+        self.assertLess(gdk_req, gtk_req)
+        self.assertLess(gtk_req, gi_import)
 
     def test_view_performance_headless_orchestrator_protocol_selftest(self):
         proc = subprocess.run(

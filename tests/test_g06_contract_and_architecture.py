@@ -10,13 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class G06ContractArchitectureTests(unittest.TestCase):
-    def test_runtime_identity_is_g06(self):
-        self.assertEqual(WORK_ITEM, "G06")
-        self.assertEqual(VERSION, "0.0.7-g06")
-        self.assertEqual(
-            WORK_ITEM_DESCRIPTION,
-            "View Menu Core / Compact Status / Lightweight Presentation",
-        )
+    def test_published_g06_identity_is_retained_as_regression_authority(self):
+        roadmap = (ROOT / "docs/canonical/GRAPHIUM_ROADMAP.md").read_text(encoding="utf-8")
+        self.assertIn("aae14ef000ea44674cb9bbb7b3a87e3af00c0b18", roadmap)
+        self.assertIn("c2b372082cf44280f9717045578822e7b92bef12", roadmap)
+        self.assertTrue(WORK_ITEM.startswith("G"))
+        self.assertTrue(VERSION.startswith("0.0."))
+        self.assertTrue(WORK_ITEM_DESCRIPTION)
 
     def test_view_commands_are_exact_and_toolbar_appearance_are_absent(self):
         view = [(c.action, c.label, c.accelerator, c.stateful) for c in COMMANDS if c.menu == "View"]
@@ -101,7 +101,7 @@ class G06ContractArchitectureTests(unittest.TestCase):
             "G06_SETTINGS_BACKGROUND_WRITE=FORBIDDEN",
         ):
             self.assertIn(marker, contract)
-        self.assertIn("OPEN / CONTRACT FROZEN / IMPLEMENTATION AUTHORIZED", roadmap)
+        self.assertIn("CLOSED / CERTIFIED / PUBLISHED", roadmap)
         self.assertIn("G06_LINE_NUMBERS=ADOPT", mo)
         self.assertIn("a9083daf22ab23cf6cd20841be643510e35d700d", roadmap)
 

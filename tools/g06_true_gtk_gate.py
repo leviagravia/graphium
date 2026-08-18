@@ -16,8 +16,12 @@ sys.path.insert(0, _root)
 
 from graphium.product import WORK_ITEM
 
+
+def _g06_or_later() -> bool:
+    return WORK_ITEM.startswith("G") and WORK_ITEM[1:].isdigit() and int(WORK_ITEM[1:]) >= 6
+
 if "--bootstrap-only" in sys.argv:
-    if WORK_ITEM != "G06":
+    if not _g06_or_later():
         raise SystemExit(f"G06_TRUE_GTK_BOOTSTRAP=FAIL work_item={WORK_ITEM}")
     print(f"G06_TRUE_GTK_BOOTSTRAP=PASS root={ROOT}")
     raise SystemExit(0)
@@ -152,7 +156,7 @@ def open_clean(window, path: Path, *, label: str, tripwire: UnexpectedModalTripw
 
 
 def main() -> None:
-    if WORK_ITEM != "G06":
+    if not _g06_or_later():
         fail(f"wrong work item: {WORK_ITEM}")
 
     with tempfile.TemporaryDirectory(prefix="graphium-g06-true-gtk-") as td:

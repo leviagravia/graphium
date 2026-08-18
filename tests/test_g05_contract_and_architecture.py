@@ -86,7 +86,7 @@ class G05ContractArchitectureTests(unittest.TestCase):
             "G05_REPLACE_ALL_MATCH_CAP=50000",
         ):
             self.assertIn(marker,contract)
-        self.assertIn("OPEN / CONTRACT FROZEN / IMPLEMENTATION AUTHORIZED",roadmap)
+        self.assertIn("CLOSED / CERTIFIED / PUBLISHED",roadmap)
         self.assertIn("G05_IMPLEMENTATION_AUTHORIZED=YES",mo)
 
     def test_user_help_tracks_search_scope_and_shortcuts(self):

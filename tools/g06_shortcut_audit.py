@@ -16,8 +16,12 @@ sys.path.insert(0, _root)
 from graphium.application.commands import accelerator_map
 from graphium.product import WORK_ITEM
 
+
+def _g06_or_later() -> bool:
+    return WORK_ITEM.startswith("G") and WORK_ITEM[1:].isdigit() and int(WORK_ITEM[1:]) >= 6
+
 if "--bootstrap-only" in sys.argv:
-    if WORK_ITEM != "G06":
+    if not _g06_or_later():
         raise SystemExit(f"G06_SHORTCUT_BOOTSTRAP=FAIL work_item={WORK_ITEM}")
     print(f"G06_SHORTCUT_BOOTSTRAP=PASS root={ROOT}")
     raise SystemExit(0)
@@ -33,7 +37,7 @@ def normalize(value: str) -> str:
 
 
 def main() -> None:
-    if WORK_ITEM != "G06":
+    if not _g06_or_later():
         raise SystemExit(f"G06_SHORTCUT_AUDIT_FAIL: wrong work item {WORK_ITEM}")
     proc = subprocess.run(
         ["gsettings", "list-recursively"], text=True, stdout=subprocess.PIPE,

@@ -1,9 +1,10 @@
 GRAPHIUM USER GUIDE
 ===================
 
-Graphium is a fast, simple and safety-focused plain-text editor for Linux. G06 keeps the
-single-document quick-edit and Search model from G05 and adds a deliberately small View
-surface plus compact status information. Graphium does not use tabs, projects, syntax modes, plugins, cloud services
+Graphium is a fast, simple and safety-focused plain-text editor for Linux. G07 keeps the
+single-document quick-edit, Search and View model from G06 and adds a bounded Recent list,
+non-binding copy commands, read-only Properties/Check Now and explicit on-demand Statistics.
+Graphium does not use tabs, projects, syntax modes, plugins, cloud services, session restoration
 or hidden document databases.
 
 1. THE BASIC MODEL
@@ -37,7 +38,30 @@ Save
 
 Save As…
   Writes to another path and rebinds the active document only after the physical commit
-  succeeds. Replacing an existing destination requires explicit consent.
+  succeeds. Replacing an existing destination requires explicit consent. A successful first
+  Save or binding-changing Save As becomes the newest Recent path.
+
+Open Recent
+  Shows at most ten normalized logical file paths in MRU order. Selecting one goes through the
+  same Open and Save/Discard/Cancel protection as Open…. Recent is file history only: Graphium
+  does not restore cursor, encoding, selection, tabs or a prior session. Clear Recent is explicit.
+
+Save a Copy…
+  Writes the exact current live document using the active representation profile but leaves the
+  active document binding, savepoint, Saved/Modified relation, Undo/Redo and Recent unchanged.
+  The active path or another existing path to the same physical file is not a valid copy target.
+
+Save Version Copy…
+  Has the same non-binding semantics. For a named document Graphium creates the next
+  `<stem>_vNNNN<suffix>` in the active logical directory using max(existing)+1. Untitled uses an
+  explicit chooser suggested as `Untitled_v0001.txt`. This is an explicit copy command, not an
+  automatic backup system or version database.
+
+Properties…
+  Shows accepted logical/resolved identity, size/time, encoding/BOM/EOL, Saved/Modified,
+  writable state and link count. Check Now performs a fresh strong read-only observation and
+  reports whether the file is unchanged, content-changed, metadata-changed, replaced/retargeted,
+  missing or unavailable/unstable. It never accepts a new baseline or reloads the document.
 
 Quit
   Protects Modified text with Save/Discard/Cancel.
@@ -157,8 +181,16 @@ Toolbar
   second button surface would duplicate a small conventional menu/shortcut command set
   without enough quick-edit value.
 
-9. RENDERER SAFETY
-------------------
+9. DOCUMENT STATISTICS
+-----------------------
+Statistics…
+  Captures the current live buffer only when you request it and shows Lines, Words and Characters
+  for the document and for a non-empty selection. Characters are Unicode code points; words are
+  maximal non-whitespace runs; an empty document has zero lines. Graphium does not maintain live
+  counters, a statistics cache, worker or background scan.
+
+10. RENDERER SAFETY
+-------------------
 Large ordinary multiline documents keep normal editing and Undo. A different case is a
 pathological single logical line: G04 demonstrated that very long unbroken lines can drive
 the Gtk.TextView rendering path into unacceptable responsiveness.
@@ -169,12 +201,12 @@ truncates the source, inserts line breaks/markers or silently rewrites it to mak
 Normal insert/paste/newline-join edits cannot create an over-budget line. G05 Replace All
 preflights the complete final result before using its programmatic transaction path.
 
-10. MULTIPLE FILES
+11. MULTIPLE FILES
 ------------------
 Graphium remains single-document but not globally single-process. To keep two files open,
 open two Graphium windows. Each is independently owned by one process and one document.
 
-11. FILE SAFETY
+12. FILE SAFETY
 ---------------
 The current product applies these invariants:
 
@@ -188,34 +220,37 @@ The current product applies these invariants:
 * failed Save keeps the document Modified;
 * late Save of an older state cannot clean a newer state;
 * search navigation cannot change Saved/Modified;
-* replacement is all-or-nothing with respect to its Graphium transaction authority.
+* replacement is all-or-nothing with respect to its Graphium transaction authority;
+* Save a Copy / Version Copy reuse the sole guarded writer but never rebind or move savepoint;
+* Properties -> Check Now observes strongly but never refreshes the accepted baseline.
 
-Live external-file notifications remain routed to G11. Save itself already revalidates the
+Live external-file notifications and Reload remain routed to G11. Save itself already revalidates the
 accepted file state and fails closed on stale data.
 
-12. PERFORMANCE DISCIPLINE
+13. PERFORMANCE DISCIPLINE
 --------------------------
 Graphium targets lightweight quick-edit behavior. Search does no startup scan, idle scan, background indexing or eager match highlighting.
-G06 View status is also event-driven: it reads cursor/session metadata and does not scan the
+G06 View status is event-driven: it reads cursor/session metadata and does not scan the
 document. Line-number drawing is viewport-bounded. Persistent View settings are loaded once
-from a small XDG file and written only on explicit user changes.
+from a small XDG file and written only on explicit user changes. G07 Recent state is lazy and
+bounded to ten paths; Statistics is O(n) only after explicit activation and has no live worker.
 
 Performance remains measured separately as common FIRST_VISIBLE for Graphium and permanent
 comparators Leafpad/L3afpad/Mousepad/FeatherPad, plus Graphium's exact internal
 FIRST_EDITABLE handshake.
 
-13. KEYBOARD SHORTCUTS
+14. KEYBOARD SHORTCUTS
 ----------------------
 Choose Help > Keyboard Shortcuts for the current list. Accelerators are audited against the
 active Linux Mint/Cinnamon global bindings before release. Ctrl+Alt+L is reserved in the
 target environment and is not used by Graphium.
 
-14. WHAT G06 DELIBERATELY DOES NOT ADD
+15. WHAT G07 DELIBERATELY DOES NOT ADD
 --------------------------------------
-G06 adds no toolbar, GtkSourceView, syntax engine, tabs, sessions, plugin platform,
-background status analytics, live word/character counting, theme platform or Appearance
-implementation. Appearance remains G10; Statistics remains G07; recent files, printing,
-external monitoring and recovery remain routed to their roadmap work items.
+G07 adds no toolbar, GtkSourceView, syntax engine, tabs, session restoration, plugin platform,
+automatic backup, revision database/timeline, background statistics, global recent manager,
+file monitor, Reload, theme platform or Appearance implementation. Printing remains G08,
+Appearance G10, and Reload/live external-file monitoring G11.
 
 
 SEARCH SCALE SAFETY

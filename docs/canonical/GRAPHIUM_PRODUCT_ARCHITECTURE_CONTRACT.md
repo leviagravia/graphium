@@ -953,3 +953,90 @@ The certified product scope is Status Bar, native Gtk.TextView visible-logical-l
 The two retired integrated NON-CANDIDATE checkpoints remain historical evidence only and MUST NOT be reused. C1's repeated-toggle performance oracle also remains retired. The accepted performance oracle is one priming process plus seven fresh measured processes per scenario, exactly one View transition per worker, action to first post-transition `after-paint`, fail-closed hard budgets.
 
 This file belongs to the G06 publication payload. G06 is considered `CLOSED / CERTIFIED / PUBLISHED` only when `RUN_G06_FINALIZE_AND_PUBLISH.sh` completes with `FINAL_PHASE=G06_PUBLICATION_PASS` and verifies the real remote.
+
+
+## G06 publication finalization — 2026-08-16
+
+`G06_PUBLISHED_COMMIT=aae14ef000ea44674cb9bbb7b3a87e3af00c0b18`
+`G06_PUBLISHED_TREE=c2b372082cf44280f9717045578822e7b92bef12`
+`G06_PUBLICATION_FINAL_PHASE=G06_PUBLICATION_PASS`
+
+The supplied finalizer completed successfully against the real `main` remote: HEAD, origin/main and remote main all resolved to the published commit, the worktree was clean and the canonical-document count remained three. G06 is therefore `CLOSED / CERTIFIED / PUBLISHED`.
+
+## 18. G07 — Recent / Save Copy / Version Copy / Properties / Statistics
+
+Freeze: 2026-08-16, after direct audit of the published G06 source plus Mousepad, FeatherPad, gedit, GNOME Text Editor, L3afpad, Leafpad, Parchment and backup-semantics contrasts.
+
+`G07_CONTRACT=FROZEN`
+`G07_IMPLEMENTATION_AUTHORIZED=YES`
+`G07_BASELINE_COMMIT=aae14ef000ea44674cb9bbb7b3a87e3af00c0b18`
+`G07_BASELINE_TREE=c2b372082cf44280f9717045578822e7b92bef12`
+`G07_FILE_MENU=NEW,OPEN,OPEN_RECENT,SAVE,SAVE_AS,SAVE_A_COPY,SAVE_VERSION_COPY,PROPERTIES,QUIT`
+`G07_DOCUMENT_MENU=STATISTICS`
+`G07_NEW_DEFAULT_ACCELERATORS=NONE`
+`G07_RECENT_CAP=10`
+`G07_RECENT_STORAGE=XDG_STATE_ATOMIC_JSON_0600`
+`G07_RECENT_DURABILITY=ATOMIC_CONVENIENCE_NO_FSYNC`
+`G07_RECENT_JSON_SCHEMA=VERSION_1_PATHS_ONLY`
+`G07_RECENT_SESSION_RESTORE=FORBIDDEN`
+`G07_RECENT_TOUCH=SUCCESSFUL_OPEN_AND_BINDING_CHANGING_SAVE_ONLY`
+`G07_COPY_WRITER=EXISTING_GUARDED_FILE_WRITER_ONLY`
+`G07_COPY_BINDING_CHANGE=FORBIDDEN`
+`G07_COPY_SAVEPOINT_HISTORY_CHANGE=FORBIDDEN`
+`G07_VERSION_COPY_PATTERN=STEM_vNNNN_SUFFIX_MAX_PLUS_ONE`
+`G07_VERSION_COPY_INDEX_OR_TIMELINE=FORBIDDEN`
+`G07_PROPERTIES=READ_ONLY_ACCEPTED_FACTS`
+`G07_CHECK_NOW=STRONG_READ_ONLY_OBSERVATION`
+`G07_CHECK_NOW_ACCEPT_BASELINE=FORBIDDEN`
+`G07_CHECK_NOW_RELOAD=FORBIDDEN`
+`G07_CHECK_NOW_CLASSES=UNCHANGED,CONTENT_CHANGED,METADATA_CHANGED,REPLACED_OR_RETARGETED,MISSING,UNAVAILABLE_OR_UNSTABLE`
+`G07_STRONG_OBSERVER=SHARED_BY_LOADER_AND_PROPERTIES`
+`G07_STATISTICS=EXPLICIT_ON_DEMAND_ONLY`
+`G07_STATISTICS_COUNTS=LINES,WORDS,CHARACTERS`
+`G07_STATISTICS_WORKER_TIMER_CACHE=FORBIDDEN`
+`G07_STATISTICS_1M_MEDIAN_MAX_MS=1000`
+`G07_STATISTICS_10M_MEDIAN_MAX_MS=1500`
+`G07_STATISTICS_RSS_MAX_MIB=260`
+`G07_FILE_MONITOR=DEFER_G11`
+`G07_RELOAD=DEFER_G11`
+`G07_DOCUMENT_AUTHORITY_COUNT=1`
+`G07_PHYSICAL_WRITER_AUTHORITY_COUNT=1`
+`G07_LIGHTWEIGHT_BUDGET_GATE=REQUIRED`
+
+### 18.1 Recent is history, not session state
+
+Recent stores only normalized absolute logical paths, exact-string deduplicated and MRU ordered, with a hard cap of ten. It is lazy: initial window construction must not require reading the history file. Corrupt or missing history means empty history without startup mutation. Successful Open and successful binding-changing Save As/first Save may touch Recent after the document operation has completed. Ordinary Save, New, failed/cancelled Open, Save a Copy, Save Version Copy, Check Now and Statistics never touch it. Persistence failure is a nonfatal convenience failure and cannot roll back or falsify document/session truth.
+ Persistence is atomic convenience-state replacement, not document-save crash durability: the 0600 temporary file is closed and atomically replaced without file/directory fsync barriers. This refinement is required to keep Recent off the quick-edit latency budget and does not weaken GuardedFileWriter or any document write.
+
+### 18.2 Non-binding copy authority
+
+Save a Copy and Save Version Copy synchronize the exact live editor state through the existing prepare-for-save boundary, serialize under the active accepted representation profile, and delegate physical target observation/commit only to the existing `GuardedFileWriter`. They deliberately never call the binding/savepoint acceptance lane. The active logical path, accepted file state, current/saved state identities, Modified/Saved relation, DeltaHistory and Recent remain unchanged. The active logical path and any existing alias to the active physical object are forbidden copy targets. Existing targets require the normal frozen observation plus explicit overwrite consent; mixed EOL requires the same explicit normalization consent as Save.
+
+A named Version Copy uses the active logical directory and exact `<stem>_vNNNN<suffix>` family, choosing `max(existing numeric suffix)+1`, with a minimum width of four decimal digits and no 9999 cap. A candidate appearing after planning fails closed rather than silently renumbering. Untitled requires an explicit chooser with suggested `Untitled_v0001.txt` and remains Untitled after success. No automatic backup, retention policy, manifest, revision database or version browser exists in G07.
+
+### 18.3 Properties and shared strong observation
+
+Properties projects accepted session/file facts only. `Check Now` invokes one GTK-free strong observer shared with the document loader: open logical path, require regular file, compare descriptor state before/after while streaming SHA-256, and verify logical/resolved namespaces still name the observed object. Read-only and multiple-link files are observable facts rather than observation failures. Classification order is missing; unavailable/unstable; replacement/retarget; raw-content change; metadata-only change; unchanged. Check Now never changes the accepted `DocumentFileState`, logical binding, savepoint/history, buffer or stale-Save decision and never starts a monitor. Reload/monitor remain G11.
+
+### 18.4 On-demand Statistics only
+
+Statistics captures the current GtkTextBuffer text exactly once on explicit activation and delegates to a pure GTK-free O(n) function. Characters are Unicode code points (`len(text)`); Words are maximal non-whitespace runs using `str.isspace()`; Lines are zero for empty text and otherwise newline count plus one. Selection uses identical rules; no byte count is shown. There is no live status subscription, cache, timer, worker or background analytics. Candidate qualification includes fresh-process medians of at most 1000 ms at 1 MiB and 1500 ms at 10 MiB with worker RSS at most 260 MiB.
+
+### 18.5 Lightweight and serial-roadmap boundary
+
+G07 adds no session/workspace manager, DB/XBEL/global recent dependency, automatic backup, file monitor, Reload, mutable Properties controls, duplicate Preferences surface, second writer or second document authority. The top-level menu architecture advances to File/Edit/Search/View/Document/Help, with Document containing only Statistics in G07. No future placeholder commands are inserted. G07 cannot reach user manual desktop validation until headless regression + strict architecture + Statistics performance + Lightweight Budget + real-App True-GTK product gates pass.
+
+
+### 18.6 G07 desktop certification and publication boundary
+
+`G07_CERTIFIED_SOURCE_TREE=12f24dbc265247bd9c014e2494fb91fc82f07af1`
+`G07_AUTOMATED_DESKTOP=PASS`
+`G07_MANUAL_DESKTOP=7/7_PASS`
+`G07_VALID_CANDIDATE_ATTEMPTS_CONSUMED=1/2`
+`G07_PRODUCT_RUNTIME_MUTATION_AFTER_CERTIFICATION=FORBIDDEN`
+`G07_PUBLICATION_AUTHORITY_DELTA=THREE_CANONICAL_DOCS_PLUS_ADDITIVE_CERTIFICATION_EVIDENCE_ONLY`
+`G08_IMPLEMENTATION_BEFORE_PUBLISHED_G07_AUDIT_MATRIX_FREEZE=FORBIDDEN`
+
+The G07 publication line preserves the certified product runtime and user-visible implementation exactly. Earlier desktop stops caused by shared-desktop input exposure, comparator launch incompleteness and an unpinned Gdk major in the qualification tripwire were classified only after direct mature-source/source-boundary audits; none establishes a Graphium product defect. Qualification infrastructure must keep explicit toolkit-major ownership (`Gdk 3.0` + `Gtk 3.0`), distinguish desktop contamination/comparator blocks from product verdicts and route any unattributed STOP to failure-specific mature-source re-audit before repair.
+
+G08 inherits the single-document, one-writer, content-neutral, startup-budget and no-background-service constraints. Printing must be lazy and must not create a startup-path dependency merely because File contains Page Setup, Print Preview and Print. Page setup may become a Graphium-owned persisted authority only after the G08 mature-source matrix and contract freeze; no print worker/service/session manager is pre-authorized by G07 closure.

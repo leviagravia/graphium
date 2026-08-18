@@ -1,4 +1,4 @@
-"""Thin GTK3 single-document editor window through Graphium G06."""
+"""Thin GTK3 single-document editor window through Graphium G07."""
 from __future__ import annotations
 
 import os
@@ -11,6 +11,9 @@ from gi.repository import Gdk, Gio, GLib, GObject, Gtk
 
 from graphium.application.commands import COMMANDS, command_availability
 from graphium.application.view_status import project_compact_status
+from graphium.application.text_statistics import count_text_statistics
+from graphium.domain.document_serialization import MixedLineEndingConfirmationRequired
+from graphium.domain.document_save import SaveDisposition
 from graphium.domain.text_search import SearchInputError, SearchMatch
 from graphium.composition import build_core
 from graphium.domain.edit_history import ViewState
@@ -21,7 +24,8 @@ from graphium.application.renderability import (
 )
 from graphium.product import PRODUCT_NAME, VERSION
 from .dialogs import (
-    GtkLifecycleUI, choose_font, choose_line_number, show_about, show_text_document,
+    GtkLifecycleUI, choose_copy_path, choose_font, choose_line_number, show_about,
+    show_properties, show_statistics, show_text_document,
 )
 from .editor_buffer import GtkTextBufferPort
 from .editor_view import GraphiumTextView
@@ -46,6 +50,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._search_replace_row: Gtk.Widget | None = None
         self._search_match_case: Gtk.CheckButton | None = None
         self._search_status: Gtk.Label | None = None
+        self._recent_menu = Gio.Menu()
         self._status_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
         self._status_bar.set_border_width(4)
         self._status_position = Gtk.Label(label="Ln 1, Col 1")
@@ -89,8 +94,13 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         callbacks = {
             "new": self._action_new,
             "open": self._action_open,
+            "open-recent": self._action_open_recent,
+            "clear-recent": self._action_clear_recent,
             "save": self._action_save,
             "save-as": self._action_save_as,
+            "save-copy": self._action_save_copy,
+            "save-version-copy": self._action_save_version_copy,
+            "properties": self._action_properties,
             "quit": self._action_quit,
             "undo": self._action_undo,
             "redo": self._action_redo,
@@ -112,12 +122,15 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "zoom-out": self._action_zoom_out,
             "zoom-reset": self._action_zoom_reset,
             "full-screen": self._action_full_screen,
+            "statistics": self._action_statistics,
             "user-guide": self._action_user_guide,
             "keyboard-shortcuts": self._action_keyboard_shortcuts,
             "about": self._action_about,
         }
         for spec in COMMANDS:
-            if spec.stateful:
+            if spec.action == "open-recent":
+                action = Gio.SimpleAction.new(spec.action, GLib.VariantType.new("s"))
+            elif spec.stateful:
                 action = Gio.SimpleAction.new_stateful(
                     spec.action, None, GLib.Variant.new_boolean(self._initial_action_state(spec.action))
                 )
@@ -138,10 +151,14 @@ class GraphiumWindow(Gtk.ApplicationWindow):
 
     def _install_menu(self) -> None:
         root = Gio.Menu()
-        for menu_name in ("File", "Edit", "Search", "View", "Help"):
+        for menu_name in ("File", "Edit", "Search", "View", "Document", "Help"):
             section = Gio.Menu()
             for spec in COMMANDS:
-                if spec.menu == menu_name:
+                if spec.menu != menu_name:
+                    continue
+                if spec.action == "open-recent":
+                    section.append_submenu(spec.label, self._recent_menu)
+                else:
                     section.append(spec.label, f"win.{spec.action}")
             root.append_submenu(menu_name, section)
         menubar = Gtk.MenuBar.new_from_model(root)
@@ -150,6 +167,25 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         container.pack_start(menubar, False, False, 0)
         container.reorder_child(menubar, 0)
         menubar.show_all()
+        # Keep Recent truly lazy: state is first read only when File is explicitly shown.
+        for item in menubar.get_children():
+            if getattr(item, "get_label", lambda: None)() == "File":
+                submenu = item.get_submenu()
+                if submenu is not None:
+                    submenu.connect("show", lambda *_args: self._refresh_recent_menu())
+                break
+
+    def _refresh_recent_menu(self) -> None:
+        self._recent_menu.remove_all()
+        paths = self.core.recent_files.paths
+        for path in paths:
+            item = Gio.MenuItem.new(path, None)
+            item.set_action_and_target_value("win.open-recent", GLib.Variant.new_string(path))
+            self._recent_menu.append_item(item)
+        clear_section = Gio.Menu()
+        clear_section.append("Clear Recent", "win.clear-recent")
+        self._recent_menu.append_section(None, clear_section)
+        self._actions["clear-recent"].set_enabled(bool(paths))
 
     def _apply_initial_view_settings(self) -> None:
         settings = self.core.view_settings.current
@@ -350,23 +386,139 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self.text_view.grab_focus()
 
     def _action_open(self, *_args) -> None:
-        self.core.lifecycle.open_document()
+        result = self.core.lifecycle.open_document()
+        if result.completed:
+            self._refresh_recent_menu()
         self._refresh_projection()
         self.text_view.grab_focus()
 
+    def _action_open_recent(self, _action, parameter) -> None:
+        if parameter is None:
+            return
+        result = self.core.lifecycle.open_document(parameter.get_string())
+        if result.completed:
+            self._refresh_recent_menu()
+        self._refresh_projection()
+        self.text_view.grab_focus()
+
+    def _action_clear_recent(self, *_args) -> None:
+        try:
+            self.core.recent_files.clear()
+        except Exception as exc:
+            self._ui.show_warning("Recent file history was not cleared", str(exc))
+        self._refresh_recent_menu()
+
     def open_path(self, path: str) -> bool:
         result = self.core.lifecycle.open_document(path)
+        if result.completed:
+            self._refresh_recent_menu()
         self._refresh_projection()
         self.text_view.grab_focus()
         return result.completed
 
     def _action_save(self, *_args) -> None:
-        self.core.lifecycle.save()
+        result = self.core.lifecycle.save()
+        if result.completed:
+            self._refresh_recent_menu()
         self._refresh_projection()
 
     def _action_save_as(self, *_args) -> None:
-        self.core.lifecycle.save_as()
+        result = self.core.lifecycle.save_as()
+        if result.completed:
+            self._refresh_recent_menu()
         self._refresh_projection()
+
+    def _prepare_nonbinding_copy(self) -> bool:
+        try:
+            self.core.editor.prepare_for_save()
+            return True
+        except Exception as exc:
+            self._ui.show_error("Could not prepare editor state for copying", str(exc))
+            return False
+
+    def _show_copy_warnings(self, result) -> None:
+        if result.warnings:
+            self._ui.show_warning("Copy completed with warnings", "\n".join(result.warnings))
+        elif result.disposition is not SaveDisposition.COMMITTED_CONFIRMED:
+            self._ui.show_warning(
+                "Copy completed with uncertainty",
+                "The copy was committed, but Graphium could not confirm every post-write property.",
+            )
+
+    def _commit_copy_observation(self, observation) -> bool:
+        try:
+            result = self.core.document_copy.copy_to(observation)
+        except MixedLineEndingConfirmationRequired:
+            if not self._ui.confirm_mixed_eol_normalization():
+                return False
+            try:
+                result = self.core.document_copy.copy_to(
+                    observation, allow_mixed_eol_normalization=True
+                )
+            except Exception as exc:
+                self._ui.show_error("Could not save copy", str(exc))
+                return False
+        except Exception as exc:
+            self._ui.show_error("Could not save copy", str(exc))
+            return False
+        self._show_copy_warnings(result)
+        return True
+
+    def _action_save_copy(self, *_args) -> None:
+        if not self._prepare_nonbinding_copy():
+            return
+        path = choose_copy_path(
+            self, current_path=self.core.session.logical_path, title="Save a Copy"
+        )
+        if not path:
+            self.text_view.grab_focus()
+            return
+        try:
+            observation = self.core.document_copy.observe_target(path)
+        except Exception as exc:
+            self._ui.show_error("Could not inspect copy destination", str(exc))
+            return
+        if observation.existing is not None and not self._ui.confirm_overwrite(
+            observation.logical_target_path
+        ):
+            return
+        self._commit_copy_observation(observation)
+        self._refresh_projection()
+        self.text_view.grab_focus()
+
+    def _action_save_version_copy(self, *_args) -> None:
+        if not self._prepare_nonbinding_copy():
+            return
+        try:
+            if self.core.session.logical_path is None:
+                path = choose_copy_path(
+                    self,
+                    current_path=None,
+                    suggested_name="Untitled_v0001.txt",
+                    title="Save Version Copy",
+                )
+                if not path:
+                    self.text_view.grab_focus()
+                    return
+                observation = self.core.document_copy.observe_target(path)
+                if observation.existing is not None and not self._ui.confirm_overwrite(
+                    observation.logical_target_path
+                ):
+                    return
+            else:
+                plan = self.core.document_copy.plan_named_version_copy()
+                observation = self.core.document_copy.observe_planned_version_target(plan)
+        except Exception as exc:
+            self._ui.show_error("Could not prepare version copy", str(exc))
+            return
+        self._commit_copy_observation(observation)
+        self._refresh_projection()
+        self.text_view.grab_focus()
+
+    def _action_properties(self, *_args) -> None:
+        show_properties(self, self.core.document_properties)
+        self._refresh_projection()
+        self.text_view.grab_focus()
 
     def _action_quit(self, *_args) -> None:
         self.close()
@@ -777,6 +929,15 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         if action is not None and self._boolean_action_value(action) != fullscreen:
             self._set_boolean_action(action, fullscreen)
         return False
+
+    def _action_statistics(self, *_args) -> None:
+        captured = self.buffer_port.capture_full()
+        document = count_text_statistics(captured.text)
+        lo = min(captured.insert_offset, captured.selection_bound_offset)
+        hi = max(captured.insert_offset, captured.selection_bound_offset)
+        selection = count_text_statistics(captured.text[lo:hi]) if hi > lo else None
+        show_statistics(self, document=document, selection=selection)
+        self.text_view.grab_focus()
 
     @staticmethod
     def _help_path(name: str) -> str:

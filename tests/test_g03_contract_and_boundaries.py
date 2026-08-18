@@ -43,22 +43,26 @@ class G03ContractAndBoundaryTests(unittest.TestCase):
         # G03 freezes exactly one writer for user DOCUMENT targets. G06 introduces one
         # separate XDG convenience-settings file; treating that config namespace as a
         # second document writer would conflate product configuration with document I/O.
-        allowed_non_document_store = "graphium/infrastructure/view_settings_store.py"
+        allowed_non_document_stores = (
+            "graphium/infrastructure/view_settings_store.py",
+            "graphium/infrastructure/recent_files_store.py",
+        )
         offenders = []
         for path in (ROOT / "graphium").rglob("*.py"):
             text = path.read_text(encoding="utf-8")
             rel = path.relative_to(ROOT).as_posix()
             if rel not in (
                 "graphium/infrastructure/guarded_file_writer.py",
-                allowed_non_document_store,
+                *allowed_non_document_stores,
             ):
                 for marker in ("os.replace(", "os.link(", "Path.write_bytes(", ".write_bytes("):
                     if marker in text:
                         offenders.append((rel, marker))
         self.assertEqual(offenders, [])
-        config = (ROOT / allowed_non_document_store).read_text(encoding="utf-8")
-        for forbidden in ("DocumentSave", "GuardedFileWriter", "load_document", "logical_target_path"):
-            self.assertNotIn(forbidden, config)
+        for store in allowed_non_document_stores:
+            config = (ROOT / store).read_text(encoding="utf-8")
+            for forbidden in ("DocumentSave", "GuardedFileWriter", "load_document", "logical_target_path"):
+                self.assertNotIn(forbidden, config)
 
     def test_published_g03_modules_remain_free_of_g04_ui_and_g11_monitoring(self):
         runtime = "\n".join(
