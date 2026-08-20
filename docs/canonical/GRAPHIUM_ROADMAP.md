@@ -228,7 +228,8 @@ Persistent direct View settings are stored in one small XDG product config and a
 #- Performance checkpoint must include self-regression against the certified G04 T480 FIRST_EDITABLE/FIRST_VISIBLE Graphium baseline; time limit = max(+25%, +75 ms), RSS = max(+25%, +20 MiB). Cross-product FIRST_EDITABLE remains forbidden until G12.
 
 ## G07 — Recent / Save Copy / Version Copy / Properties / Statistics
-Status: **CLOSED / DESKTOP CERTIFIED / PUBLICATION READY / IMPLEMENTATION R1 BUILT**
+Status: **CLOSED / CERTIFIED / PUBLISHED**
+Historical implementation lineage: **IMPLEMENTATION R1 BUILT**, then desktop-certified/published after the frozen qualification chain.
 
 Baseline: published G06 commit `aae14ef000ea44674cb9bbb7b3a87e3af00c0b18`, tree `c2b372082cf44280f9717045578822e7b92bef12`.
 
@@ -236,9 +237,11 @@ Complete the high-value **File/Document** conveniences without adding session/wo
 
 Frozen G07 constraints: recent state is lazy atomic `XDG_STATE_HOME/graphium/recent-files.json`, schema `{"version":1,"paths":[...]}`, cap 10 and mode 0600; no DB/XBEL/global recent authority, session restoration, automatic backup, version timeline/index, background statistics, file monitor, Reload, second writer or second document authority. No new default G07 accelerator. Desktop/manual validation is forbidden until headless/strict architecture, Statistics performance, Lightweight Budget and real-App True-GTK gates pass.
 ### G08 — Page Setup / Print Preview / Print + Startup-Isolation Checkpoint
-Status: PENDING
+Status: **CLOSED / CERTIFIED / PUBLISHED**
 
 Complete the **File** printing group with Page Setup…, Print Preview and Print…. Printing is desktop-complete but lazily initialized; dormant print code may not materially tax quick-edit startup. Page Setup is a Graphium authority rather than a fixed inherited pagination constant. Repeat startup-isolation/performance evidence.
+
+**G08 responsiveness repair checkpoint (2026-08-19):** the initial synchronous design was measured on the T480 at ~109.6 s for a 1 MiB / 787-page export, while 5 KiB native Preview returned in ~45 ms. GTK-native `allow_async` + `done` made the 1 MiB Preview entry return in ~6 ms, but a real-mainloop diagnostic then localized the remaining freeze inside eager document-global `begin-print` pagination. The authorized second repair keeps native GTK/Pango/Cairo and moves measurement to bounded incremental `paginate` callbacks (16 KiB target / 64 logical lines, logical-line chunk boundaries). Exact-tree T480 requalification subsequently passed, including bounded callback latency, heartbeat responsiveness, cancel/done cleanup and document neutrality; no Graphium worker/service/custom preview/GtkSourceView was introduced.
 ### G09 — Explicit Text Transformations Only / No Format-Menu Expansion
 Status: PENDING
 
@@ -345,3 +348,36 @@ G07 completed the full desktop qualification on the T480. The certified publicat
 Publication may alter only the three canonical authority documents plus additive certification evidence; `graphium/`, `bin/`, user-facing product documentation, tests and qualification tools remain byte-for-byte equivalent to the certified G07 publication-line source. G07 is not called PUBLISHED until the finalizer proves the exact final tree, commits, pushes, fetches, verifies `HEAD=origin/main=remote main`, and leaves the worktree clean.
 
 **Next serial item after publication: G08 — Page Setup / Print Preview / Print + Startup-Isolation Checkpoint.** G08 implementation is forbidden until a read-only audit of the real published G07 repository, a direct mature-source printing audit, an explicit ADOPT / ADAPT / REJECT / DEFER matrix, Lightweight Budget review, startup-isolation design and contract freeze are complete. Priority source authorities: Leafpad `src/gtkprint.c` as the thin GTK3 print-operation model; Mousepad `mousepad-print.c/.h` as the mature GTK3 print/settings model; gedit print job/preview/app page-setup code as the richer GTK3 contrast; FeatherPad `featherpad/printing.cpp/.h` and print-dialog call sites as the Qt lightweight-power contrast; GNOME Text Editor as a GTK4 modern contrast where printing support exists in the supplied source; L3afpad as minimalism/feature-pressure contrast. No web substitute is permitted for this audit.
+
+
+### G08 implementation checkpoint — 2026-08-18
+
+Published G07 baseline was independently proven on the T480 before G08 work began:
+commit `7a3f49218dbabdbd6e47114a5fde2f4999f9c841`, tree
+`198164be38e77538b92f45d5d53fe4b0c1929955`, with
+`HEAD=origin/main=remote main` and a clean worktree.
+
+The required read-only G07 audit, direct preserved mature-source printing audit, explicit
+ADOPT/ADAPT/REJECT/DEFER matrix, Lightweight Budget and G08 contract freeze completed before
+implementation. The isolated G08 implementation now contains the frozen File printing group,
+strict lazy print-module/Page-Setup ownership, native GTK preview and Pango/Cairo pagination.
+It is **not a desktop candidate**. Candidate attempts consumed remain **0/2**.
+
+Before any candidate declaration the T480 NON-CANDIDATE PyGObject/GTK3 print-binding probe must
+PASS, followed by the frozen True-GTK/hostile startup-isolation/performance and Lightweight Budget
+gates. A probe failure is boundary evidence, not a product candidate FAIL, and requires direct
+failure-specific mature-source re-audit before repair.
+
+
+**G08 exact-once cleanup follow-up (2026-08-19):** the first incremental T480 requalification proved cheap begin-print and bounded paginate callbacks, then exposed duplicate Graphium render cleanup: native `end-print` was followed by `_clear_active()` invoking `job.end_print()` again from `done`. Failure-specific gedit/GNOME Text Editor re-audit confirmed separate ownership. The repair makes native `end-print` the normal one-time render cleanup and reserves the `done` fallback for paths where GTK never emitted it. Pagination is unchanged; NON-CANDIDATE requalification remains required.
+
+
+### G08 closure / G09 handoff — 2026-08-20
+
+G08 completed the full T480 qualification on exact certified product tree `420238bd82e7051fa01d002b92660a0ad4b1d40c`. Final predesktop qualification passed 319/319 non-desktop tests, strict gates, G04/G05/G06/G07 True-GTK regressions, G08 binding/hostile/startup-isolation lanes, incremental 1 MiB Preview responsiveness, topology, Cinnamon shortcut audit, hostile FIFO startup, G07-vs-G08 FIRST_EDITABLE startup delta, common FIRST_VISIBLE comparison, G06 startup self-regression, G05 Search performance, G06 View performance and G07 Statistics performance.
+
+Candidate R1 consumed attempt 1/2 and was retired after a composite manual Test 6 FAIL. Failure-specific NON-CANDIDATE diagnosis on the unchanged product tree proved the product overlap/lifecycle behavior and localized the failure to an unowned human timing window. Candidate R2 therefore reused the same product tree and strengthened the validation oracle rather than changing runtime. R2 passed the full 20-lane automated matrix and manual Tests 1–5. Its initial Test 6 close check was an incomplete user procedure, not a product FAIL; the authorized manual reissue preserved the candidate and consumed no new attempt. The reissue passed responsiveness/Preview lifecycle and confirmed normal window close plus process exit. Final manual result: **6/6 PASS**. Candidate history remains 2/2 attempts used.
+
+Publication preserves the certified runtime and user-facing implementation byte-for-byte. Only the three canonical authority documents, additive `G08_DESKTOP_CERTIFICATION_RECEIPT_20260820.txt` evidence and regenerated `evidence/SHA256SUMS.txt` differ from the certified tree. G08 becomes **CLOSED / CERTIFIED / PUBLISHED** only when the publication finalizer proves the target tree, commits, pushes, fetches, verifies `HEAD = origin/main = remote main`, and leaves the canonical worktree clean.
+
+**Next serial item: G09 — Explicit Text Transformations Only / No Format-Menu Expansion.** G09 remains PENDING until a separate authorization and its own published-G08 read-only audit, mature-source review, Lightweight Budget check and contract freeze.

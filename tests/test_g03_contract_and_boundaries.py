@@ -40,12 +40,13 @@ class G03ContractAndBoundaryTests(unittest.TestCase):
             self.assertFalse(any(name == "gi" or name.startswith("gi.") for name in names), rel)
 
     def test_single_physical_document_writer_authority_owns_document_namespace_mutation(self):
-        # G03 freezes exactly one writer for user DOCUMENT targets. G06 introduces one
-        # separate XDG convenience-settings file; treating that config namespace as a
-        # second document writer would conflate product configuration with document I/O.
+        # G03 freezes exactly one writer for user DOCUMENT targets. Later work items add
+        # narrowly scoped XDG product-configuration stores; treating those config namespaces
+        # as document writers would conflate product configuration with document I/O.
         allowed_non_document_stores = (
             "graphium/infrastructure/view_settings_store.py",
             "graphium/infrastructure/recent_files_store.py",
+            "graphium/adapters/gtk/printing.py",
         )
         offenders = []
         for path in (ROOT / "graphium").rglob("*.py"):

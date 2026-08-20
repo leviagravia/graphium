@@ -1,4 +1,4 @@
-"""Graphium product-owned command catalog through G07.
+"""Graphium product-owned command catalog through G08.
 
 The catalog is the single command authority shared by menus, accelerators and Help.
 Boolean direct View settings are stateful actions; their persistence remains owned by
@@ -27,6 +27,9 @@ COMMANDS = (
     CommandSpec("save-copy", "Save a Copy…", None, "File"),
     CommandSpec("save-version-copy", "Save Version Copy…", None, "File"),
     CommandSpec("properties", "Properties…", None, "File"),
+    CommandSpec("page-setup", "Page Setup…", None, "File"),
+    CommandSpec("print-preview", "Print Preview", "<Ctrl><Shift>P", "File"),
+    CommandSpec("print", "Print…", "<Ctrl>P", "File"),
     CommandSpec("quit", "Quit", "<Ctrl>Q", "File"),
     CommandSpec("undo", "Undo", "<Ctrl>Z", "Edit"),
     CommandSpec("redo", "Redo", "<Ctrl><Shift>Z", "Edit"),

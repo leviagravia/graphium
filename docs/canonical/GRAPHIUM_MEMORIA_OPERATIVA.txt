@@ -2853,3 +2853,158 @@ Next serial work item after publication:
   G08_CONTRACT_FREEZE=REQUIRED_BEFORE_IMPLEMENTATION
 
 GIT_MUTATION_AT_PUBLICATION_PAYLOAD_BUILD=NONE
+
+
+================================================================================
+ENTRY — G07 REAL PUBLICATION PROOF / G08 CONTRACT FREEZE + NON-CANDIDATE IMPLEMENTATION
+Date: 2026-08-18
+================================================================================
+
+G07 real publication proof supplied from T480 canonical repository:
+  G07_PUBLISHED_COMMIT=7a3f49218dbabdbd6e47114a5fde2f4999f9c841
+  G07_PUBLISHED_TREE=198164be38e77538b92f45d5d53fe4b0c1929955
+  HEAD=origin/main=remote_main=7a3f49218dbabdbd6e47114a5fde2f4999f9c841
+  WORKTREE=CLEAN
+  G07_STATUS=CLOSED/CERTIFIED/PUBLISHED
+
+Authorized G08 pre-implementation work completed before code mutation:
+  published-G07 read-only source audit = PASS
+  direct mature-source audit = PASS, no web substitution
+  ADOPT/ADAPT/REJECT/DEFER matrix = FROZEN
+  Lightweight Budget = PASS
+  G08 contract = FROZEN
+
+G08 isolated implementation status:
+  G08_IMPLEMENTATION=BUILT_NONCANDIDATE
+  G08_DESKTOP_CANDIDATE=NOT_DECLARED
+  VALID_CANDIDATE_ATTEMPTS_CONSUMED=0/2
+  CANONICAL_GIT_MUTATION=NONE
+  T480_PYGOBJECT_PRINT_BINDING_PROBE=PENDING
+
+Implementation owns File -> Page Setup…, Print Preview and Print… with strict lazy GTK3 print
+adapter construction, product-local native GtkPageSetup persistence, process-memory-only Print
+Settings, fresh synchronous GtkPrintOperation objects, native Preview and Pango/Cairo rendering from
+complete visual-line geometry. GtkSourceView, custom preview, async workers and background printing
+remain forbidden.
+
+The first local post-integration suite exposed three valid pre-candidate gate failures: one G03
+namespace-classification false positive and two release-specific G07 exact-oracle assertions. Before
+repair, current Graphium G03/G06/G07 and direct preserved gedit/GNOME Text Editor/Leafpad printing
+sources were re-audited. Root cause: Page Setup writes are product XDG config mutation, not a second
+user-document writer; G07 exact identity/surface tests must become regressions when G08 owns the new
+exact release surface. GuardedFileWriter and every document-write invariant remain unchanged.
+
+Next mandatory boundary:
+  run tools/g08_print_binding_probe.py on the T480 as NON-CANDIDATE.
+  A probe FAIL triggers failure-specific source/mature-source audit before any repair.
+  A probe PASS still does NOT authorize a desktop candidate; frozen True-GTK/startup/performance/
+  Lightweight pre-gates must pass first and candidate construction requires separate authorization.
+
+
+===============================================================================
+G08 — ASYNC RESPONSIVENESS REPAIR CHECKPOINT (2026-08-19, NON-CANDIDATE)
+===============================================================================
+T480 failure-specific diagnostic on source tree ef3c7f355103549ae4a9e9c0a2302828fcaec5b8:
+- Preview 5 KiB: PASS, native preview call ~44.999 ms.
+- Export 1 MiB: functionally PASS, 787 pages, ~109610.350 ms, 725023-byte PDF.
+- Preview 1 MiB: reached begin-print + first draw-page, then containment timeout before end-print.
+Classification: synchronous G08 print/preview is non-promotable for large-document responsiveness;
+no candidate attempt consumed and no canonical Git mutation.
+
+Failure-specific direct mature-source re-audit:
+- Mousepad 0.7.0 mousepad-print.c sets gtk_print_operation_set_allow_async(..., TRUE).
+- gedit gedit-print-job.c sets allow_async TRUE, connects done, retains operation until done.
+- GNOME Text Editor editor-print-operation.c/editor-page.c sets allow-async TRUE and keeps an
+  operation reference until done.
+Decision: reopen only GTK-native async lifecycle, as explicitly permitted by the frozen G08
+falsification rule after measured product failure + mature-source re-audit.
+
+Repair contract:
+- one fresh GtkPrintOperation per Preview/Print; set_allow_async(True);
+- retain exactly one in-flight operation + _PrintJob until GTK done;
+- immediate non-IN_PROGRESS result remains a supported synchronous-platform fallback;
+- second Page Setup/Preview/Print activation is rejected while in-flight;
+- APPLY/ERROR/CANCEL completion is published at most once by identity-gated cleanup;
+- no Graphium worker/thread/timer/queue/progress service; no custom preview; no GtkSourceView;
+- startup lazy import/config boundary and document neutrality remain unchanged.
+Status: IMPLEMENTED IN ISOLATED COPY / NON-CANDIDATE / T480 REQUALIFICATION PENDING.
+
+===============================================================================
+G08 — INCREMENTAL PAGINATION RESPONSIVENESS REPAIR (2026-08-19, NON-CANDIDATE)
+===============================================================================
+Real-mainloop T480 diagnostic on exact async tree d2d6c498e52d4fea0fe0036d1a2666977d9ce2a5:
+- 1 MiB Preview call returned in ~6.756 ms with busy=1; allow_async therefore works.
+- GLib heartbeat remained live through ~507 ms after return.
+- worker then emitted G08_RENDER_PHASE=BEGIN_PRINT_ENTER and no BEGIN_PRINT_EXIT/draw-page before
+  containment.
+Classification: VALID NON-CANDIDATE PRODUCT RESPONSIVENESS FAIL in eager document-global
+begin-print pagination; candidate attempts remain 0/2 and canonical Git remains untouched.
+
+Post-FAIL direct preserved-source re-audit:
+- gedit gedit-print-job.c: cheap begin_print_cb + incremental paginate_cb via
+  gtk_source_print_compositor_paginate(), allow_async TRUE, done lifecycle.
+- GNOME Text Editor editor-print-operation.c: paginate signal delegates incremental pagination and
+  sets n_pages only on completion, allow-async TRUE.
+- ADAPT only the GTK paginate lifecycle; GtkSourceView/GtkSourcePrintCompositor remain forbidden.
+
+Authorized isolated repair:
+- begin-print now initializes only font/geometry/cursors/paginator state; no whole-document layout;
+- GtkPrintOperation paginate signal measures one bounded Pango chunk per callback;
+- chunk target 16 KiB / maximum 64 logical source lines, boundaries only at logical newlines;
+- page authority remains complete measured Pango visual lines, never characters-per-page;
+- measured chunk layouts are retained only for draw-page and cleared at end/completion;
+- async one-operation/done ownership, native Preview, Pango/Cairo, startup laziness and document
+  neutrality are unchanged; no worker/thread/timer/queue/progress UI/custom preview/GtkSourceView.
+- GTK-free regression coverage added for incremental page spans and logical-line chunk boundaries.
+Status: IMPLEMENTED IN ISOLATED COPY / NON-CANDIDATE / T480 REQUALIFICATION PENDING.
+
+
+
+G08 END-PRINT EXACT-ONCE REPAIR — 2026-08-19
+- T480 incremental requalification small Preview: begin=1, paginate=5, draw=4, max paginate ~11.777 ms; callback lifecycle stopped because end_print method was invoked twice.
+- Failure-specific source audit: GTK native end-print was followed by Graphium _clear_active() calling job.end_print() again from done. Incremental paginator itself was not implicated.
+- Mature gedit/GNOME Text Editor separate end-print render cleanup from done operation ownership.
+- Repair: explicit _render_released ownership; native end-print releases once; done uses end_print only as fallback if native end-print never occurred. No pagination/render algorithm change.
+- Status remains NON-CANDIDATE; exact repaired-tree True-GTK small+large requalification required; attempts 0/2; canonical Git untouched.
+
+
+================================================================================
+ENTRY — G08 DESKTOP CERTIFICATION / PUBLICATION FINALIZATION BOUNDARY
+Date: 2026-08-20
+================================================================================
+
+Certified G08 product source:
+  G08_DESKTOP_CERTIFIED_SOURCE_TREE=420238bd82e7051fa01d002b92660a0ad4b1d40c
+  G08_FINAL_PREDESKTOP_NONCANDIDATE=PASS
+  G08_CANDIDATE_R2_AUTOMATED_20_LANES=PASS
+  G08_DESKTOP_CANDIDATE_R2_MANUAL=PASS tests=6/6
+  G08_CANDIDATE_LINE_ATTEMPTS_USED=2/2
+
+Candidate history:
+  R1 = RETIRED / valid manual FAIL 1/2 on composite Test 6.
+  Failure-specific NON-CANDIDATE diagnostic on the unchanged product tree proved the 64 KiB Preview
+  busy window (~275 ms), deterministic overlap rejection, exact warning/no second operation,
+  cancel/done cleanup and close lifecycle. The R1 manual oracle was therefore corrected rather than
+  the runtime.
+  R2 = final candidate attempt 2/2; same product tree as R1. Automated 20-lane matrix PASS. Manual
+  Tests 1-5 PASS. Test 6 responsiveness PASS; an initial close check occurred before the user had
+  actually closed Graphium and was classified as incomplete procedure, not product FAIL. Authorized
+  manual reissue consumed no new attempt and PASSed only after Graphium was closed normally and the
+  process exited.
+
+Final certified scope:
+  File -> Page Setup…, Print Preview, Print…; native GTK3 Page Setup/PrintOperation/Preview; lazy
+  subsystem ownership; XDG Page Setup persistence; process-memory PrintSettings; GTK-native async
+  allow_async/done; one in-flight operation; overlap rejection; Pango/Cairo; bounded incremental
+  paginate callbacks; exact-once end-print render cleanup; startup isolation and document neutrality.
+
+Publication boundary:
+  Runtime, bin launchers, docs/user, tests and tools are frozen byte-for-byte at the certified tree.
+  Publication may alter only the three canonical authority documents plus additive certification
+  evidence and evidence/SHA256SUMS.txt. The finalizer must prove published G07 parent commit/tree,
+  clean/synchronized canonical main, reconstruct the exact certified G08 tree, prove the exact
+  publication target tree in a temporary index, commit, push, fetch, verify HEAD=origin/main=remote
+  main and leave the worktree CLEAN.
+  G08_STATUS_ON_FINALIZER_PASS=CLOSED/CERTIFIED/PUBLISHED
+  NEXT_SERIAL_ITEM=G09
+  G09_IMPLEMENTATION=FORBIDDEN_UNTIL_SEPARATELY_AUTHORIZED_AFTER_PUBLISHED_G08_READONLY_AUDIT

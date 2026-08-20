@@ -1040,3 +1040,145 @@ G07 adds no session/workspace manager, DB/XBEL/global recent dependency, automat
 The G07 publication line preserves the certified product runtime and user-visible implementation exactly. Earlier desktop stops caused by shared-desktop input exposure, comparator launch incompleteness and an unpinned Gdk major in the qualification tripwire were classified only after direct mature-source/source-boundary audits; none establishes a Graphium product defect. Qualification infrastructure must keep explicit toolkit-major ownership (`Gdk 3.0` + `Gtk 3.0`), distinguish desktop contamination/comparator blocks from product verdicts and route any unattributed STOP to failure-specific mature-source re-audit before repair.
 
 G08 inherits the single-document, one-writer, content-neutral, startup-budget and no-background-service constraints. Printing must be lazy and must not create a startup-path dependency merely because File contains Page Setup, Print Preview and Print. Page setup may become a Graphium-owned persisted authority only after the G08 mature-source matrix and contract freeze; no print worker/service/session manager is pre-authorized by G07 closure.
+
+
+## 19. G08 — Page Setup / Print Preview / Print + Startup Isolation
+
+Freeze and implementation checkpoint: 2026-08-18, after real G07 publication proof and direct
+preserved-source audit of Leafpad, L3afpad, Mousepad, gedit, GNOME Text Editor and FeatherPad.
+
+`G08_CONTRACT=FROZEN`
+`G08_BASELINE_COMMIT=7a3f49218dbabdbd6e47114a5fde2f4999f9c841`
+`G08_BASELINE_TREE=198164be38e77538b92f45d5d53fe4b0c1929955`
+`G08_IMPLEMENTATION=BUILT_NONCANDIDATE`
+`G08_DESKTOP_CANDIDATE=NOT_DECLARED`
+`G08_VALID_CANDIDATE_ATTEMPTS_CONSUMED=0/2`
+`G08_FILE_PRINT_GROUP=PAGE_SETUP,PRINT_PREVIEW,PRINT`
+`G08_PAGE_SETUP_ACCELERATOR=NONE`
+`G08_PRINT_PREVIEW_ACCELERATOR=CTRL_SHIFT_P`
+`G08_PRINT_ACCELERATOR=CTRL_P`
+`G08_PRINT_ADAPTER=graphium.adapters.gtk.printing`
+`G08_PRINT_ADAPTER_STARTUP_IMPORT=FORBIDDEN`
+`G08_PRINT_CONTROLLER_STARTUP_OBJECT=NONE`
+`G08_PAGE_SETUP_PATH=XDG_CONFIG_HOME/graphium/page-setup.ini`
+`G08_PAGE_SETUP_SERIALIZATION=GTK_NATIVE_GtkPageSetup_FILE`
+`G08_PAGE_SETUP_MODE=0600`
+`G08_PAGE_SETUP_WRITE=COMPLETE_TEMP_FSYNC_ATOMIC_REPLACE`
+`G08_PAGE_SETUP_LOAD=FIRST_PRINT_FAMILY_ACTION_ONLY`
+`G08_PAGE_SETUP_CORRUPT_MISSING=FAIL_SOFT_DEFAULT_NO_REPAIR_WRITE`
+`G08_PRINT_SETTINGS=PERSISTENCE_FORBIDDEN_PROCESS_MEMORY_ONLY`
+`G08_PRINT_OPERATION=FRESH_PER_PREVIEW_OR_PRINT`
+`G08_PRINT_OPERATION_ASYNC=GTK_NATIVE_ALLOW_ASYNC`
+`G08_PRINT_INFLIGHT_AUTHORITY=ONE_OPERATION_PER_WINDOW`
+`G08_PRINT_COMPLETION=GTK_DONE_SIGNAL_OR_SYNCHRONOUS_RUN_RESULT`
+`G08_PRINT_OVERLAP=REJECT_WHILE_INFLIGHT`
+`G08_ASYNC_REPAIR_TRIGGER=MEASURED_1M_PRINT_RESPONSIVENESS_FAILURE_PLUS_MATURE_SOURCE_REAUDIT`
+`G08_PREVIEW=NATIVE_GTK_PREVIEW`
+`G08_CUSTOM_PREVIEW=FORBIDDEN`
+`G08_RENDERING=PANGO_CAIRO`
+`G08_PAGINATION=GTK_ASYNC_INCREMENTAL_PANGO_CHUNKS`
+`G08_BEGIN_PRINT_DOCUMENT_SCAN=FORBIDDEN`
+`G08_PAGINATION_SIGNAL=GTK_NATIVE_PAGINATE`
+`G08_PAGINATION_CHUNK_TARGET_CHARS=16384`
+`G08_PAGINATION_CHUNK_MAX_LOGICAL_LINES=64`
+`G08_PAGINATION_CHUNK_BOUNDARY=LOGICAL_LINE_ONLY`
+`G08_PAGINATION_GLOBAL_PANGO_LAYOUT=FORBIDDEN`
+`G08_INCREMENTAL_PAGINATION_REPAIR=BUILT_NONCANDIDATE`
+`G08_INCREMENTAL_PAGINATION_REQUALIFICATION=PENDING_T480`
+`G08_VISUAL_LINE_SPLIT_ACROSS_PAGES=FORBIDDEN`
+`G08_GTK_SOURCE_VIEW_DEPENDENCY=FORBIDDEN`
+`G08_PRINT_WORKER_THREAD_TIMER_QUEUE=FORBIDDEN`
+`G08_PRINT_SNAPSHOT=EXACT_LIVE_GtkTextBuffer_TEXT_ON_ACTIVATION`
+`G08_PRINT_TITLE=LOGICAL_BASENAME_OR_UNTITLED`
+`G08_PRINT_FONT=PERSISTENT_BASE_FONT_FAMILY_SIZE`
+`G08_TRANSIENT_ZOOM_AFFECTS_PRINT=NO`
+`G08_SCREEN_LINE_NUMBERS_AFFECT_PRINT=NO`
+`G08_SCREEN_WORD_WRAP_AFFECTS_PRINT=NO`
+`G08_DOCUMENT_AUTHORITY_CHANGE=FORBIDDEN`
+`G08_SAVEPOINT_HISTORY_RECENT_CHANGE=FORBIDDEN`
+`G08_STARTUP_PAGE_SETUP_IO=ZERO`
+`G08_T480_PYGOBJECT_PRINT_BINDING_PROBE=REQUIRED_BEFORE_CANDIDATE`
+`G08_T480_PYGOBJECT_PRINT_BINDING_PROBE_STATUS=PENDING`
+`G08_LIGHTWEIGHT_BUDGET_GATE=REQUIRED`
+
+### 19.1 Lazy ownership boundary
+
+`graphium.adapters.gtk.window` owns only a `None` print-controller reference during normal window
+construction. The print implementation is imported inside the first Page Setup / Preview / Print
+action. Construction of that controller is the first permitted Page Setup load and the first
+permitted `GtkPrintSettings` allocation for this subsystem. No print service, worker, timer, queue,
+printer history or print preference platform exists.
+
+Page Setup is product configuration, not user-document I/O. Its native GTK payload is stored under
+the product XDG config namespace. A missing, corrupt, unreadable or non-regular payload resolves to
+a fresh `Gtk.PageSetup` without repair writes. On a changed accepted Page Setup, Graphium serializes
+the GTK-native payload completely to a mode-0600 temporary file, fsyncs that completed temporary,
+atomically replaces the product config file, and only then publishes the candidate setup in memory.
+Persistence failure leaves the prior setup authoritative and shows one warning.
+
+### 19.2 Rendering and pagination
+
+Preview and Print capture the exact live buffer once, including Modified or Untitled content without
+Save. The print font is the persistent base family/point size from View -> Font; transient Zoom is
+ignored. Screen Line Numbers and Word Wrap do not become print options. A fresh
+`GtkPrintOperation` receives a copy of Page Setup and process-memory Print Settings. After the
+measured 1 MiB synchronous responsiveness failure, the failure-specific mature-source re-audit
+re-opened only GTK's native async lifecycle: `allow_async=TRUE`, with one operation/job retained
+until GTK `done` (or an immediate non-IN_PROGRESS result on a platform that completes
+synchronously). Graphium still owns no worker, thread, timer, queue, progress service or custom
+preview. A second Page Setup / Preview / Print activation is rejected while that one operation is
+in flight.
+
+The first async repair proved that `GtkPrintOperation.run(PREVIEW)` can return in a few milliseconds,
+but a failure-specific real-mainloop diagnostic then localized the remaining 1 MiB freeze inside the
+eager `begin-print` callback: heartbeat remained live until `BEGIN_PRINT_ENTER`, after which the
+single document-global Pango layout/pagination scan starved the main loop. That eager model is
+retired.
+
+`begin-print` is now document-size-independent: it initializes only font, printable geometry,
+cursors and incremental paginator state. GTK's native `paginate` signal owns progressive pagination.
+Each callback measures at most one Pango chunk (target 16 KiB, maximum 64 logical source lines), and
+each chunk boundary is a logical-line boundary. A single over-target logical line is consumed whole;
+G04's 20,000-character interactive-line gate already bounds that fallback. Chunk layouts use
+WORD_CHAR wrapping at the actual printable width. The GTK-free incremental paginator combines
+measured visual-line spans across chunk boundaries and commits page breaks only between complete
+Pango visual lines. `set_n_pages()` is published only when pagination finishes.
+
+Graphium deliberately does not replace this with GtkSourceView/GtkSourcePrintCompositor, a worker,
+thread, timer, queue or custom preview. Measured Pango chunk layouts are retained only for the
+operation lifetime so `draw-page` can render the exact already-measured visual lines through
+PangoCairo without re-laying out the complete document. A visual line remains indivisible for
+pagination; if one measured line exceeds the body height it occupies a page intact. Native GTK owns
+Preview UI. All per-operation layout/page references are discarded exactly once. Native `end-print` owns normal
+render-geometry release; `done` owns operation/result lifetime and must not repeat that cleanup. The
+controller may invoke render cleanup from `done` only as a fallback when GTK never emitted
+`end-print`, while retaining only the minimal operation/job ownership needed until completion.
+
+### 19.3 Document neutrality and startup qualification
+
+Page Setup / Preview / Print may not change buffer text, logical/canonical binding, accepted file
+state, current/saved editor state IDs, Saved/Modified, DeltaHistory, Undo/Redo, Recent or document
+bytes. The only persistent mutation in G08 is an explicitly changed accepted Page Setup config.
+Print APPLY may retain a copy of `GtkPrintSettings` only for the remaining process lifetime.
+
+Before candidate promotion the T480 must prove the exact PyGObject GTK3/PageSetup/PrintOperation/
+PangoCairo bindings with `tools/g08_print_binding_probe.py`. It must then pass the frozen hostile FIFO
+startup-I/O tripwire, print-module/object absence at startup, G04-G07 regression gates, G08 True-GTK,
+startup/performance comparison against fresh published G07, comparator FIRST_VISIBLE evidence and
+Lightweight Budget. No candidate may be declared from the local non-GI environment alone.
+
+### 19.4 G08 certification and publication boundary — 2026-08-20
+
+The freeze/checkpoint markers above remain historical authority and are intentionally preserved verbatim.
+Current closure authority is additive:
+
+`G08_DESKTOP_CERTIFIED_SOURCE_TREE=420238bd82e7051fa01d002b92660a0ad4b1d40c`
+`G08_FINAL_PREDESKTOP_NONCANDIDATE=PASS`
+`G08_T480_PYGOBJECT_PRINT_BINDING_PROBE_FINAL=PASS`
+`G08_INCREMENTAL_PAGINATION_REQUALIFICATION_FINAL=PASS_T480`
+`G08_CANDIDATE_R2_AUTOMATED_20_LANES=PASS`
+`G08_CANDIDATE_R2_MANUAL=PASS_6_OF_6`
+`G08_CANDIDATE_LINE_ATTEMPTS_USED=2_OF_2`
+`G08_PUBLICATION_RUNTIME_MUTATION=FORBIDDEN`
+
+The certified product contract is the exact R2 tree above. Publication may change only canonical status/evidence authority: the three files under `docs/canonical/`, additive G08 certification evidence and `evidence/SHA256SUMS.txt`. Runtime (`graphium/`), launchers (`bin/`), user documentation (`docs/user/`), tests and qualification tools must remain byte-for-byte equivalent to the certified product. Publication is valid only after fail-closed proof of the published G07 parent, exact target publication tree, remote fast-forward, `HEAD=origin/main=remote main` and clean worktree.

@@ -189,7 +189,31 @@ Statistics…
   maximal non-whitespace runs; an empty document has zero lines. Graphium does not maintain live
   counters, a statistics cache, worker or background scan.
 
-10. RENDERER SAFETY
+10. PAGE SETUP, PRINT PREVIEW AND PRINT
+----------------------------------------
+Page Setup…
+  Opens GTK's standard page setup surface. Graphium remembers the accepted paper/orientation/margins
+  in its own XDG configuration. Loading and saving this setting are lazy: normal quick-edit startup
+  does not initialize the print subsystem or read the Page Setup file.
+
+Print Preview
+  Ctrl+Shift+P opens GTK's native print preview for an exact snapshot of the current live text. A
+  Modified or Untitled document can be previewed without Save. The preview uses the persistent base
+  editor font, not transient Zoom, and does not print the screen line-number gutter or screen wrap.
+
+Print…
+  Ctrl+P opens GTK's standard print dialog. Graphium creates a fresh GTK print operation for each
+  invocation. Large jobs use GTK's native asynchronous completion and bounded incremental Pango
+  pagination, so Graphium does not perform the complete document layout inside one begin-print
+  callback. Only one Print/Page Setup/Preview operation may be active at a time. Text is measured at
+  the real printable width in logical-line-bounded chunks and paginated only between complete visual
+  Pango layout lines. Closing/cancelling printing does not alter the document,
+  Saved/Modified, Undo/Redo, Recent or its on-disk bytes.
+
+Graphium deliberately has no custom print-preview framework, syntax-print engine, Graphium print
+worker/thread, background print service or persistent printer-history platform.
+
+11. RENDERER SAFETY
 -------------------
 Large ordinary multiline documents keep normal editing and Undo. A different case is a
 pathological single logical line: G04 demonstrated that very long unbroken lines can drive
@@ -201,12 +225,12 @@ truncates the source, inserts line breaks/markers or silently rewrites it to mak
 Normal insert/paste/newline-join edits cannot create an over-budget line. G05 Replace All
 preflights the complete final result before using its programmatic transaction path.
 
-11. MULTIPLE FILES
+12. MULTIPLE FILES
 ------------------
 Graphium remains single-document but not globally single-process. To keep two files open,
 open two Graphium windows. Each is independently owned by one process and one document.
 
-12. FILE SAFETY
+13. FILE SAFETY
 ---------------
 The current product applies these invariants:
 
@@ -227,30 +251,33 @@ The current product applies these invariants:
 Live external-file notifications and Reload remain routed to G11. Save itself already revalidates the
 accepted file state and fails closed on stale data.
 
-13. PERFORMANCE DISCIPLINE
+14. PERFORMANCE DISCIPLINE
 --------------------------
 Graphium targets lightweight quick-edit behavior. Search does no startup scan, idle scan, background indexing or eager match highlighting.
 G06 View status is event-driven: it reads cursor/session metadata and does not scan the
 document. Line-number drawing is viewport-bounded. Persistent View settings are loaded once
 from a small XDG file and written only on explicit user changes. G07 Recent state is lazy and
 bounded to ten paths; Statistics is O(n) only after explicit activation and has no live worker.
+G08 printing is likewise dormant at startup: its module/controller/Page Setup I/O are deferred until
+an explicit Page Setup/Preview/Print action.
 
 Performance remains measured separately as common FIRST_VISIBLE for Graphium and permanent
 comparators Leafpad/L3afpad/Mousepad/FeatherPad, plus Graphium's exact internal
 FIRST_EDITABLE handshake.
 
-14. KEYBOARD SHORTCUTS
+15. KEYBOARD SHORTCUTS
 ----------------------
 Choose Help > Keyboard Shortcuts for the current list. Accelerators are audited against the
 active Linux Mint/Cinnamon global bindings before release. Ctrl+Alt+L is reserved in the
 target environment and is not used by Graphium.
 
-15. WHAT G07 DELIBERATELY DOES NOT ADD
+16. WHAT G08 DELIBERATELY DOES NOT ADD
 --------------------------------------
-G07 adds no toolbar, GtkSourceView, syntax engine, tabs, session restoration, plugin platform,
+G08 adds no toolbar, GtkSourceView, syntax engine, tabs, session restoration, plugin platform,
 automatic backup, revision database/timeline, background statistics, global recent manager,
-file monitor, Reload, theme platform or Appearance implementation. Printing remains G08,
-Appearance G10, and Reload/live external-file monitoring G11.
+custom print preview, print worker/service, persistent printer history, file monitor, Reload, theme
+platform or Appearance implementation. Appearance remains G10 and Reload/live external-file
+monitoring G11.
 
 
 SEARCH SCALE SAFETY

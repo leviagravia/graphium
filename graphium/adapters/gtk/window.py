@@ -1,4 +1,4 @@
-"""Thin GTK3 single-document editor window through Graphium G07."""
+"""Thin GTK3 single-document editor window through Graphium G08."""
 from __future__ import annotations
 
 import os
@@ -44,6 +44,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._implicit_delete_group = False
         self._renderability_notice_pending = False
         self._actions: dict[str, Gio.SimpleAction] = {}
+        self._print_controller = None
         self._search_bar: Gtk.SearchBar | None = None
         self._search_query_entry: Gtk.Entry | None = None
         self._search_replace_entry: Gtk.Entry | None = None
@@ -101,6 +102,9 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "save-copy": self._action_save_copy,
             "save-version-copy": self._action_save_version_copy,
             "properties": self._action_properties,
+            "page-setup": self._action_page_setup,
+            "print-preview": self._action_print_preview,
+            "print": self._action_print,
             "quit": self._action_quit,
             "undo": self._action_undo,
             "redo": self._action_redo,
@@ -518,6 +522,50 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _action_properties(self, *_args) -> None:
         show_properties(self, self.core.document_properties)
         self._refresh_projection()
+        self.text_view.grab_focus()
+
+    def _ensure_print_controller(self):
+        # G08 hard startup boundary: importing the print adapter and reading Page Setup
+        # are both deferred until the first explicit print-family action.
+        if self._print_controller is None:
+            from .printing import GraphiumPrintController
+
+            self._print_controller = GraphiumPrintController(
+                self,
+                show_error=self._ui.show_error,
+                show_warning=self._ui.show_warning,
+            )
+        return self._print_controller
+
+    def _capture_print_snapshot(self):
+        from .printing import PrintSnapshot
+
+        captured = self.buffer_port.capture_full()
+        logical_path = self.core.session.logical_path
+        title = os.path.basename(logical_path) if logical_path else "Untitled"
+        family, size_points = self.text_view.base_font
+        return PrintSnapshot(
+            text=captured.text,
+            title=title,
+            font_family=family,
+            font_size_points=size_points,
+        )
+
+    def _action_page_setup(self, *_args) -> None:
+        controller = self._ensure_print_controller()
+        controller.run_page_setup()
+        self.text_view.grab_focus()
+
+    def _action_print_preview(self, *_args) -> None:
+        controller = self._ensure_print_controller()
+        snapshot = self._capture_print_snapshot()
+        controller.preview(snapshot)
+        self.text_view.grab_focus()
+
+    def _action_print(self, *_args) -> None:
+        controller = self._ensure_print_controller()
+        snapshot = self._capture_print_snapshot()
+        controller.print_dialog(snapshot)
         self.text_view.grab_focus()
 
     def _action_quit(self, *_args) -> None:

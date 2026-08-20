@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed non-desktop verifier for Graphium G07, preserving G00-G06 invariants."""
+"""Fail-closed non-desktop verifier for Graphium G08, preserving G00-G07 invariants."""
 from __future__ import annotations
 
 import ast
@@ -20,7 +20,7 @@ EXPECTED_CANONICAL = {
     "GRAPHIUM_ROADMAP.md",
     "GRAPHIUM_MEMORIA_OPERATIVA.txt",
 }
-EXPECTED_TESTS = 304
+EXPECTED_TESTS = 319
 EXPECTED_W116 = {
     "calamus_command_catalog.py": "687332708c5323f0639bdfc8e74f5638ed412534677e96e788fa5efcd2e647c3",
     "calamus_dialogs.py": "68a6fcc44d02c8534841ebe24bd53f69134f9b626529759bc648835e1aba4de2",
@@ -59,16 +59,16 @@ def verify_identity() -> None:
     sys.path.insert(0, str(ROOT))
     from graphium.product import DESKTOP_APPLICATION_ID, VERSION, WORK_ITEM, WORK_ITEM_DESCRIPTION
     expected = (
-        "G07",
-        "Recent / Save Copy / Version Copy / Properties / Statistics",
-        "0.0.8-g07",
+        "G08",
+        "Page Setup / Print Preview / Print / Startup Isolation",
+        "0.0.9-g08",
         "io.github.leviagravia.Graphium",
     )
     actual = (WORK_ITEM, WORK_ITEM_DESCRIPTION, VERSION, DESKTOP_APPLICATION_ID)
     if actual != expected:
-        fail(f"unexpected G07 identity: {actual}")
-    print("G07_RUNTIME_IDENTITY=PASS")
-    print("G07_DESKTOP_APPLICATION_ID=PASS")
+        fail(f"unexpected G08 identity: {actual}")
+    print("G08_RUNTIME_IDENTITY=PASS")
+    print("G08_DESKTOP_APPLICATION_ID=PASS")
 
 
 def verify_compile() -> None:
@@ -124,19 +124,22 @@ def verify_single_writer() -> None:
     if writer_classes != [(writer_rel, "GuardedFileWriter")]:
         fail(f"unexpected writer authorities: {writer_classes}")
     # High-risk DOCUMENT namespace mutation primitives remain confined to the writer.
-    # G06/G07 may atomically replace their own product-local XDG convenience files; those
-    # stores are explicitly non-document authority and must not import document persistence.
+    # G06/G07/G08 may atomically replace their own narrow product-local XDG configuration
+    # files; these stores are explicitly non-document authority and must not import document
+    # persistence.  The allow-list is exact and source-audited.
     config_store_rel = "graphium/infrastructure/view_settings_store.py"
     recent_store_rel = "graphium/infrastructure/recent_files_store.py"
+    print_store_rel = "graphium/adapters/gtk/printing.py"
+    non_document_stores = (config_store_rel, recent_store_rel, print_store_rel)
     for path in sorted(PACKAGE.rglob("*.py")):
         rel = path.relative_to(ROOT).as_posix()
-        if rel in (writer_rel, config_store_rel, recent_store_rel):
+        if rel == writer_rel or rel in non_document_stores:
             continue
         text = path.read_text(encoding="utf-8")
         for marker in ("os.replace(", "os.link(", "os.rename(", "os.fsync(", ".write_bytes("):
             if marker in text:
                 fail(f"document-writer marker outside authority: {rel}: {marker}")
-    for store_rel in (config_store_rel, recent_store_rel):
+    for store_rel in non_document_stores:
         store_path = ROOT / store_rel
         if store_path.is_file():
             text = store_path.read_text(encoding="utf-8")
@@ -185,7 +188,8 @@ def verify_ui_scope() -> None:
     from graphium.application.commands import COMMANDS
     expected = [
         "new", "open", "open-recent", "clear-recent", "save", "save-as",
-        "save-copy", "save-version-copy", "properties", "quit",
+        "save-copy", "save-version-copy", "properties", "page-setup",
+        "print-preview", "print", "quit",
         "undo", "redo", "cut", "copy", "paste", "delete", "select-all",
         "find", "find-next", "find-previous", "replace", "go-to-line",
         "status-bar", "line-numbers", "word-wrap", "font",
@@ -193,7 +197,7 @@ def verify_ui_scope() -> None:
         "statistics", "user-guide", "keyboard-shortcuts", "about",
     ]
     if [c.action for c in COMMANDS] != expected:
-        fail(f"unexpected G07 command surface: {[c.action for c in COMMANDS]}")
+        fail(f"unexpected G08 command surface: {[c.action for c in COMMANDS]}")
     by_action = {c.action: c for c in COMMANDS}
     for action in ("status-bar", "line-numbers", "word-wrap", "full-screen"):
         if not by_action[action].stateful:
@@ -203,7 +207,7 @@ def verify_ui_scope() -> None:
     for rel in ("docs/user/GRAPHIUM_USER_GUIDE.txt", "docs/user/GRAPHIUM_KEYBOARD_SHORTCUTS.txt"):
         if not (ROOT / rel).is_file():
             fail(f"Help product file missing: {rel}")
-    print("G07_COMMAND_SURFACE=PASS")
+    print("G08_COMMAND_SURFACE=PASS")
     print("G06_TOOLBAR_ABSENT=PASS")
     print("HELP_INCREMENTAL=PASS")
 
@@ -575,6 +579,90 @@ def verify_g07_architecture() -> None:
     print("G07_NO_BACKGROUND_OR_MONITOR=PASS")
 
 
+def verify_g08_architecture() -> None:
+    window_path = ROOT / "graphium/adapters/gtk/window.py"
+    printing_path = ROOT / "graphium/adapters/gtk/printing.py"
+    pagination_path = ROOT / "graphium/adapters/gtk/print_pagination.py"
+    probe_path = TOOLS / "g08_print_binding_probe.py"
+    for path in (printing_path, pagination_path, probe_path):
+        if not path.is_file():
+            fail(f"G08 required implementation file missing: {path.relative_to(ROOT)}")
+
+    window = window_path.read_text(encoding="utf-8")
+    printing = printing_path.read_text(encoding="utf-8")
+    pagination = pagination_path.read_text(encoding="utf-8")
+    probe = probe_path.read_text(encoding="utf-8")
+
+    tree = ast.parse(window, filename=str(window_path))
+    top_level_imports = []
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            top_level_imports.extend(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            top_level_imports.append(node.module)
+    if any("printing" in name for name in top_level_imports):
+        fail(f"G08 printing adapter imported on startup path: {top_level_imports}")
+    for marker in (
+        "self._print_controller = None",
+        "from .printing import GraphiumPrintController",
+        "from .printing import PrintSnapshot",
+        "self.buffer_port.capture_full()",
+        "self.text_view.base_font",
+    ):
+        if marker not in window:
+            fail(f"G08 lazy window marker missing: {marker}")
+
+    for marker in (
+        'resolve_xdg_paths().config / "page-setup.ini"',
+        "os.lstat(self.path)", "stat.S_ISREG", "Gtk.PageSetup.new_from_file",
+        "tempfile.mkstemp", "0o600", "setup.to_file(temp_name)", "os.fsync",
+        "os.replace(temp_name, self.path)", "Gtk.PrintOperation()",
+        "operation.set_allow_async(True)", 'operation.connect("done", self._on_done)',
+        "Gtk.PrintOperationResult.IN_PROGRESS", "self._active_operation = operation",
+        "if operation is not self._active_operation", "def _reject_if_busy",
+        "Gtk.PrintOperationAction.PREVIEW", "Gtk.PrintOperationAction.PRINT_DIALOG",
+        "PangoCairo.show_layout_line",
+        'operation.connect("paginate", job.paginate)',
+        "def paginate(self, operation, context)",
+        "IncrementalVisualPaginator",
+        "_PAGINATION_CHUNK_TARGET_CHARS = 16 * 1024",
+        "layout.get_line_readonly(index)", "line.get_extents()",
+    ):
+        if marker not in printing:
+            fail(f"G08 print architecture marker missing: {marker}")
+    for forbidden in (
+        "GtkSourceView", "GtkSourcePrintCompositor", "threading", "Thread(",
+        "concurrent.futures", "timeout_add", "idle_add", 'connect("preview"',
+    ):
+        if forbidden in printing:
+            fail(f"G08 forbidden print architecture marker: {forbidden}")
+    for forbidden in ("splitlines()", "characters_per_page", "get_visible_rect()"):
+        if forbidden in printing:
+            fail(f"G08 heuristic/viewport pagination detected: {forbidden}")
+    for marker in (
+        "class VisualLinePage", "def paginate_visual_line_heights", "usable_height",
+        "class VisualLineSpan", "class IncrementalVisualPage",
+        "class IncrementalVisualPaginator", "def add_chunk", "def finish",
+        "def logical_line_chunk_end",
+    ):
+        if marker not in pagination:
+            fail(f"G08 pagination helper marker missing: {marker}")
+    for marker in (
+        'gi.require_version("Gtk", "3.0")', "Gtk.print_run_page_setup_dialog",
+        "Gtk.PrintOperationAction.EXPORT", "G08_PRINT_BINDING_PROBE=PASS",
+        "CANDIDATE_ATTEMPT_CONSUMED=NO", "GIT_MUTATION=NO",
+    ):
+        if marker not in probe:
+            fail(f"G08 binding probe marker missing: {marker}")
+
+    print("G08_PRINT_ADAPTER_LAZY_IMPORT=PASS")
+    print("G08_PAGE_SETUP_CONFIG_AUTHORITY=PASS")
+    print("G08_NATIVE_PREVIEW_ASYNC_PRINT=PASS")
+    print("G08_PANGO_VISUAL_LINE_PAGINATION=PASS")
+    print("G08_NO_BACKGROUND_PRINT_ARCHITECTURE=PASS")
+    print("G08_BINDING_PROBE_TOOL=PASS_NOT_RUN_LOCAL")
+
+
 def verify_shortcuts() -> None:
     from graphium.application.commands import FORBIDDEN_ACCELERATORS, accelerator_map
     if "<Ctrl><Alt>L" not in FORBIDDEN_ACCELERATORS:
@@ -613,6 +701,11 @@ def verify_evidence() -> None:
         "evidence/G07_FEATHERPAD_SOURCE_RECEIPT.txt",
         "evidence/G07_R1_STARTUP_FAILURE_MATURE_REAUDIT_20260816.txt",
         "evidence/G07_COMPARATOR_FAILURE_MATURE_SOURCE_REAUDIT_20260817.txt",
+        "evidence/G08_SOURCE_AUDIT_20260818.txt",
+        "evidence/G08_MATURE_SOURCE_AUDIT_20260818.txt",
+        "evidence/G08_DECISION_MATRIX_AND_LIGHTWEIGHT_BUDGET_20260818.txt",
+        "evidence/G08_LIGHTWEIGHT_BUDGET_AND_CONTRACT_FREEZE_20260818.txt",
+        "evidence/G08_IMPLEMENTATION_NONCANDIDATE_RECEIPT_20260818.txt",
     )
     for rel in required:
         if not (ROOT / rel).is_file():
@@ -742,6 +835,44 @@ def verify_evidence() -> None:
     ):
         fail("G07 FeatherPad source receipt mismatch")
 
+    g08_source = (ROOT / "evidence/G08_SOURCE_AUDIT_20260818.txt").read_text(encoding="utf-8")
+    for marker in (
+        "Verdict: PASS", "G08 can be added without changing G01-G07 document/write authorities",
+        "CURRENT STARTUP PATH", "Source-audit result: PASS",
+    ):
+        if marker not in g08_source:
+            fail(f"G08 source audit marker missing: {marker}")
+    g08_mature = (ROOT / "evidence/G08_MATURE_SOURCE_AUDIT_20260818.txt").read_text(encoding="utf-8")
+    for marker in (
+        "Verdict: PASS", "Leafpad", "L3afpad", "Mousepad", "gedit", "GNOME TEXT EDITOR",
+        "GtkPrintOperation", "Pango/Cairo", "ADOPT STRICT LAZY STARTUP ISOLATION",
+    ):
+        if marker not in g08_mature:
+            fail(f"G08 mature source audit marker missing: {marker}")
+    g08_matrix = (ROOT / "evidence/G08_DECISION_MATRIX_AND_LIGHTWEIGHT_BUDGET_20260818.txt").read_text(encoding="utf-8")
+    for marker in (
+        "LIGHTWEIGHT_BUDGET_GATE=PASS", "QUICK-EDIT VALUE: PASS",
+        "PERSISTENT/BACKGROUND COST: PASS", "STARTUP PATH: PASS BY FROZEN CONTRACT",
+    ):
+        if marker not in g08_matrix:
+            fail(f"G08 decision/budget marker missing: {marker}")
+    g08_freeze = (ROOT / "evidence/G08_LIGHTWEIGHT_BUDGET_AND_CONTRACT_FREEZE_20260818.txt").read_text(encoding="utf-8")
+    for marker in (
+        "G08_CONTRACT=FROZEN", "Thin GTK3 print adapter with Pango/Cairo",
+        "STARTUP-ISOLATION GATE", "T480 NON-CANDIDATE binding",
+        "This freeze consumes NO candidate attempt",
+    ):
+        if marker not in g08_freeze:
+            fail(f"G08 freeze marker missing: {marker}")
+    g08_impl = (ROOT / "evidence/G08_IMPLEMENTATION_NONCANDIDATE_RECEIPT_20260818.txt").read_text(encoding="utf-8")
+    for marker in (
+        "G08_IMPLEMENTATION=BUILT_IN_ISOLATED_COPY", "G08_DESKTOP_CANDIDATE=NOT_DECLARED",
+        "CANDIDATE_ATTEMPTS_CONSUMED=0/2", "local headless baseline: 304/304 PASS",
+        "301 PASS / 3 FAIL", "gedit/gedit-app.c", "leafpad/src/gtkprint.c",
+    ):
+        if marker not in g08_impl:
+            fail(f"G08 implementation receipt marker missing: {marker}")
+
     data = json.loads((ROOT / "evidence/G04_W116_PROVENANCE.json").read_text(encoding="utf-8"))
     if data.get("calamus_commit") != "33331672f5ba8fcc6a7e1ede9ab849638579f0c7":
         fail("wrong Calamus W116 provenance commit")
@@ -764,6 +895,9 @@ def verify_evidence() -> None:
     print("G07_LIGHTWEIGHT_BUDGET_AUDIT=PASS")
     print("G07_FEATHERPAD_DIRECT_SOURCE=PASS")
     print("G07_COMPARATOR_FAILURE_MATURE_REAUDIT=PASS")
+    print("G08_SOURCE_AND_MATURE_AUDIT=PASS")
+    print("G08_LIGHTWEIGHT_BUDGET_AUDIT=PASS")
+    print("G08_IMPLEMENTATION_RECEIPT=PASS")
 
 
 def verify_contracts() -> None:
@@ -867,6 +1001,47 @@ def verify_contracts() -> None:
     ):
         if marker not in contract:
             fail(f"G07 contract marker missing: {marker}")
+    for marker in (
+        "G08_CONTRACT=FROZEN",
+        "G08_BASELINE_COMMIT=7a3f49218dbabdbd6e47114a5fde2f4999f9c841",
+        "G08_BASELINE_TREE=198164be38e77538b92f45d5d53fe4b0c1929955",
+        "G08_IMPLEMENTATION=BUILT_NONCANDIDATE",
+        "G08_DESKTOP_CANDIDATE=NOT_DECLARED",
+        "G08_VALID_CANDIDATE_ATTEMPTS_CONSUMED=0/2",
+        "G08_FILE_PRINT_GROUP=PAGE_SETUP,PRINT_PREVIEW,PRINT",
+        "G08_PAGE_SETUP_PATH=XDG_CONFIG_HOME/graphium/page-setup.ini",
+        "G08_PAGE_SETUP_SERIALIZATION=GTK_NATIVE_GtkPageSetup_FILE",
+        "G08_PAGE_SETUP_MODE=0600",
+        "G08_PAGE_SETUP_WRITE=COMPLETE_TEMP_FSYNC_ATOMIC_REPLACE",
+        "G08_PAGE_SETUP_LOAD=FIRST_PRINT_FAMILY_ACTION_ONLY",
+        "G08_PRINT_SETTINGS=PERSISTENCE_FORBIDDEN_PROCESS_MEMORY_ONLY",
+        "G08_PRINT_OPERATION=FRESH_PER_PREVIEW_OR_PRINT",
+        "G08_PRINT_OPERATION_ASYNC=GTK_NATIVE_ALLOW_ASYNC",
+        "G08_PRINT_INFLIGHT_AUTHORITY=ONE_OPERATION_PER_WINDOW",
+        "G08_PRINT_COMPLETION=GTK_DONE_SIGNAL_OR_SYNCHRONOUS_RUN_RESULT",
+        "G08_PRINT_OVERLAP=REJECT_WHILE_INFLIGHT",
+        "G08_PREVIEW=NATIVE_GTK_PREVIEW",
+        "G08_CUSTOM_PREVIEW=FORBIDDEN",
+        "G08_RENDERING=PANGO_CAIRO",
+        "G08_PAGINATION=GTK_ASYNC_INCREMENTAL_PANGO_CHUNKS",
+        "G08_BEGIN_PRINT_DOCUMENT_SCAN=FORBIDDEN",
+        "G08_PAGINATION_SIGNAL=GTK_NATIVE_PAGINATE",
+        "G08_PAGINATION_CHUNK_TARGET_CHARS=16384",
+        "G08_PAGINATION_CHUNK_MAX_LOGICAL_LINES=64",
+        "G08_PAGINATION_CHUNK_BOUNDARY=LOGICAL_LINE_ONLY",
+        "G08_PAGINATION_GLOBAL_PANGO_LAYOUT=FORBIDDEN",
+        "G08_INCREMENTAL_PAGINATION_REPAIR=BUILT_NONCANDIDATE",
+        "G08_INCREMENTAL_PAGINATION_REQUALIFICATION=PENDING_T480",
+        "G08_VISUAL_LINE_SPLIT_ACROSS_PAGES=FORBIDDEN",
+        "G08_GTK_SOURCE_VIEW_DEPENDENCY=FORBIDDEN",
+        "G08_PRINT_WORKER_THREAD_TIMER_QUEUE=FORBIDDEN",
+        "G08_STARTUP_PAGE_SETUP_IO=ZERO",
+        "G08_T480_PYGOBJECT_PRINT_BINDING_PROBE=REQUIRED_BEFORE_CANDIDATE",
+        "G08_T480_PYGOBJECT_PRINT_BINDING_PROBE_STATUS=PENDING",
+        "G08_LIGHTWEIGHT_BUDGET_GATE=REQUIRED",
+    ):
+        if marker not in contract:
+            fail(f"G08 contract marker missing: {marker}")
     if "e7045e0ce1c79da71c9968bdfa052df25a5378b7" not in roadmap:
         fail("published G03 baseline missing from roadmap")
     if "Native Edit Integration Hardening" not in roadmap:
@@ -894,6 +1069,7 @@ def verify_contracts() -> None:
     print("G05_CONTRACT_MARKERS=PASS")
     print("G06_CONTRACT_MARKERS=PASS")
     print("G07_CONTRACT_MARKERS=PASS")
+    print("G08_CONTRACT_MARKERS=PASS")
 
 
 def verify_text_integrity() -> None:
@@ -939,6 +1115,7 @@ def main() -> None:
     verify_g05_search_architecture()
     verify_g06_view_architecture()
     verify_g07_architecture()
+    verify_g08_architecture()
     verify_shortcuts()
     verify_evidence()
     verify_contracts()
@@ -946,9 +1123,11 @@ def main() -> None:
     run_tests()
     print("STRICT_GATES=PASS")
     print("GTK_DESKTOP_VALIDATION=PENDING")
-    print("G07_TRUE_GTK_DESKTOP=PENDING_T480")
-    print("G07_STATISTICS_PERFORMANCE=RUN_SEPARATELY")
-    print("FINAL_PHASE=G07_NONDESKTOP_VERIFIED")
+    print("G07_REGRESSION_AUTHORITY=PRESERVED")
+    print("G08_PRINT_BINDING_PROBE=PENDING_T480_NONCANDIDATE")
+    print("G08_TRUE_GTK_DESKTOP=PENDING_AFTER_BINDING_PROBE")
+    print("G08_STARTUP_ISOLATION=PENDING_AFTER_BINDING_PROBE")
+    print("FINAL_PHASE=G08_NONDESKTOP_IMPLEMENTATION_VERIFIED_BINDING_PROBE_PENDING")
 
 
 if __name__ == "__main__":

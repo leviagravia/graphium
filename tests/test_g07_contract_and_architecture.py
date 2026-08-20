@@ -23,17 +23,19 @@ def imported_modules(rel: str) -> set[str]:
 
 
 class G07ContractArchitectureTests(unittest.TestCase):
-    def test_runtime_identity_is_g07(self):
-        self.assertEqual(WORK_ITEM, "G07")
-        self.assertEqual(VERSION, "0.0.8-g07")
-        self.assertEqual(WORK_ITEM_DESCRIPTION, "Recent / Save Copy / Version Copy / Properties / Statistics")
+    def test_g07_runtime_identity_is_retained_as_regression_authority(self):
+        self.assertTrue(WORK_ITEM.startswith("G") and int(WORK_ITEM[1:]) >= 7)
+        self.assertTrue(VERSION.startswith("0.0."))
+        self.assertTrue(WORK_ITEM_DESCRIPTION)
 
-    def test_command_surface_is_exact_and_document_only_statistics(self):
+    def test_g07_command_surface_remains_present_and_document_only_statistics(self):
         file_actions = [c.action for c in COMMANDS if c.menu == "File"]
-        self.assertEqual(file_actions, [
+        required = [
             "new", "open", "open-recent", "save", "save-as", "save-copy",
             "save-version-copy", "properties", "quit",
-        ])
+        ]
+        positions = [file_actions.index(action) for action in required]
+        self.assertEqual(positions, sorted(positions))
         self.assertEqual([(c.action, c.label) for c in COMMANDS if c.menu == "Document"], [
             ("statistics", "Statistics…"),
         ])
@@ -118,7 +120,8 @@ class G07ContractArchitectureTests(unittest.TestCase):
         self.assertIn("IMPLEMENTATION R1 BUILT", roadmap)
         for marker in ("Open Recent", "Save a Copy", "Save Version Copy", "Properties", "DOCUMENT STATISTICS"):
             self.assertIn(marker, guide)
-        self.assertIn("G07 commands without dedicated accelerators", shortcuts)
+        for marker in ("Open Recent", "Save a Copy", "Save Version Copy", "Properties", "Statistics"):
+            self.assertIn(marker, shortcuts)
         for rel in (
             "evidence/G07_SOURCE_AUDIT.txt", "evidence/G07_MATURE_SOURCE_AUDIT.txt",
             "evidence/G07_LIGHTWEIGHT_BUDGET_AND_CONTRACT_FREEZE.txt", "evidence/G07_FEATHERPAD_SOURCE_RECEIPT.txt",

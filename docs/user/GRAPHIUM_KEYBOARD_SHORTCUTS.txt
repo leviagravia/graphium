@@ -1,4 +1,4 @@
-GRAPHIUM KEYBOARD SHORTCUTS — G07
+GRAPHIUM KEYBOARD SHORTCUTS — G08
 =================================
 
 File
@@ -6,6 +6,8 @@ File
   Ctrl+O          Open…
   Ctrl+S          Save
   Ctrl+Shift+S    Save As…
+  Ctrl+Shift+P    Print Preview
+  Ctrl+P          Print…
   Ctrl+Q          Quit
 
 Edit
@@ -36,18 +38,19 @@ View
   F11             Full Screen
 
 Status Bar, Line Numbers, Word Wrap and Font… are direct View commands without dedicated
-accelerators in G07. Their persistent state is changed from the View menu rather than
+accelerators in G08. Their persistent state is changed from the View menu rather than
 duplicated in Preferences.
 
 Document
-  Statistics… has no dedicated accelerator in G07.
+  Statistics… has no dedicated accelerator in G08.
 
-G07 commands without dedicated accelerators
+G08 commands without dedicated accelerators
 --------------------------------------------
-Open Recent, Clear Recent, Save a Copy…, Save Version Copy…, Properties… and Statistics…
-are intentionally menu-driven in G07. No new default accelerator was added.
+Open Recent, Clear Recent, Save a Copy…, Save Version Copy…, Properties…, Page Setup… and
+Statistics… are intentionally menu-driven. G08 adds only Ctrl+Shift+P for Print Preview and Ctrl+P
+for Print.
 
-Help commands intentionally have no global accelerator in G07.
+Help commands intentionally have no global accelerator in G08.
 
 Linux Mint/Cinnamon note
 ------------------------
