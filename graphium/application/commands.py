@@ -1,4 +1,4 @@
-"""Graphium product-owned command catalog through G08.
+"""Graphium product-owned command catalog through G09.
 
 The catalog is the single command authority shared by menus, accelerators and Help.
 Boolean direct View settings are stateful actions; their persistence remains owned by
@@ -15,6 +15,7 @@ class CommandSpec:
     accelerator: str | None = None
     menu: str = ""
     stateful: bool = False
+    submenu: str | None = None
 
 
 COMMANDS = (
@@ -38,6 +39,12 @@ COMMANDS = (
     CommandSpec("paste", "Paste", "<Ctrl>V", "Edit"),
     CommandSpec("delete", "Delete", "Delete", "Edit"),
     CommandSpec("select-all", "Select All", "<Ctrl>A", "Edit"),
+    CommandSpec("uppercase", "Uppercase", None, "Edit", False, "Transform Text"),
+    CommandSpec("lowercase", "Lowercase", None, "Edit", False, "Transform Text"),
+    CommandSpec("duplicate-line-selection", "Duplicate Line / Selection", None, "Edit", False, "Transform Text"),
+    CommandSpec("move-lines-up", "Move Lines Up", "<Alt>Up", "Edit", False, "Transform Text"),
+    CommandSpec("move-lines-down", "Move Lines Down", "<Alt>Down", "Edit", False, "Transform Text"),
+    CommandSpec("trim-trailing-spaces", "Trim Trailing Spaces", None, "Edit", False, "Transform Text"),
     CommandSpec("find", "Find…", "<Ctrl>F", "Search"),
     CommandSpec("find-next", "Find Next", "F3", "Search"),
     CommandSpec("find-previous", "Find Previous", "<Shift>F3", "Search"),
@@ -72,6 +79,8 @@ class CommandAvailability:
     cut: bool
     copy: bool
     delete: bool
+    uppercase: bool
+    lowercase: bool
 
 
 def command_availability(
@@ -89,4 +98,6 @@ def command_availability(
         cut=has_selection,
         copy=has_selection,
         delete=has_selection,
+        uppercase=has_selection,
+        lowercase=has_selection,
     )

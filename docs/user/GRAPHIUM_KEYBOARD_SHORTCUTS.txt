@@ -56,3 +56,9 @@ Linux Mint/Cinnamon note
 ------------------------
 Graphium does not use Ctrl+Alt+L. New accelerators are checked against active desktop
 global bindings before a desktop candidate is accepted.
+
+G09 text transformations
+  Alt+Up    Move Lines Up
+  Alt+Down  Move Lines Down
+  Uppercase, Lowercase, Duplicate Line / Selection and Trim Trailing Spaces have no dedicated
+  accelerator and remain explicit Edit -> Transform Text menu actions.

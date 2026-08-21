@@ -288,3 +288,12 @@ of the entire document. Replace All is deliberately bounded: one activation can 
 most 50,000 source matches and must also fit the Undo payload budget. If either bound would
 be exceeded, Graphium refuses the operation before changing the document. This does not
 limit ordinary Find Next/Previous.
+
+17. G09 EXPLICIT TEXT TRANSFORMATIONS
+
+Edit -> Transform Text contains Uppercase, Lowercase, Duplicate Line / Selection, Move Lines Up,
+Move Lines Down and Trim Trailing Spaces. Uppercase/Lowercase require a selection. Duplicate and
+Move use the current line when there is no selection. Trim Trailing Spaces affects selected lines,
+or the whole document when there is no selection, and removes only ASCII spaces/tabs at line ends.
+These commands are never applied automatically on Open or Save. Move Lines Up/Down use Alt+Up and
+Alt+Down; the remaining G09 actions are menu-driven.

@@ -19,10 +19,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class G08ContractArchitectureTests(unittest.TestCase):
-    def test_runtime_identity_is_g08(self):
-        self.assertEqual(WORK_ITEM, "G08")
-        self.assertEqual(VERSION, "0.0.9-g08")
-        self.assertEqual(WORK_ITEM_DESCRIPTION, "Page Setup / Print Preview / Print / Startup Isolation")
+    def test_runtime_identity_progresses_to_g09_without_print_regression(self):
+        self.assertEqual(WORK_ITEM, "G09")
+        self.assertEqual(VERSION, "0.0.10-g09")
+        self.assertEqual(WORK_ITEM_DESCRIPTION, "Explicit Text Transformations Only / No Format-Menu Expansion")
 
     def test_file_command_surface_and_accelerators_are_exact(self):
         file_commands = [(c.action, c.label, c.accelerator) for c in COMMANDS if c.menu == "File"]

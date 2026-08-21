@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed non-desktop verifier for Graphium G08, preserving G00-G07 invariants."""
+"""Fail-closed non-desktop verifier for Graphium G09, preserving G00-G08 invariants."""
 from __future__ import annotations
 
 import ast
@@ -20,7 +20,7 @@ EXPECTED_CANONICAL = {
     "GRAPHIUM_ROADMAP.md",
     "GRAPHIUM_MEMORIA_OPERATIVA.txt",
 }
-EXPECTED_TESTS = 319
+EXPECTED_TESTS = 354
 EXPECTED_W116 = {
     "calamus_command_catalog.py": "687332708c5323f0639bdfc8e74f5638ed412534677e96e788fa5efcd2e647c3",
     "calamus_dialogs.py": "68a6fcc44d02c8534841ebe24bd53f69134f9b626529759bc648835e1aba4de2",
@@ -59,16 +59,16 @@ def verify_identity() -> None:
     sys.path.insert(0, str(ROOT))
     from graphium.product import DESKTOP_APPLICATION_ID, VERSION, WORK_ITEM, WORK_ITEM_DESCRIPTION
     expected = (
-        "G08",
-        "Page Setup / Print Preview / Print / Startup Isolation",
-        "0.0.9-g08",
+        "G09",
+        "Explicit Text Transformations Only / No Format-Menu Expansion",
+        "0.0.10-g09",
         "io.github.leviagravia.Graphium",
     )
     actual = (WORK_ITEM, WORK_ITEM_DESCRIPTION, VERSION, DESKTOP_APPLICATION_ID)
     if actual != expected:
-        fail(f"unexpected G08 identity: {actual}")
-    print("G08_RUNTIME_IDENTITY=PASS")
-    print("G08_DESKTOP_APPLICATION_ID=PASS")
+        fail(f"unexpected G09 identity: {actual}")
+    print("G09_RUNTIME_IDENTITY=PASS")
+    print("G09_DESKTOP_APPLICATION_ID=PASS")
 
 
 def verify_compile() -> None:
@@ -191,13 +191,15 @@ def verify_ui_scope() -> None:
         "save-copy", "save-version-copy", "properties", "page-setup",
         "print-preview", "print", "quit",
         "undo", "redo", "cut", "copy", "paste", "delete", "select-all",
+        "uppercase", "lowercase", "duplicate-line-selection",
+        "move-lines-up", "move-lines-down", "trim-trailing-spaces",
         "find", "find-next", "find-previous", "replace", "go-to-line",
         "status-bar", "line-numbers", "word-wrap", "font",
         "zoom-in", "zoom-out", "zoom-reset", "full-screen",
         "statistics", "user-guide", "keyboard-shortcuts", "about",
     ]
     if [c.action for c in COMMANDS] != expected:
-        fail(f"unexpected G08 command surface: {[c.action for c in COMMANDS]}")
+        fail(f"unexpected G09 command surface: {[c.action for c in COMMANDS]}")
     by_action = {c.action: c for c in COMMANDS}
     for action in ("status-bar", "line-numbers", "word-wrap", "full-screen"):
         if not by_action[action].stateful:
@@ -207,7 +209,7 @@ def verify_ui_scope() -> None:
     for rel in ("docs/user/GRAPHIUM_USER_GUIDE.txt", "docs/user/GRAPHIUM_KEYBOARD_SHORTCUTS.txt"):
         if not (ROOT / rel).is_file():
             fail(f"Help product file missing: {rel}")
-    print("G08_COMMAND_SURFACE=PASS")
+    print("G09_COMMAND_SURFACE=PASS")
     print("G06_TOOLBAR_ABSENT=PASS")
     print("HELP_INCREMENTAL=PASS")
 
@@ -663,13 +665,66 @@ def verify_g08_architecture() -> None:
     print("G08_BINDING_PROBE_TOOL=PASS_NOT_RUN_LOCAL")
 
 
+
+def verify_g09_architecture() -> None:
+    planner_path = ROOT / "graphium/application/text_transform.py"
+    planner = planner_path.read_text(encoding="utf-8")
+    window = (ROOT / "graphium/adapters/gtk/window.py").read_text(encoding="utf-8")
+    commands = (ROOT / "graphium/application/commands.py").read_text(encoding="utf-8")
+    native = (ROOT / "graphium/application/native_editor.py").read_text(encoding="utf-8")
+    if not planner_path.is_file():
+        fail("G09 GTK-free planner missing")
+    for forbidden in ("import gi", "gi.repository", "GtkSourceView", "threading", "concurrent.futures"):
+        if forbidden in planner:
+            fail(f"G09 planner crossed frozen boundary: {forbidden}")
+    for marker in (
+        "class TransformationPlan", "MAX_TRANSFORM_CHANGED_SPANS = 50_000",
+        "plan_uppercase", "plan_lowercase", "plan_duplicate_line_selection",
+        "plan_move_lines_up", "plan_move_lines_down", "plan_trim_trailing_spaces",
+        "ensure_interactive_text_renderable", "DEFAULT_MAX_HISTORY_PAYLOAD_CHARS",
+    ):
+        if marker not in planner:
+            fail(f"G09 planner marker missing: {marker}")
+    if 'section.append_submenu("Transform Text", transform_menu)' not in window:
+        fail("G09 nested Transform Text menu missing")
+    if 'root.append_submenu("Format"' in window or '"Format"' in commands:
+        fail("G09 illegally introduced a top-level Format menu")
+    if "apply_prevalidated_programmatic_group" not in window:
+        fail("G09 window does not route mutation through G05 authority")
+    if native.count("def apply_prevalidated_programmatic_group") != 1:
+        fail("G09 mutation authority count changed")
+    from graphium.application.commands import COMMANDS
+    transforms = [c for c in COMMANDS if c.submenu == "Transform Text"]
+    expected = [
+        ("uppercase", None), ("lowercase", None),
+        ("duplicate-line-selection", None), ("move-lines-up", "<Alt>Up"),
+        ("move-lines-down", "<Alt>Down"), ("trim-trailing-spaces", None),
+    ]
+    if [(c.action, c.accelerator) for c in transforms] != expected:
+        fail(f"G09 transform command surface mismatch: {transforms}")
+    for rel in ("tools/g09_performance.py", "tools/g09_true_gtk_gate.py", "tools/g09_shortcut_audit.py"):
+        if not (ROOT / rel).is_file():
+            fail(f"G09 qualification tool missing: {rel}")
+    print("G09_GTK_FREE_PLANNER=PASS")
+    print("G09_SINGLE_MUTATION_AUTHORITY=PASS")
+    print("G09_TRANSFORM_MENU_AND_ACTIONS=PASS")
+    print("G09_CHANGED_SPAN_CAP=PASS limit=50000")
+
+
 def verify_shortcuts() -> None:
     from graphium.application.commands import FORBIDDEN_ACCELERATORS, accelerator_map
     if "<Ctrl><Alt>L" not in FORBIDDEN_ACCELERATORS:
         fail("Ctrl+Alt+L forbidden marker missing")
-    if "<Ctrl><Alt>L" in accelerator_map().values():
+    amap = accelerator_map()
+    if "<Ctrl><Alt>L" in amap.values():
         fail("Ctrl+Alt+L assigned")
+    if amap.get("move-lines-up") != "<Alt>Up" or amap.get("move-lines-down") != "<Alt>Down":
+        fail("G09 Move Lines accelerators mismatch")
+    normalized = [value.lower().replace("<primary>", "<ctrl>") for value in amap.values()]
+    if len(normalized) != len(set(normalized)):
+        fail("internal Graphium accelerator collision")
     print("KNOWN_SHORTCUT_COLLISION_GATE=PASS")
+    print("G09_INTERNAL_ACCELERATOR_GATE=PASS")
 
 
 def verify_evidence() -> None:
@@ -706,6 +761,11 @@ def verify_evidence() -> None:
         "evidence/G08_DECISION_MATRIX_AND_LIGHTWEIGHT_BUDGET_20260818.txt",
         "evidence/G08_LIGHTWEIGHT_BUDGET_AND_CONTRACT_FREEZE_20260818.txt",
         "evidence/G08_IMPLEMENTATION_NONCANDIDATE_RECEIPT_20260818.txt",
+        "evidence/G09_SOURCE_AUDIT_20260820.txt",
+        "evidence/G09_MATURE_SOURCE_AUDIT_20260820.txt",
+        "evidence/G09_DECISION_MATRIX_AND_LIGHTWEIGHT_BUDGET_20260820.txt",
+        "evidence/G09_CONTRACT_FREEZE_20260820.txt",
+        "evidence/G09_IMPLEMENTATION_NONCANDIDATE_RECEIPT_20260820.txt",
     )
     for rel in required:
         if not (ROOT / rel).is_file():
@@ -873,6 +933,22 @@ def verify_evidence() -> None:
         if marker not in g08_impl:
             fail(f"G08 implementation receipt marker missing: {marker}")
 
+    g09_source = (ROOT / "evidence/G09_SOURCE_AUDIT_20260820.txt").read_text(encoding="utf-8")
+    g09_mature = (ROOT / "evidence/G09_MATURE_SOURCE_AUDIT_20260820.txt").read_text(encoding="utf-8")
+    g09_matrix = (ROOT / "evidence/G09_DECISION_MATRIX_AND_LIGHTWEIGHT_BUDGET_20260820.txt").read_text(encoding="utf-8")
+    g09_freeze = (ROOT / "evidence/G09_CONTRACT_FREEZE_20260820.txt").read_text(encoding="utf-8")
+    g09_impl = (ROOT / "evidence/G09_IMPLEMENTATION_NONCANDIDATE_RECEIPT_20260820.txt").read_text(encoding="utf-8")
+    for marker in ("SOURCE_ARCHITECTURE_FINDING=G05_PROGRAMMATIC_AUTHORITY_REUSABLE", "GTK_FREE_PURE_PLANNER=ADOPT"):
+        if marker not in g09_source: fail(f"G09 source audit marker missing: {marker}")
+    for marker in ("Mousepad", "FeatherPad", "Graphium consequence", "FALSIFICATION RESULTS", "SUPPORTED"):
+        if marker not in g09_mature: fail(f"G09 mature audit marker missing: {marker}")
+    for marker in ("LIGHTWEIGHT_BUDGET_GATE=PASS", "ADOPT", "REJECT G09/V1", "DEFER"):
+        if marker not in g09_matrix: fail(f"G09 matrix marker missing: {marker}")
+    for marker in ("G09_CONTRACT=FROZEN", "50,000", "3.0 s", "apply_prevalidated_programmatic_group"):
+        if marker not in g09_freeze: fail(f"G09 freeze marker missing: {marker}")
+    for marker in ("G09_IMPLEMENTATION=BUILT_IN_ISOLATED_COPY", "G09_FOCUSED_TESTS=35/35 PASS", "FULL_HEADLESS_SUITE=354/354 PASS"):
+        if marker not in g09_impl: fail(f"G09 implementation receipt marker missing: {marker}")
+
     data = json.loads((ROOT / "evidence/G04_W116_PROVENANCE.json").read_text(encoding="utf-8"))
     if data.get("calamus_commit") != "33331672f5ba8fcc6a7e1ede9ab849638579f0c7":
         fail("wrong Calamus W116 provenance commit")
@@ -898,6 +974,9 @@ def verify_evidence() -> None:
     print("G08_SOURCE_AND_MATURE_AUDIT=PASS")
     print("G08_LIGHTWEIGHT_BUDGET_AUDIT=PASS")
     print("G08_IMPLEMENTATION_RECEIPT=PASS")
+    print("G09_SOURCE_AND_MATURE_AUDIT=PASS")
+    print("G09_LIGHTWEIGHT_BUDGET_AUDIT=PASS")
+    print("G09_IMPLEMENTATION_RECEIPT=PASS")
 
 
 def verify_contracts() -> None:
@@ -1042,6 +1121,22 @@ def verify_contracts() -> None:
     ):
         if marker not in contract:
             fail(f"G08 contract marker missing: {marker}")
+    for marker in (
+        "G09_CONTRACT=FROZEN",
+        "G09_BASELINE_COMMIT=5d1c342eafbff8b4b38f0656e0dbc1fe315362b4",
+        "G09_BASELINE_TREE=6535bf7d560ceaed3e31f407317fde0a8618ba47",
+        "G09_IMPLEMENTATION=BUILT_NONCANDIDATE",
+        "G09_DESKTOP_CANDIDATE=NOT_DECLARED",
+        "G09_VALID_CANDIDATE_ATTEMPTS_CONSUMED=0/2",
+        "G09_MENU=EDIT_TRANSFORM_TEXT_SUBMENU",
+        "G09_TOP_LEVEL_FORMAT_MENU=FORBIDDEN",
+        "G09_CHANGED_SPAN_CAP=50000",
+        "G09_UNDO_GROUPS_PER_ACTUAL_TRANSFORM=1",
+        "G09_OPEN_SAVE_IMPLICIT_TRANSFORM=FORBIDDEN",
+        "G09_T480_PRE_CANDIDATE_QUALIFICATION=PENDING",
+    ):
+        if marker not in contract:
+            fail(f"G09 contract marker missing: {marker}")
     if "e7045e0ce1c79da71c9968bdfa052df25a5378b7" not in roadmap:
         fail("published G03 baseline missing from roadmap")
     if "Native Edit Integration Hardening" not in roadmap:
@@ -1070,6 +1165,7 @@ def verify_contracts() -> None:
     print("G06_CONTRACT_MARKERS=PASS")
     print("G07_CONTRACT_MARKERS=PASS")
     print("G08_CONTRACT_MARKERS=PASS")
+    print("G09_CONTRACT_MARKERS=PASS")
 
 
 def verify_text_integrity() -> None:
@@ -1116,18 +1212,19 @@ def main() -> None:
     verify_g06_view_architecture()
     verify_g07_architecture()
     verify_g08_architecture()
+    verify_g09_architecture()
     verify_shortcuts()
     verify_evidence()
     verify_contracts()
     verify_text_integrity()
     run_tests()
     print("STRICT_GATES=PASS")
-    print("GTK_DESKTOP_VALIDATION=PENDING")
-    print("G07_REGRESSION_AUTHORITY=PRESERVED")
-    print("G08_PRINT_BINDING_PROBE=PENDING_T480_NONCANDIDATE")
-    print("G08_TRUE_GTK_DESKTOP=PENDING_AFTER_BINDING_PROBE")
-    print("G08_STARTUP_ISOLATION=PENDING_AFTER_BINDING_PROBE")
-    print("FINAL_PHASE=G08_NONDESKTOP_IMPLEMENTATION_VERIFIED_BINDING_PROBE_PENDING")
+    print("GTK_DESKTOP_VALIDATION=PENDING_T480_PRE_CANDIDATE")
+    print("G08_REGRESSION_AUTHORITY=PRESERVED")
+    print("G09_TRUE_GTK_DESKTOP=PENDING_T480")
+    print("G09_SHORTCUT_CINNAMON_AUDIT=PENDING_T480")
+    print("G09_T480_PRE_CANDIDATE_QUALIFICATION=PENDING")
+    print("FINAL_PHASE=G09_NONDESKTOP_IMPLEMENTATION_VERIFIED_T480_PRE_CANDIDATE_PENDING")
 
 
 if __name__ == "__main__":

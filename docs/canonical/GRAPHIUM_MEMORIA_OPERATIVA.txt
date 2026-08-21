@@ -3008,3 +3008,78 @@ Publication boundary:
   G08_STATUS_ON_FINALIZER_PASS=CLOSED/CERTIFIED/PUBLISHED
   NEXT_SERIAL_ITEM=G09
   G09_IMPLEMENTATION=FORBIDDEN_UNTIL_SEPARATELY_AUTHORIZED_AFTER_PUBLISHED_G08_READONLY_AUDIT
+
+ENTRY — G09 CONTRACT FREEZE + ISOLATED NON-CANDIDATE IMPLEMENTATION — 2026-08-20
+
+Published G08 baseline:
+  commit 5d1c342eafbff8b4b38f0656e0dbc1fe315362b4
+  tree   6535bf7d560ceaed3e31f407317fde0a8618ba47
+
+G09_CONTRACT=FROZEN
+G09_IMPLEMENTATION=BUILT_NONCANDIDATE
+G09_DESKTOP_CANDIDATE=NOT_DECLARED
+G09_CANDIDATE_ATTEMPTS_USED=0/2
+CANONICAL_GIT_MUTATION=NONE
+
+Exact adopted surface:
+  Edit -> Transform Text -> Uppercase
+                          Lowercase
+                          Duplicate Line / Selection
+                          Move Lines Up      Alt+Up
+                          Move Lines Down    Alt+Down
+                          Trim Trailing Spaces
+
+Authority:
+  pure GTK-free immutable TransformationPlan planner;
+  one and only mutation path = NativeEditorController.apply_prevalidated_programmatic_group();
+  no G05 refactor, no second controller/history engine, no GtkSourceView, no background state.
+
+Headless qualification:
+  focused G09 35/35 PASS
+  full regression 354/354 PASS
+  T480 PRE-CANDIDATE qualification PENDING
+  True-GTK build-host claim NONE when PyGObject/desktop environment is unavailable.
+
+Binding next step:
+  run the self-contained T480 PRE-CANDIDATE qualification against live canonical G08 identity;
+  only after complete PASS may Candidate R1 authorization be requested.
+
+
+================================================================================
+ENTRY — G09 DESKTOP CERTIFICATION / PUBLICATION FINALIZATION BOUNDARY
+Date: 2026-08-21
+================================================================================
+
+Certified G09 product source:
+  G09_DESKTOP_CERTIFIED_SOURCE_TREE=92bcae4fcf72684872a9fa675007156bd0a4de3c
+  G09_T480_PRE_CANDIDATE_QUALIFICATION=PASS
+  G09_CANDIDATE_R1_AUTOMATED_20_LANES=PASS
+  G09_DESKTOP_CANDIDATE_R1_MANUAL=PASS tests=6/6
+  G09_CANDIDATE_LINE_ATTEMPTS_USED=1/2
+
+Candidate/manual-oracle history:
+  R1 = DESKTOP CERTIFIED on the exact product tree above. Automated qualification passed 20/20 lanes.
+  Manual Tests 1-4 PASSed in the original R1 run. Original Test 5 had already produced
+  TRIM_DISK_POSTCONDITION=PASS before a human FAIL caused by an ambiguous escaped-newline/invisible-
+  whitespace oracle; source-first/mature-source re-audit classified that verdict as
+  INVALID_MANUAL_ORACLE_FALSE_NEGATIVE, not a product FAIL. Manual Reissue 1 then stopped before
+  Graphium launch on a Bash harness-only unbound-variable defect. Manual Reissue 2 changed no product
+  bytes, declared no R2 and consumed no additional candidate attempt; Tests 5 and 6 PASSed.
+
+Final certified scope:
+  Edit -> Transform Text -> Uppercase / Lowercase / Duplicate Line or Selection / Move Lines Up /
+  Move Lines Down / Trim Trailing Spaces. Move actions use Alt+Up / Alt+Down. The product retains one
+  pure GTK-free planner and the existing G05 NativeEditorController programmatic mutation authority;
+  no Format top-level menu, second history engine, GtkSourceView, background service, persistent
+  transform state or implicit Open/Save transformation exists.
+
+Publication boundary:
+  Runtime, bin launchers, docs/user, tests and tools are frozen byte-for-byte at the certified tree.
+  Publication may alter only the three canonical authority documents plus additive
+  evidence/G09_DESKTOP_CERTIFICATION_RECEIPT_20260821.txt and evidence/SHA256SUMS.txt. The finalizer
+  must prove published G08 parent commit/tree, clean synchronized canonical main, reconstruct the exact
+  certified G09 tree, prove the exact publication target tree in a temporary index, commit, push,
+  fetch, verify HEAD=origin/main=remote main and leave the worktree CLEAN.
+  G09_STATUS_ON_FINALIZER_PASS=CLOSED/CERTIFIED/PUBLISHED
+  NEXT_SERIAL_ITEM=G10
+  G10_IMPLEMENTATION=FORBIDDEN_UNTIL_SEPARATELY_AUTHORIZED_AFTER_PUBLISHED_G09_READONLY_AUDIT

@@ -381,3 +381,51 @@ Candidate R1 consumed attempt 1/2 and was retired after a composite manual Test 
 Publication preserves the certified runtime and user-facing implementation byte-for-byte. Only the three canonical authority documents, additive `G08_DESKTOP_CERTIFICATION_RECEIPT_20260820.txt` evidence and regenerated `evidence/SHA256SUMS.txt` differ from the certified tree. G08 becomes **CLOSED / CERTIFIED / PUBLISHED** only when the publication finalizer proves the target tree, commits, pushes, fetches, verifies `HEAD = origin/main = remote main`, and leaves the canonical worktree clean.
 
 **Next serial item: G09 — Explicit Text Transformations Only / No Format-Menu Expansion.** G09 remains PENDING until a separate authorization and its own published-G08 read-only audit, mature-source review, Lightweight Budget check and contract freeze.
+
+### G09 implementation checkpoint — 2026-08-20
+
+The published-G08 source audit, direct mature-source audit, ADOPT/ADAPT/REJECT/DEFER matrix,
+Lightweight Budget and contract freeze completed before implementation. G09 is now implemented in
+an isolated copy as a NON-CANDIDATE: Edit -> Transform Text contains exactly Uppercase, Lowercase,
+Duplicate Line / Selection, Move Lines Up, Move Lines Down and Trim Trailing Spaces. Move Lines
+uses Alt+Up / Alt+Down; the other four commands have no default accelerator. No top-level Format
+menu, GtkSourceView, background service, persistent transform settings or second mutation authority
+was added.
+
+The implementation reuses `NativeEditorController.apply_prevalidated_programmatic_group()` as the
+sole mutation/Undo/rollback authority and adds one pure GTK-free planner. Build-host qualification is
+35/35 focused and 354/354 full headless PASS. Desktop/True-GTK, Cinnamon collision, live canonical
+Git and 1 MiB integrated action gates remain PRE-CANDIDATE work on the T480. Candidate attempts
+remain 0/2 and Candidate R1 requires separate authorization only after that qualification passes.
+
+
+### G09 closure / G10 handoff — 2026-08-21
+
+G09 completed full T480 qualification on exact certified product tree
+`92bcae4fcf72684872a9fa675007156bd0a4de3c`. PRE-CANDIDATE qualification PASSed before candidate
+declaration. Candidate R1 then PASSed all 20 automated lanes. Manual Tests 1-4 PASSed in the original
+run. The original Test 5 automatic disk postcondition PASSed, while the subsequent human FAIL was
+classified after source-first/mature-source re-audit as an invalid manual-oracle false negative rather
+than a product failure. A first manual-only reissue stopped before Graphium launch on a Bash harness
+defect; the corrected reissue preserved the exact product tree, declared no R2, consumed no new
+attempt and PASSed Tests 5-6. Composed manual result: **6/6 PASS**. Candidate-line accounting remains
+**1/2 attempt used**, with no product FAIL.
+
+The certified G09 surface is intentionally narrow: Edit -> Transform Text exposes Uppercase,
+Lowercase, Duplicate Line / Selection, Move Lines Up, Move Lines Down and Trim Trailing Spaces;
+Alt+Up/Alt+Down are the only new accelerators. G09 adds no top-level Format menu, GtkSourceView,
+background work, persistent transform state, implicit Open/Save cleanup or second mutation/history
+authority.
+
+Publication preserves `graphium/`, `bin/`, `docs/user/`, `tests/` and `tools/` byte-for-byte from the
+certified tree. Only the three canonical authority documents, additive
+`G09_DESKTOP_CERTIFICATION_RECEIPT_20260821.txt` evidence and regenerated
+`evidence/SHA256SUMS.txt` may differ. G09 becomes **CLOSED / CERTIFIED / PUBLISHED** only when the
+publication finalizer proves the exact target tree, commits, pushes, fetches, verifies
+`HEAD = origin/main = remote main`, and leaves the canonical worktree clean.
+
+**Next serial item: G10 — Persistence Layer / Preferences Dialog without duplicating direct View
+commands.** G10 remains PENDING until separate authorization plus a read-only audit of the published
+G09 repository, direct mature-source review, explicit ADOPT / ADAPT / REJECT / DEFER matrix,
+Lightweight Budget review and contract freeze. No G10 implementation is authorized by G09
+publication.

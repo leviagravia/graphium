@@ -1182,3 +1182,71 @@ Current closure authority is additive:
 `G08_PUBLICATION_RUNTIME_MUTATION=FORBIDDEN`
 
 The certified product contract is the exact R2 tree above. Publication may change only canonical status/evidence authority: the three files under `docs/canonical/`, additive G08 certification evidence and `evidence/SHA256SUMS.txt`. Runtime (`graphium/`), launchers (`bin/`), user documentation (`docs/user/`), tests and qualification tools must remain byte-for-byte equivalent to the certified product. Publication is valid only after fail-closed proof of the published G07 parent, exact target publication tree, remote fast-forward, `HEAD=origin/main=remote main` and clean worktree.
+
+## 20. G09 — Explicit Text Transformations Only / No Format-Menu Expansion
+
+`G09_CONTRACT=FROZEN`
+`G09_BASELINE_COMMIT=5d1c342eafbff8b4b38f0656e0dbc1fe315362b4`
+`G09_BASELINE_TREE=6535bf7d560ceaed3e31f407317fde0a8618ba47`
+`G09_IMPLEMENTATION=BUILT_NONCANDIDATE`
+`G09_DESKTOP_CANDIDATE=NOT_DECLARED`
+`G09_VALID_CANDIDATE_ATTEMPTS_CONSUMED=0/2`
+`G09_MENU=EDIT_TRANSFORM_TEXT_SUBMENU`
+`G09_TOP_LEVEL_FORMAT_MENU=FORBIDDEN`
+`G09_ACTIONS=UPPERCASE,LOWERCASE,DUPLICATE_LINE_SELECTION,MOVE_LINES_UP,MOVE_LINES_DOWN,TRIM_TRAILING_SPACES`
+`G09_MOVE_LINES_UP_ACCELERATOR=ALT_UP`
+`G09_MOVE_LINES_DOWN_ACCELERATOR=ALT_DOWN`
+`G09_OTHER_ACCELERATORS=NONE`
+`G09_PLANNER=GTK_FREE_IMMUTABLE_TRANSFORMATION_PLAN`
+`G09_MUTATION_AUTHORITY=NATIVE_EDITOR_APPLY_PREVALIDATED_PROGRAMMATIC_GROUP`
+`G09_SECOND_MUTATION_ENGINE=FORBIDDEN`
+`G09_DIRECT_WINDOW_GTK_TEXT_MUTATION=FORBIDDEN`
+`G09_GTKSOURCEVIEW=FORBIDDEN`
+`G09_BACKGROUND_WORKER_TIMER_CACHE=FORBIDDEN`
+`G09_PERSISTENT_TRANSFORM_STATE=FORBIDDEN`
+`G09_CHANGED_SPAN_CAP=50000`
+`G09_UNDO_GROUPS_PER_ACTUAL_TRANSFORM=1`
+`G09_NOOP_STATE_ID_CHANGE=FORBIDDEN`
+`G09_OPEN_SAVE_IMPLICIT_TRANSFORM=FORBIDDEN`
+`G09_CASE_SCOPE=NONEMPTY_SELECTION_ONLY`
+`G09_CASE_UNICODE=PYTHON_FULL_STRING_UPPER_LOWER_LOCALE_INDEPENDENT`
+`G09_MOVE_TERMINAL_SENTINEL=MOVABLE_NO`
+`G09_TRIM_WHITESPACE=U+0020_OR_U+0009_BEFORE_LF_OR_EOF_ONLY`
+`G09_HEADLESS_PLANNER_1M_MEDIAN_MAX_MS=1000`
+`G09_TRUE_GTK_1M_ACTION_MAX_SECONDS=3.0`
+`G09_T480_PRE_CANDIDATE_QUALIFICATION=PENDING`
+
+G09 adds only explicit, user-invoked plain-text transformations. The planner is application-layer,
+GTK-free and stateless; all mutation, stale-plan rejection, renderer safety, Undo payload checks,
+rollback and savepoint identity remain owned by the certified G05 native-editor programmatic edit
+authority. Selection direction is part of the postcondition. Move Lines treats an LF-created final
+zero-length sentinel as non-movable and preserves final-EOL representation under line swaps. Trim
+Trailing Spaces removes only ASCII space/tab trailing runs and never runs automatically on Open or
+Save. Candidate R1 remains forbidden until live canonical G08 Git identity and all T480
+pre-candidate desktop/performance/shortcut gates pass.
+
+### 20.1 G09 certification and publication boundary — 2026-08-21
+
+The G09 freeze/checkpoint markers above remain historical authority and are intentionally preserved
+verbatim. Current closure authority is additive:
+
+`G09_DESKTOP_CERTIFIED_SOURCE_TREE=92bcae4fcf72684872a9fa675007156bd0a4de3c`
+`G09_T480_PRE_CANDIDATE_QUALIFICATION=PASS`
+`G09_CANDIDATE_R1_AUTOMATED_20_LANES=PASS`
+`G09_CANDIDATE_R1_MANUAL=PASS_6_OF_6`
+`G09_CANDIDATE_LINE_ATTEMPTS_USED=1_OF_2`
+`G09_PRODUCT_FAILS=0`
+`G09_PUBLICATION_RUNTIME_MUTATION=FORBIDDEN`
+
+The original Test 5 human FAIL is not product authority: the runner had already proved the exact Trim
+saved-byte postcondition, and the subsequent source-first/mature-source audit plus unchanged-tree
+manual reissue established an invalid manual-oracle false negative. Reissue 1 stopped before product
+launch on a harness-only Bash defect; Reissue 2 changed no product bytes and PASSed Tests 5 and 6.
+Candidate R2 was never declared.
+
+The certified product contract is the exact R1 tree above. Publication may change only canonical
+status/evidence authority: the three files under `docs/canonical/`, additive G09 desktop-certification
+evidence and `evidence/SHA256SUMS.txt`. Runtime (`graphium/`), launchers (`bin/`), user documentation
+(`docs/user/`), tests and qualification tools must remain byte-for-byte equivalent to the certified
+product. Publication is valid only after fail-closed proof of the published G08 parent, exact target
+publication tree, remote fast-forward, `HEAD=origin/main=remote main` and clean worktree.

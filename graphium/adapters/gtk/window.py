@@ -1,4 +1,4 @@
-"""Thin GTK3 single-document editor window through Graphium G08."""
+"""Thin GTK3 single-document editor window through Graphium G09."""
 from __future__ import annotations
 
 import os
@@ -12,6 +12,7 @@ from gi.repository import Gdk, Gio, GLib, GObject, Gtk
 from graphium.application.commands import COMMANDS, command_availability
 from graphium.application.view_status import project_compact_status
 from graphium.application.text_statistics import count_text_statistics
+from graphium.application.text_transform import build_transformation_plan
 from graphium.domain.document_serialization import MixedLineEndingConfirmationRequired
 from graphium.domain.document_save import SaveDisposition
 from graphium.domain.text_search import SearchInputError, SearchMatch
@@ -113,6 +114,12 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "paste": self._action_paste,
             "delete": self._action_delete,
             "select-all": self._action_select_all,
+            "uppercase": self._action_uppercase,
+            "lowercase": self._action_lowercase,
+            "duplicate-line-selection": self._action_duplicate_line_selection,
+            "move-lines-up": self._action_move_lines_up,
+            "move-lines-down": self._action_move_lines_down,
+            "trim-trailing-spaces": self._action_trim_trailing_spaces,
             "find": self._action_find,
             "find-next": self._action_find_next,
             "find-previous": self._action_find_previous,
@@ -158,12 +165,18 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         for menu_name in ("File", "Edit", "Search", "View", "Document", "Help"):
             section = Gio.Menu()
             for spec in COMMANDS:
-                if spec.menu != menu_name:
+                if spec.menu != menu_name or spec.submenu is not None:
                     continue
                 if spec.action == "open-recent":
                     section.append_submenu(spec.label, self._recent_menu)
                 else:
                     section.append(spec.label, f"win.{spec.action}")
+            if menu_name == "Edit":
+                transform_menu = Gio.Menu()
+                for spec in COMMANDS:
+                    if spec.menu == "Edit" and spec.submenu == "Transform Text":
+                        transform_menu.append(spec.label, f"win.{spec.action}")
+                section.append_submenu("Transform Text", transform_menu)
             root.append_submenu(menu_name, section)
         menubar = Gtk.MenuBar.new_from_model(root)
         container = self.get_child()
@@ -371,6 +384,8 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._actions["cut"].set_enabled(availability.cut)
         self._actions["copy"].set_enabled(availability.copy)
         self._actions["delete"].set_enabled(availability.delete)
+        self._actions["uppercase"].set_enabled(availability.uppercase)
+        self._actions["lowercase"].set_enabled(availability.lowercase)
         self._refresh_status()
 
     def _refresh_status(self) -> None:
@@ -598,6 +613,50 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _action_select_all(self, *_args) -> None:
         start, end = self.buffer.get_bounds()
         self.buffer.select_range(start, end)
+
+    def _perform_text_transform(self, action_name: str) -> None:
+        captured = self.buffer_port.capture_full()
+        before_view = ViewState(captured.insert_offset, captured.selection_bound_offset)
+        try:
+            plan = build_transformation_plan(
+                action_name,
+                source_text=captured.text,
+                source_state_id=self.core.history.current_state_id,
+                before_view=before_view,
+            )
+            if plan.changed:
+                self.core.editor.apply_prevalidated_programmatic_group(
+                    operations=plan.operations,
+                    expected_source_state_id=plan.source_state_id,
+                    final_text=plan.final_text,
+                    before_view=plan.before_view,
+                    target_view=plan.target_view,
+                )
+                self._refresh_projection()
+                self.text_view.scroll_to_mark(
+                    self.buffer.get_insert(), 0.08, False, 0.0, 0.0
+                )
+        except Exception as exc:
+            self._ui.show_warning("Text transformation was not applied", str(exc))
+        self.text_view.grab_focus()
+
+    def _action_uppercase(self, *_args) -> None:
+        self._perform_text_transform("uppercase")
+
+    def _action_lowercase(self, *_args) -> None:
+        self._perform_text_transform("lowercase")
+
+    def _action_duplicate_line_selection(self, *_args) -> None:
+        self._perform_text_transform("duplicate-line-selection")
+
+    def _action_move_lines_up(self, *_args) -> None:
+        self._perform_text_transform("move-lines-up")
+
+    def _action_move_lines_down(self, *_args) -> None:
+        self._perform_text_transform("move-lines-down")
+
+    def _action_trim_trailing_spaces(self, *_args) -> None:
+        self._perform_text_transform("trim-trailing-spaces")
 
     def _set_search_status(self, message: str) -> None:
         if self._search_status is not None:
