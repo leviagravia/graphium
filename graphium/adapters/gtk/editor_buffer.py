@@ -1,4 +1,4 @@
-"""Gtk.TextBuffer adapter for Graphium G04 native delta editing."""
+"""Gtk.TextBuffer adapter for Graphium native delta editing."""
 from __future__ import annotations
 
 import gi
@@ -33,7 +33,7 @@ class GtkTextBufferPort:
             selection_bound_offset=view.selection_bound_offset,
         )
 
-    # Historical port name retained for G02 headless tests/adapters that use the same shape.
+    # Protocol name retained for headless adapters that use the same shape.
     def capture(self) -> HistoryState:
         return self.capture_full()
 

@@ -1,6 +1,6 @@
-"""Delta-based editor history introduced by Graphium G04.
+"""Delta-based editor history for Graphium.
 
-G02's savepoint identity semantics remain authoritative, but G04 no longer stores a full
+Savepoint identity semantics remain authoritative, while the native editor no longer stores a full
 copy of the document for every native edit.  Undo data is represented as insert/delete
 deltas grouped by structural editing boundaries.  State IDs are positive, monotonic and
 never reused, including after Undo branching or checkpoint rollback.
@@ -359,7 +359,7 @@ class DeltaHistory:
         self.undo_stack = list(checkpoint.undo_stack)
         self.redo_stack = list(checkpoint.redo_stack)
         self._current_state_id = checkpoint.current_state_id
-        # As in G02, IDs consumed speculatively are never reused.
+        # IDs consumed speculatively are never reused.
         self._next_state_id = max(self._next_state_id, checkpoint.next_state_id)
         self._pending_deltas = list(checkpoint.pending_deltas)
         self._pending_before_state_id = checkpoint.pending_before_state_id

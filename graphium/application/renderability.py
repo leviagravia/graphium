@@ -1,7 +1,7 @@
-"""G04 interactive-renderability safety policy, GTK-free.
+"""Interactive-renderability safety policy, GTK-free.
 
 Graphium's document loader accepts valid plain text independently from any particular
-widget.  G04 adds a narrower *interactive editor* admission budget because Gtk.TextView
+widget. The editor adds a narrower *interactive editor* admission budget because Gtk.TextView
 can become unresponsive on pathological single logical lines.  The policy never changes
 text: content is either admitted exactly or refused before installation into the editor.
 """

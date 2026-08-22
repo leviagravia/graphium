@@ -1,4 +1,4 @@
-"""Non-binding Save a Copy / Save Version Copy orchestration for Graphium G07."""
+"""Non-binding Save a Copy / Save Version Copy orchestration for Graphium."""
 from __future__ import annotations
 
 from dataclasses import dataclass

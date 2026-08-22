@@ -1,4 +1,4 @@
-"""Cheap G06 status projection with no document-wide scanning."""
+"""Cheap status projection with no document-wide scanning."""
 from __future__ import annotations
 
 from dataclasses import dataclass

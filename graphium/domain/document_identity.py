@@ -1,4 +1,4 @@
-"""Immutable active-document identity and accepted-load metadata for Graphium G01.
+"""Immutable active-document identity and accepted-load metadata for Graphium.
 
 Derived by selective adaptation from Calamus W116 document identity semantics.
 This module is pure domain code: no filesystem I/O and no GTK dependency.
@@ -118,7 +118,7 @@ class UnstableDocumentLoadError(DocumentLoadError):
 
 
 class UnsupportedDocumentEncodingError(DocumentLoadError, UnicodeError):
-    """The selected document cannot be decoded by the G01 codec policy."""
+    """The selected document cannot be decoded by the supported codec policy."""
 
 
 class UnsupportedDocumentContentError(DocumentLoadError):

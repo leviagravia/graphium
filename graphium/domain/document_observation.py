@@ -1,4 +1,4 @@
-"""Pure strong read-only filesystem observation values for Graphium G07."""
+"""Pure strong read-only filesystem observation values for Graphium."""
 from __future__ import annotations
 
 from dataclasses import dataclass

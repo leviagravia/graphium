@@ -1,7 +1,7 @@
-"""G04 native editor coordinator: delta history + savepoint session, GTK-free.
+"""Native editor coordinator: delta history + savepoint session, GTK-free.
 
 The coordinator is the bridge between a mutable native text buffer and Graphium's
-G02/G03 state/save authorities. Native edits are recorded as deltas; full document text is
+the state/save authorities. Native edits are recorded as deltas; full document text is
 captured only at lifecycle boundaries that actually require it (Open/New rollback and Save).
 """
 from __future__ import annotations
@@ -215,7 +215,7 @@ class NativeEditorController:
         before_view: ViewState,
         target_view: ViewState,
     ) -> int:
-        """Apply one explicit G05-style programmatic edit transaction.
+        """Apply one explicit programmatic edit transaction.
 
         Final renderability and history payload are checked before any GTK mutation.
         Buffer operations own expected-delete verification/inverse rollback; this controller
@@ -244,7 +244,7 @@ class NativeEditorController:
             )
         # This is the only authority that permits programmatic signal suppression for a
         # text-changing command: the complete final text must first satisfy the published
-        # G04 renderer-safety policy. Ordinary typing/paste/delete still use GTK guards.
+        # Renderer-safety policy. Ordinary typing/paste/delete still use GTK guards.
         ensure_interactive_text_renderable(final_text)
 
         hcp = self.history.checkpoint()

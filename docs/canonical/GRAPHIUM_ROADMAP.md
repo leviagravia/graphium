@@ -429,3 +429,27 @@ commands.** G10 remains PENDING until separate authorization plus a read-only au
 G09 repository, direct mature-source review, explicit ADOPT / ADAPT / REJECT / DEFER matrix,
 Lightweight Budget review and contract freeze. No G10 implementation is authorized by G09
 publication.
+
+
+GS07 VALIDATION REBASELINE (2026-08-21)
+The active qualification architecture is permanent and concern-oriented: Behavioral/Unit, Integration/Filesystem, True-GTK Desktop, Packaging/Release. Historical Gxx qualification names and executable evidence/doc prose oracles are retired from active validation. G10 remains frozen until GS07 desktop rebaseline is proven on T480.
+
+### GS07 structural validation cutover assessment — 2026-08-22
+
+GS01-GS07 structural simplification has passed its formal T480 and anti-cosmetic assessment on
+source tree `fc6673e35d4f47bbe74a9a6c0de3a3f44cca8c81`. Legacy G09 shadow equivalence, all four
+permanent qualification authorities, deletion proof, authority/dependency reduction, no-shim,
+packaging separation and product/release separation are PASS. Final mature-source comparison also
+PASSes.
+
+Status: **READY FOR CANONICAL CUTOVER, NOT YET CUT OVER**. G10 remains frozen at candidate 0/2 until
+a separate GS07 canonical Git cutover transaction commits/pushes/verifies the rebaseline. Only after
+that transaction passes may G10 resume from the simplified permanent qualification architecture.
+
+### GS07 canonical cutover — 2026-08-22
+
+GS07 is the canonical validation-architecture rebaseline after the authorized Git cutover succeeds.
+The rebaseline preserves the G09 product behavior while replacing historical Gxx executable
+validation with four permanent concern-oriented authorities and passing the binding net-reductive
+structural gate. After cutover, **G10 is unfrozen with candidate attempts 0/2** and resumes from this
+simplified qualification architecture. No retired Gxx harness or compatibility layer may be restored.

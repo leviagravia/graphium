@@ -1,6 +1,6 @@
-"""GTK-free single-document file lifecycle orchestration for Graphium G04.
+"""GTK-free single-document file lifecycle orchestration for Graphium.
 
-G04 uses a native delta editor runtime. Full buffer text is synchronized only when a
+Graphium uses a native delta editor runtime. Full buffer text is synchronized only when a
 physical Save needs it; merely checking whether New/Open/Quit needs confirmation must not
 copy the whole document.
 """
@@ -207,7 +207,7 @@ class FileLifecycleController:
         except Exception as exc:
             self.ui.show_error("Could not open file", str(exc))
             return LifecycleResult(False)
-        # G01 loading establishes that this is valid supported text. G04 separately
+        # Loading establishes that this is valid supported text. The editor separately
         # protects the interactive Gtk.TextView surface from pathological logical lines.
         # The guard is content-neutral: reject before buffer installation, never truncate.
         try:

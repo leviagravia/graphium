@@ -1,4 +1,4 @@
-"""Graphium composition root through G09."""
+"""Graphium composition root."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,14 +21,13 @@ from .infrastructure.guarded_file_writer import GuardedFileWriter
 from .infrastructure.view_settings_store import JsonViewSettingsStore
 from .infrastructure.recent_files_store import JsonRecentFilesStore
 from .paths import resolve_xdg_paths
-from .product import PRODUCT_NAME, VERSION, WORK_ITEM
+from .product import PRODUCT_NAME, VERSION
 
 
 @dataclass(frozen=True)
 class CompositionDescriptor:
     product_name: str
     version: str
-    work_item: str
     document_authority_count: int
     physical_writer_authority_count: int
     gtk_adapter_boundary: str
@@ -54,7 +53,6 @@ def describe_composition() -> CompositionDescriptor:
     return CompositionDescriptor(
         product_name=PRODUCT_NAME,
         version=VERSION,
-        work_item=WORK_ITEM,
         document_authority_count=1,
         physical_writer_authority_count=1,
         gtk_adapter_boundary="graphium.adapters.gtk",

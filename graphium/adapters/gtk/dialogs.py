@@ -1,4 +1,4 @@
-"""Small GTK dialog/chooser adapter for Graphium lifecycle and G06 View UI."""
+"""Small GTK dialog/chooser adapter for Graphium lifecycle and View UI."""
 from __future__ import annotations
 
 import gi
@@ -175,7 +175,7 @@ def choose_font(
     family: str,
     size_points: float,
 ) -> tuple[str, float] | None:
-    """Choose only the persistent family+size owned by G06 View -> Font."""
+    """Choose only the persistent family+size owned by View -> Font."""
     dialog = Gtk.FontChooserDialog(title="Font", transient_for=parent)
     try:
         if hasattr(dialog, "set_level"):

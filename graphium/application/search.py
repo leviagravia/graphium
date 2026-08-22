@@ -1,4 +1,4 @@
-"""G05 GTK-free current-document search/replace command authority."""
+"""GTK-free current-document search/replace command authority."""
 from __future__ import annotations
 
 from dataclasses import dataclass

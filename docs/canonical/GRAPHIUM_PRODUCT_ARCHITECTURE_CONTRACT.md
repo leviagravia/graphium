@@ -1250,3 +1250,26 @@ evidence and `evidence/SHA256SUMS.txt`. Runtime (`graphium/`), launchers (`bin/`
 (`docs/user/`), tests and qualification tools must remain byte-for-byte equivalent to the certified
 product. Publication is valid only after fail-closed proof of the published G08 parent, exact target
 publication tree, remote fast-forward, `HEAD=origin/main=remote main` and clean worktree.
+
+
+GS07 VALIDATION REBASELINE (2026-08-21)
+The active qualification architecture is permanent and concern-oriented: Behavioral/Unit, Integration/Filesystem, True-GTK Desktop, Packaging/Release. Historical Gxx qualification names and executable evidence/doc prose oracles are retired from active validation. G10 remains frozen until GS07 desktop rebaseline is proven on T480.
+
+### Permanent qualification boundary after GS07 assessment — 2026-08-22
+
+The assessed permanent qualification architecture has four logical owners: Behavioral/Unit,
+Integration/Filesystem, True-GTK Desktop, and Packaging/Release. Historical Gxx validation universes,
+exact test-count/prose oracles and compatibility wrappers are not product architecture. Runtime
+product identity contains stable product/version/application identity only; Candidate, attempt,
+commit, tree and work-item lineage are external release-engineering state. Installed/runtime payload
+excludes tests, legacy/shadow validation, certification evidence and qualification-only support.
+The GS07 assessed tree is not canonical until a separate Git cutover transaction succeeds.
+
+### GS07 canonical validation baseline — 2026-08-22
+
+After a successful canonical Git cutover, the four permanent qualification authorities are the only
+active validation ownership model: Behavioral/Unit, Integration/Filesystem, True-GTK Desktop and
+Packaging/Release. Historical Gxx validation universes are provenance only. Runtime product bytes
+must remain independent from Candidate/attempt/commit/tree/work-item state, and installed product
+payload excludes the certification laboratory. Reintroducing compatibility wrappers or executable
+historical validation requires a new source-grounded mature-source audit and explicit authorization.

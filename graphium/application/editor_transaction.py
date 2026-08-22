@@ -1,4 +1,4 @@
-"""GTK-free logical editor transaction controller for Graphium G02."""
+"""GTK-free logical editor transaction controller for Graphium."""
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Protocol
@@ -134,7 +134,7 @@ class EditorTransactionController:
                     restore_error = exc
                 finally:
                     # Authoritative state rolls back even when the concrete
-                    # view cannot be restored. G04 may then fail closed.
+                    # view cannot be restored. The editor may then fail closed.
                     self.history.restore_checkpoint(hcp)
                     self.session.restore_checkpoint(scp)
             finally:

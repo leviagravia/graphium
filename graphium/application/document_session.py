@@ -1,6 +1,6 @@
 """Single-document savepoint-aware session authority for Graphium.
 
-G02 established state-ID based Saved/Modified semantics. G04 hardens the native editor
+State-ID based Saved/Modified semantics are authoritative. The native editor
 integration by allowing the live GTK buffer to advance state identity without copying the
 entire document into this session on every keystroke. Before a physical Save, the current
 buffer text must be explicitly synchronized to the exact current editor state ID.
@@ -158,7 +158,7 @@ class DocumentSession:
             self._revision += 1
 
     def observe_uncommitted_text(self, text: str) -> bool:
-        """Historical G02 path retained for headless regression compatibility."""
+        """Compatibility path for the headless session protocol."""
         if not isinstance(text, str):
             raise TypeError("text must be a string")
         if self.loading:
@@ -196,7 +196,7 @@ class DocumentSession:
     def advance_editor_state(self, state_id: int) -> None:
         """Advance native editor identity without copying the live buffer text.
 
-        G04 uses this on every committed native edit group. The session text remains a
+        The native editor uses this on every committed edit group. The session text remains a
         previously synchronized representation until ``synchronize_current_text`` is
         called before Save. Modified/Saved remains exact because it depends on IDs only.
         """

@@ -1,4 +1,4 @@
-"""Shared strong read-only document observation primitive for G01/G07."""
+"""Shared strong read-only document observation primitive."""
 from __future__ import annotations
 
 import hashlib

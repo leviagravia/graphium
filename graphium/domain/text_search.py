@@ -1,11 +1,11 @@
-"""GTK-free literal text-search semantics for Graphium G05.
+"""GTK-free literal text-search semantics for Graphium.
 
-G05 intentionally implements only current-document literal search. Query/replacement
+Graphium intentionally implements only current-document literal search. Query/replacement
 fields are single-line. Case-insensitive matching uses Unicode casefold while retaining
 exact source-character offsets, including length-changing folds such as ``ß -> ss``.
 
-The Unicode path is deliberately line-bounded: a G05 query cannot cross a newline and
-the active G04 editor already enforces a bounded interactive logical-line length. This
+The Unicode path is deliberately line-bounded: a query cannot cross a newline and
+the active editor already enforces a bounded interactive logical-line length. This
 avoids folding/caching an entire multi-megabyte document or allocating one offset record
 per character. Find Next/Previous never materialize all matches. Replace All can impose
 an explicit match cap and fails closed before constructing an excessive edit plan.
@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 
 class SearchInputError(ValueError):
-    """Raised when a G05 single-line search field violates the frozen contract."""
+    """Raised when a single-line search field violates the current contract."""
 
 
 class SearchScaleError(RuntimeError):
@@ -97,7 +97,7 @@ def validate_query(query: str) -> str:
     if not query:
         raise SearchInputError("search query must not be empty")
     if "\n" in query or "\r" in query:
-        raise SearchInputError("G05 search query must be single-line")
+        raise SearchInputError("search query must be single-line")
     return query
 
 
@@ -105,7 +105,7 @@ def validate_replacement(replacement: str) -> str:
     if not isinstance(replacement, str):
         raise TypeError("replacement must be a string")
     if "\n" in replacement or "\r" in replacement:
-        raise SearchInputError("G05 replacement must be single-line")
+        raise SearchInputError("replacement must be single-line")
     return replacement
 
 

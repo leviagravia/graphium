@@ -1,4 +1,4 @@
-"""Lazy thin GTK3 printing adapter for Graphium G08.
+"""Lazy thin GTK3 printing adapter for Graphium.
 
 This module is deliberately absent from normal Graphium startup.  GraphiumWindow imports
 it only inside the first Page Setup / Print Preview / Print action.  It owns no document
@@ -36,24 +36,7 @@ _PAGINATION_CHUNK_TARGET_CHARS = 16 * 1024
 _PAGINATION_CHUNK_MAX_LOGICAL_LINES = 64
 
 
-@dataclass(frozen=True)
-class PrintSnapshot:
-    """Exact live document/presentation inputs captured once per print-family operation."""
-
-    text: str
-    title: str
-    font_family: str
-    font_size_points: float
-
-    def __post_init__(self) -> None:
-        if not isinstance(self.text, str):
-            raise TypeError("text must be str")
-        if not isinstance(self.title, str) or not self.title:
-            raise ValueError("title must be non-empty")
-        if not isinstance(self.font_family, str) or not self.font_family.strip():
-            raise ValueError("font_family must be non-empty")
-        if float(self.font_size_points) <= 0:
-            raise ValueError("font_size_points must be positive")
+from graphium.application.print_model import PrintSnapshot
 
 
 class _PageSetupStore:

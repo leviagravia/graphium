@@ -1,11 +1,11 @@
-"""Stable byte-oriented local document loader for Graphium G01/G07.
+"""Stable byte-oriented local document loader for Graphium.
 
-G07 shares one strong read-only filesystem observation primitive with Properties.
+Loading and Properties share one strong read-only filesystem observation primitive.
 """
 from __future__ import annotations
 
 import codecs
-import os  # retained as shared monkeypatch seam for published G01 hostile-read tests
+import os  # retained as shared monkeypatch seam for hostile-read regression tests
 import re
 
 from graphium.domain.document_identity import (
@@ -88,7 +88,7 @@ def load_document(
     retries: int = 1,
     large_file_threshold: int = DEFAULT_LARGE_FILE_BYTES,
 ) -> DocumentLoadResult:
-    """Load one local Graphium document under the frozen G01 visit contract."""
+    """Load one local Graphium document under the current visit contract."""
     if not isinstance(retries, int) or retries < 0:
         raise ValueError("retries must be a non-negative integer")
     if not isinstance(large_file_threshold, int) or large_file_threshold <= 0:

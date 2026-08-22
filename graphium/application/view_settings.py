@@ -1,4 +1,4 @@
-"""GTK-free Graphium G06 view settings authority.
+"""GTK-free Graphium view-settings authority.
 
 Only persistent presentation choices live here. Zoom and fullscreen are deliberately
 transient runtime state and are not part of this persistent model.

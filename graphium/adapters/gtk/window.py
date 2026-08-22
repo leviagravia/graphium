@@ -1,4 +1,4 @@
-"""Thin GTK3 single-document editor window through Graphium G09."""
+"""Thin GTK3 single-document editor window for Graphium."""
 from __future__ import annotations
 
 import os
@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 
 import gi
+gi.require_version("Gdk", "3.0")
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk, Gio, GLib, GObject, Gtk
 
@@ -13,6 +14,7 @@ from graphium.application.commands import COMMANDS, command_availability
 from graphium.application.view_status import project_compact_status
 from graphium.application.text_statistics import count_text_statistics
 from graphium.application.text_transform import build_transformation_plan
+from graphium.application.print_model import build_print_snapshot
 from graphium.domain.document_serialization import MixedLineEndingConfirmationRequired
 from graphium.domain.document_save import SaveDisposition
 from graphium.domain.text_search import SearchInputError, SearchMatch
@@ -245,7 +247,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self.buffer.connect("begin-user-action", self._on_begin_user_action)
         # Pre-default guards run before GtkTextBuffer mutates. They prevent a normal
         # document from being edited into the same pathological huge-line state that
-        # G04 rejects on Open. GTK documents that insertion/deletion occurs in the
+        # The renderability policy rejects on Open. GTK documents that insertion/deletion occurs in the
         # default handler, after handlers connected with connect().
         self.buffer.connect("insert-text", self._on_insert_text_guard)
         self.buffer.connect_after("insert-text", self._on_insert_text_after)
@@ -540,7 +542,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self.text_view.grab_focus()
 
     def _ensure_print_controller(self):
-        # G08 hard startup boundary: importing the print adapter and reading Page Setup
+        # Printing startup boundary: importing the print adapter and reading Page Setup
         # are both deferred until the first explicit print-family action.
         if self._print_controller is None:
             from .printing import GraphiumPrintController
@@ -553,17 +555,11 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         return self._print_controller
 
     def _capture_print_snapshot(self):
-        from .printing import PrintSnapshot
-
         captured = self.buffer_port.capture_full()
-        logical_path = self.core.session.logical_path
-        title = os.path.basename(logical_path) if logical_path else "Untitled"
-        family, size_points = self.text_view.base_font
-        return PrintSnapshot(
+        return build_print_snapshot(
             text=captured.text,
-            title=title,
-            font_family=family,
-            font_size_points=size_points,
+            logical_path=self.core.session.logical_path,
+            base_font=self.text_view.base_font,
         )
 
     def _action_page_setup(self, *_args) -> None:

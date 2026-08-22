@@ -1,4 +1,4 @@
-"""G09 GTK-free explicit text-transformation planner.
+"""GTK-free explicit text-transformation planner.
 
 The planner is pure and immutable. It owns transformation semantics only; actual mutation,
 Undo/Redo grouping, stale-state rejection, rollback and final renderability remain owned by

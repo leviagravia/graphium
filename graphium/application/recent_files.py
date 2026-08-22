@@ -1,4 +1,4 @@
-"""GTK-free bounded recent-file history for Graphium G07."""
+"""GTK-free bounded recent-file history for Graphium."""
 from __future__ import annotations
 
 import os

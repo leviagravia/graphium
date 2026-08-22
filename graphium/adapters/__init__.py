@@ -1,1 +1,1 @@
-"""Graphium adapters package — G00 bootstrap boundary."""
+"""Graphium adapters package."""

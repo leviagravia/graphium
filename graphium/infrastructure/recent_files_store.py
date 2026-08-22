@@ -1,4 +1,4 @@
-"""Atomic 0600 XDG-state JSON store for G07 recent-file history."""
+"""Atomic 0600 XDG-state JSON store for recent-file history."""
 from __future__ import annotations
 
 import json

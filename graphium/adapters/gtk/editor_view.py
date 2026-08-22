@@ -1,4 +1,4 @@
-"""Thin Gtk.TextView presentation adapter for Graphium G06.
+"""Thin Gtk.TextView presentation adapter for Graphium.
 
 Line numbers use Gtk.TextView's native LEFT border window and draw only logical lines
 intersecting the visible rectangle. Font/zoom use a view-local CSS provider. No document
@@ -156,7 +156,7 @@ class GraphiumTextView(Gtk.TextView):
         layout.set_alignment(Pango.Alignment.RIGHT)
         width = self.get_border_window_size(Gtk.TextWindowType.LEFT)
 
-        # G06 contract: viewport-bounded iteration only. Wrapped display-line
+        # Viewport-bounded iteration only. Wrapped display-line
         # continuations intentionally receive no additional logical line number.
         while True:
             line_y, line_height = self.get_line_yrange(it)

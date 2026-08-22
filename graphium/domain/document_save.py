@@ -1,4 +1,4 @@
-"""Immutable guarded-save contracts for Graphium G03.
+"""Immutable guarded-save contracts for Graphium.
 
 This module is pure domain code.  It describes one captured editor-state save,
 writer observations, and truthful commit outcomes; it performs no filesystem I/O.

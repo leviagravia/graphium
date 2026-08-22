@@ -1,4 +1,4 @@
-"""Read-only document facts and strong Check Now classification for Graphium G07."""
+"""Read-only document facts and strong Check Now classification for Graphium."""
 from __future__ import annotations
 
 from dataclasses import dataclass

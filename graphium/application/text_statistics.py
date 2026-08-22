@@ -1,4 +1,4 @@
-"""Pure explicit/on-demand text statistics for Graphium G07."""
+"""Pure explicit/on-demand text statistics for Graphium."""
 from __future__ import annotations
 
 from dataclasses import dataclass

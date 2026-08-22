@@ -1,4 +1,4 @@
-"""Strict, GTK-free document serialization policy for Graphium G01.
+"""Strict, GTK-free document serialization policy for Graphium.
 
 The editor representation is normalized to LF. Serialization restores the accepted
 encoding/BOM/EOL profile at the byte boundary. No filesystem mutation occurs here.

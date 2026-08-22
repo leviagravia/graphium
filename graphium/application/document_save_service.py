@@ -1,6 +1,6 @@
-"""GTK-free save orchestration for Graphium G03.
+"""GTK-free save orchestration for Graphium.
 
-The service captures one stable G02 session state, serializes before mutation, delegates
+The service captures one stable session state, serializes before mutation, delegates
 all physical writes to the single GuardedFileWriter authority, and advances only the exact
 captured editor state after a namespace commit.
 """

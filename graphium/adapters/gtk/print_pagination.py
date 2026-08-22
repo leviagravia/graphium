@@ -1,4 +1,4 @@
-"""Small GTK-free pagination helpers for Graphium G08.
+"""Small GTK-free pagination helpers for Graphium.
 
 GTK supplies measured heights for complete visual Pango layout lines.  These helpers only
 combine those indivisible lines into pages; they never derive layout from characters,

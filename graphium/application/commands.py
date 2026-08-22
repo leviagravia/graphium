@@ -1,8 +1,8 @@
-"""Graphium product-owned command catalog through G09.
+"""Graphium product-owned command catalog.
 
 The catalog is the single command authority shared by menus, accelerators and Help.
 Boolean direct View settings are stateful actions; their persistence remains owned by
-G06 view-settings authority, not by GTK widgets.
+the view-settings authority, not by GTK widgets.
 """
 from __future__ import annotations
 from dataclasses import dataclass

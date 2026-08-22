@@ -1,4 +1,4 @@
-"""Bounded, savepoint-aware text history for Graphium G02.
+"""Bounded, savepoint-aware text history for Graphium.
 
 The model is deliberately GTK-free. A committed text state receives a positive,
 monotonic identity that is never reused during the history lifetime.

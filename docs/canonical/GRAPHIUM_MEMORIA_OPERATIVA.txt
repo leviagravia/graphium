@@ -3083,3 +3083,291 @@ Publication boundary:
   G09_STATUS_ON_FINALIZER_PASS=CLOSED/CERTIFIED/PUBLISHED
   NEXT_SERIAL_ITEM=G10
   G10_IMPLEMENTATION=FORBIDDEN_UNTIL_SEPARATELY_AUTHORIZED_AFTER_PUBLISHED_G09_READONLY_AUDIT
+
+
+GS07 VALIDATION REBASELINE (2026-08-21)
+The active qualification architecture is permanent and concern-oriented: Behavioral/Unit, Integration/Filesystem, True-GTK Desktop, Packaging/Release. Historical Gxx qualification names and executable evidence/doc prose oracles are retired from active validation. G10 remains frozen until GS07 desktop rebaseline is proven on T480.
+
+
+================================================================================
+ENTRY — GS07 ANTI-COSMETIC STRUCTURAL SIMPLIFICATION GOVERNANCE — BINDING
+Date: 2026-08-22
+State: CANONICAL / BINDING / IMMEDIATE EFFECT
+================================================================================
+
+PURPOSE
+-------
+Graphium structural simplification MUST reduce accidental complexity in measurable physical and
+architectural terms. A change is NOT a simplification merely because files, test names, helpers,
+profiles or orchestration have been renamed, moved, wrapped, grouped or encapsulated.
+
+This governance is binding for GS07 and for every future Graphium structural-simplification line.
+It supplements, and where necessary tightens, the earlier GS01-GS06 simplification design.
+It does NOT lower any essential product-safety, filesystem-safety, GTK lifecycle, identity,
+savepoint/dirty-state, rendering, printing, performance or desktop-certification guarantee.
+Mature-source comparison remains mandatory for every substantive simplification decision.
+
+IMMEDIATE FREEZE CONSEQUENCE
+----------------------------
+G10 remains FROZEN/PENDING.
+G10 Candidate R1 remains NOT DECLARED.
+G10 candidate attempts remain 0/2.
+No new G10 product repair, probe, pre-candidate requalification or Candidate construction is
+permitted until GS07 completes both functional rebaseline and the structural reduction gates below.
+
+The existing GS07 old-vs-new T480 rebaseline runner remains useful and REQUIRED for functional
+shadow equivalence, but its PASS alone is explicitly INSUFFICIENT to close GS07 or unfreeze G10.
+
+BINDING FINAL GATE
+------------------
+GS07 and every future simplification stage MUST end with:
+
+  STRUCTURAL_SIMPLIFICATION_IS_NET_REDUCTIVE=PASS
+
+If this marker cannot be proved from measured evidence, the simplification stage is FAIL even if
+all product, unit, integration, True-GTK, performance and release tests pass.
+
+MANDATORY STRUCTURAL GATES
+--------------------------
+
+1. NET DELETION GATE
+   - Active validation/release infrastructure MUST materially shrink.
+   - Deleting 2,000 lines from historical Gxx files and adding approximately the same amount under
+     semantic names is NOT a PASS.
+   - Files and LOC moved, renamed, generated, wrapped or hidden behind compatibility layers count as
+     retained complexity, not deleted complexity.
+   - For GS07, active validation Python LOC MUST be at least 50% below the published-G09 active
+     validation baseline (~9,557 LOC), unless a later source-grounded audit proves that this exact
+     baseline measure was wrong.
+   - The current ~3,681 LOC GS07 prototype is only preliminary evidence; the final active tree must
+     reproduce the measurement.
+
+2. AUTHORITY-COUNT GATE
+   - The number of independent authorities able to decide the same fact MUST decrease.
+   - One current behavior/invariant MUST have one permanent owner.
+   - Behavioral, Integration/Filesystem, True-GTK Desktop and Packaging/Release are the four
+     permanent qualification authorities.
+   - Candidate/R1/R2/attempt/commit/tree/publication state remain external release-engineering state
+     and MUST NOT become a fifth product authority.
+
+3. EXECUTABLE-HISTORY GATE
+   - Historical Gxx provenance MUST disappear from current executable qualification.
+   - Active test files named test_gXX_* = 0.
+   - Active tool files named gXX_* = 0.
+   - Current qualification decisions based on Gxx identity/history = 0.
+   - Historical evidence remains in Git/evidence/provenance only and MUST NOT execute as a release
+     universe.
+
+4. DEPENDENCY-REDUCTION GATE
+   - Dependency edges among product, tests, release engineering, docs and evidence MUST materially
+     decrease.
+   - Behavioral and Integration tests MUST NOT read canonical docs, historical evidence, release
+     receipts or Gxx history to decide product correctness.
+   - Source/AST inspection is limited to the durable GS04 architectural invariants and MUST NOT
+     become a distributed substitute for behavioral tests.
+   - Final GS07 evidence MUST include dependency-edge before/after counts or an equivalently precise
+     machine-auditable dependency ledger.
+
+5. HARNESS-SIZE GATE
+   - Runner, harness, release-verifier and support orchestration MUST shrink materially.
+   - GS07 MUST NOT replace the old Gxx tool collection with a new sophisticated generic framework of
+     comparable size or coupling.
+   - Shared infrastructure is permitted only when it removes duplication and has one narrow owner.
+   - If the new permanent harness begins recreating old orchestration complexity, GS07 MUST STOP and
+     be redesigned before cutover.
+
+6. TEST-VALUE GATE
+   - Every active test MUST protect a current behavior, integration contract, desktop property,
+     performance property or durable architecture invariant.
+   - Exact prose, receipt markers, historical current-work-item identity, exact test counts, method
+     names, incidental import order and implementation literals are NOT valid qualification targets
+     except where a narrowly defined durable boundary genuinely requires source inspection.
+   - A rewritten replacement MUST demonstrate negative-fixture/fault sensitivity before the older
+     oracle can be retired.
+
+7. NO-COMPATIBILITY-SHIM GATE
+   - Compatibility wrappers that keep retired Gxx validation executable under new semantic names are
+     FORBIDDEN.
+   - New authorities MUST NOT import, invoke, shell out to, delegate to or require retired Gxx
+     validation tools/tests after cutover.
+   - During GS07 only, the exact published-G09 legacy system may exist in a physically separate
+     shadow copy solely for equivalence comparison. It is not part of the active rebaseline tree.
+
+8. PACKAGING-SEPARATION GATE
+   - The installed/runtime Graphium product MUST contain product/runtime/user-facing resources, not
+     the certification laboratory.
+   - Active tests, shadow harnesses, historical evidence bundles and certification-only support tools
+     MUST NOT be installed as normal product runtime payload, except for a specifically justified
+     minimal smoke surface.
+
+9. PRODUCT/RELEASE-SEPARATION GATE
+   - Changing Candidate, R1/R2, attempt count, commit, tree, publication receipt or release state
+     MUST NOT change a single runtime Graphium byte.
+   - Gxx work-item identity, Candidate identity and release-engineering metadata MUST be absent from
+     runtime product identity.
+   - Product version/application identity may remain product properties; validation lineage may not.
+
+10. COMPLEXITY-TRAJECTORY GATE
+    - Each simplification stage MUST publish before/after measurements.
+    - At minimum measure: active validation LOC, active validation files, harness/tool LOC, authority
+      nodes, executable historical nodes, source-reading tests, docs/evidence-reading tests,
+      compatibility surfaces and dependency edges.
+    - The structural trajectory MUST decline clearly. A 5-10% cosmetic reduction is not sufficient
+      where historical duplication remains materially intact.
+
+GS07 GRAPHium-SPECIFIC ZERO TARGETS
+-----------------------------------
+Before GS07 may close:
+
+  ACTIVE_GXX_NAMED_TEST_FILES=0
+  ACTIVE_GXX_NAMED_TOOL_FILES=0
+  ACTIVE_VERIFY_GRAPHIUM_PY=0
+  GENERATION_SPECIFIC_TRUE_GTK_FRAMEWORKS=0
+  DOCS_EVIDENCE_PROSE_ORACLES=0
+  EXACT_TEST_COUNT_ORACLES=0
+  RUNTIME_GXX_CANDIDATE_RELEASE_METADATA=0
+  RETIRED_GXX_COMPATIBILITY_IMPORTS_OR_WRAPPERS=0
+  TESTS_READING_HISTORICAL_DOCS_OR_EVIDENCE=0
+  STRUCTURAL_SOURCE_INSPECTION_INVARIANTS<=10
+
+DELETION PROOF — REQUIRED
+-------------------------
+Every structural simplification stage MUST provide a deletion proof, not merely a migration report.
+For GS07 the final proof MUST include:
+
+  - physical file-level deletion ledger: what was deleted;
+  - LOC before/after for active validation and orchestration;
+  - authority-node before/after ledger;
+  - dependency-edge before/after ledger;
+  - executable-Gxx-history before/after ledger;
+  - source-reading and docs/evidence-reading test before/after counts;
+  - retired compatibility surfaces, with final count zero;
+  - active-vs-shadow separation proof;
+  - 100% old-property -> permanent-owner coverage map;
+  - replacement fault/negative-fixture sensitivity proof;
+  - proof that deleted infrastructure is not required by any permanent authority;
+  - packaging separation proof;
+  - runtime/release metadata separation proof.
+
+A list of renamed files is NOT a deletion proof.
+A smaller line count without authority/dependency reduction is NOT a deletion proof.
+Passing all tests without this proof is NOT sufficient.
+
+ANTI-COSMETIC EXAMPLES
+----------------------
+INVALID / COSMETIC:
+  20 historical gXX_* tools -> 20 semantic wrappers around the same tools;
+  test_gXX_* files renamed while retaining the same history/literal meta-oracles;
+  VERIFY_GRAPHIUM.py split into multiple modules with the same Gxx/document/evidence knowledge;
+  old Gxx infrastructure retained behind a compatibility dispatcher;
+  release metadata moved to another runtime module rather than removed from runtime.
+
+VALID / STRUCTURAL:
+  historical regression universes -> current behavioral/integration/desktop properties with one
+  owner each;
+  one shared narrow GTK harness replacing duplicated generation-specific harness machinery;
+  historical evidence retained as non-executable provenance;
+  source-shape checking reduced to the small durable boundary set;
+  obsolete profiles/tools/tests physically deleted after coverage and fault-sensitivity proof;
+  Candidate/commit/tree/attempt state confined entirely to external release engineering.
+
+STOP / REDESIGN RULE
+--------------------
+If GS07 or any later simplification requires a new framework sufficiently complex to recreate the
+old orchestration, meta-oracle, manifest/profile or compatibility burden, the line MUST STOP before
+cutover and be redesigned. Graphium MUST NOT replace historical validation pathology with a more
+polished or generically named validation pathology.
+
+CUTOVER / G10 UNFREEZE RULE
+---------------------------
+G10 may be unfrozen ONLY when ALL of the following are true on the exact final GS07 rebaseline:
+
+  OLD_G09_SHADOW_FUNCTIONAL_EQUIVALENCE=PASS
+  NEW_BEHAVIORAL_AUTHORITY=PASS
+  NEW_INTEGRATION_AUTHORITY=PASS
+  NEW_TRUE_GTK_DESKTOP_AUTHORITY=PASS
+  NEW_PACKAGING_RELEASE_AUTHORITY=PASS
+  DELETION_PROOF=PASS
+  AUTHORITY_COUNT_REDUCTION=PASS
+  DEPENDENCY_REDUCTION=PASS
+  NO_COMPATIBILITY_SHIMS=PASS
+  PACKAGING_SEPARATION=PASS
+  PRODUCT_RELEASE_SEPARATION=PASS
+  COMPLEXITY_TRAJECTORY=PASS
+  STRUCTURAL_SIMPLIFICATION_IS_NET_REDUCTIVE=PASS
+
+If any one condition is FAIL, STOP or unproven:
+  GS07=CANNOT_CLOSE
+  G10_FROZEN=YES
+  G10_CANDIDATE_ATTEMPTS=0/2
+
+This entry is binding governance and may not be weakened merely to make GS07, G10 or any later
+qualification pass. Any future relaxation requires a separate source-grounded audit, mature-source
+comparison and explicit user authorization.
+
+
+================================================================================
+ENTRY — GS07 CUTOVER ASSESSMENT — PASS / CANONICAL CUTOVER PENDING
+Date: 2026-08-22
+State: BINDING ASSESSMENT / T480 PROVEN / NOT YET APPLIED TO CANONICAL GIT
+================================================================================
+
+GS07 passed the full T480 old-vs-new rebaseline on exact source tree
+`fc6673e35d4f47bbe74a9a6c0de3a3f44cca8c81`: legacy published-G09 shadow, Behavioral,
+Integration, Packaging/Release and True-GTK Desktop authorities all PASSed. The corrected semantic
+View scenario PASSed. The binding anti-cosmetic gate also PASSed with measured net deletion,
+authority reduction, dependency reduction, zero executable Gxx history, zero compatibility shims,
+packaging separation and product/release separation.
+
+Final mature-source cutover review against Mousepad 0.7.0, gedit, GNOME Text Editor, Leafpad,
+L3afpad and FeatherPad PASSed. The permanent concern/component-oriented authorities and exclusion of
+test/certification infrastructure from installed product payload are mature-source aligned; stronger
+Graphium-specific filesystem, identity, rendering, printing and T480 performance guarantees remain.
+
+Binding assessment state:
+  GS07_CUTOVER_ASSESSMENT=PASS
+  GS07_READY_FOR_CANONICAL_CUTOVER=YES
+  STRUCTURAL_SIMPLIFICATION_IS_NET_REDUCTIVE=PASS
+  G10_UNFREEZE_ELIGIBLE=YES_AFTER_CANONICAL_CUTOVER
+
+This assessment does NOT itself change canonical Git. Until the GS07 rebaseline is committed, pushed,
+fetched and verified as the canonical clean `main`, G10 remains FROZEN and no G10 product work,
+probe, candidate or attempt may begin.
+
+  G10_FROZEN=YES_PENDING_GS07_CANONICAL_CUTOVER
+  G10_CANDIDATE_ATTEMPTS=0/2
+
+
+================================================================================
+ENTRY — GS07 CANONICAL CUTOVER — AUTHORIZED FINAL STATE
+Date: 2026-08-22
+State: BINDING / T480 PROVEN / STRUCTURALLY NET-REDUCTIVE / CANONICAL AFTER GIT TRANSACTION PASS
+================================================================================
+
+The GS07 validation-architecture cutover is authorized only on the exact source assembled by the
+GS07 canonical finalizer. Product runtime, active tests and user documentation are byte-identical to
+the T480-proven GS07 rebaseline for those surfaces; only canonical closure/evidence authority is
+added after desktop proof.
+
+Binding closure conditions:
+  OLD_G09_SHADOW_FUNCTIONAL_EQUIVALENCE=PASS
+  NEW_BEHAVIORAL_AUTHORITY=PASS
+  NEW_INTEGRATION_AUTHORITY=PASS
+  NEW_TRUE_GTK_DESKTOP_AUTHORITY=PASS
+  NEW_PACKAGING_RELEASE_AUTHORITY=PASS
+  STRUCTURAL_SIMPLIFICATION_IS_NET_REDUCTIVE=PASS
+  NO_COMPATIBILITY_SHIMS=PASS
+  PACKAGING_SEPARATION=PASS
+  PRODUCT_RELEASE_SEPARATION=PASS
+
+Once the canonical Git transaction commits, pushes, fetches and verifies this cutover as clean
+`main`, GS07 is CLOSED and the G10 freeze is lifted. G10 resumes with candidate attempts still 0/2
+and must use only the permanent Behavioral/Unit, Integration/Filesystem, True-GTK Desktop and
+Packaging/Release qualification authorities. The retired Gxx validation universes, compatibility
+wrappers, exact-count/prose oracles and runtime work-item/release metadata MUST NOT be restored.
+
+Post-cutover state:
+  GS07_STATUS=CLOSED/CANONICAL_REBASELINE
+  G10_FROZEN=NO
+  G10_CANDIDATE_ATTEMPTS=0/2
+  G10_RESUME_BASE=GS07_SIMPLIFIED_CANONICAL_ARCHITECTURE

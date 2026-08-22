@@ -1,4 +1,4 @@
-"""POSIX/local-filesystem guarded physical writer for Graphium G03.
+"""POSIX/local-filesystem guarded physical writer for Graphium.
 
 Safety model:
 - immutable writer-grade target observation;
@@ -173,7 +173,7 @@ def _parent_identity(path: str) -> FileObjectIdentity:
 
 
 class GuardedFileWriter:
-    """The single Graphium physical writer authority introduced by G03."""
+    """The single Graphium physical writer authority."""
 
     __slots__ = ("new_file_mode", "_test_hook")
 
@@ -201,9 +201,9 @@ class GuardedFileWriter:
     ) -> SaveTargetObservation:
         """Observe a Save/Save-As target without mutating it.
 
-        For ordinary Save, pass the accepted G01/G02 file state; any mismatch fails closed.
+        For ordinary Save, pass the accepted file state; any mismatch fails closed.
         For Save As, omit it.  If the target exists, caller-side GTK confirmation remains a
-        separate G04 responsibility; this token records only transactional evidence.
+        separate renderability responsibility; this token records only transactional evidence.
         """
         logical = normalize_logical_path(path)
         logical_parent = os.path.dirname(logical) or os.curdir
