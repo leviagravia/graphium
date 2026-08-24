@@ -27,9 +27,15 @@ class GraphiumApplication(Gtk.Application):
             flags=Gio.ApplicationFlags.HANDLES_OPEN | Gio.ApplicationFlags.NON_UNIQUE,
         )
         self.window: GraphiumWindow | None = None
+        self.system_prefer_dark_theme = False
 
     def do_startup(self) -> None:
         Gtk.Application.do_startup(self)
+        settings = Gtk.Settings.get_default()
+        if settings is not None:
+            self.system_prefer_dark_theme = bool(
+                settings.get_property("gtk-application-prefer-dark-theme")
+            )
         for spec in COMMANDS:
             if spec.accelerator:
                 self.set_accels_for_action(f"win.{spec.action}", [spec.accelerator])
@@ -49,19 +55,24 @@ class GraphiumApplication(Gtk.Application):
         window.present()
 
     @staticmethod
-    def _spawn_additional_files(files) -> None:
+    def _spawn_additional_paths(paths) -> None:
         launcher = Path(sys.argv[0]).resolve()
-        for gfile in files:
-            path = gfile.get_path()
+        for path in paths:
             if not path:
                 continue
             subprocess.Popen(
-                [str(launcher), path],
+                [str(launcher), str(path)],
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 close_fds=True,
             )
+
+    @classmethod
+    def _spawn_additional_files(cls, files) -> None:
+        cls._spawn_additional_paths(
+            path for path in (gfile.get_path() for gfile in files) if path
+        )
 
     def do_open(self, files, _n_files, _hint) -> None:
         window = self._ensure_window()

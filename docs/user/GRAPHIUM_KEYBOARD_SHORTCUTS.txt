@@ -1,4 +1,4 @@
-GRAPHIUM KEYBOARD SHORTCUTS — G08
+GRAPHIUM KEYBOARD SHORTCUTS
 =================================
 
 File
@@ -6,6 +6,7 @@ File
   Ctrl+O          Open…
   Ctrl+S          Save
   Ctrl+Shift+S    Save As…
+  F5              Reload from Disk
   Ctrl+Shift+P    Print Preview
   Ctrl+P          Print…
   Ctrl+Q          Quit
@@ -38,27 +39,33 @@ View
   F11             Full Screen
 
 Status Bar, Line Numbers, Word Wrap and Font… are direct View commands without dedicated
-accelerators in G08. Their persistent state is changed from the View menu rather than
+accelerators. Their persistent state is changed from the View menu rather than
 duplicated in Preferences.
 
 Document
-  Statistics… has no dedicated accelerator in G08.
+  Statistics… has no dedicated accelerator.
 
-G08 commands without dedicated accelerators
+Commands without dedicated accelerators
 --------------------------------------------
 Open Recent, Clear Recent, Save a Copy…, Save Version Copy…, Properties…, Page Setup… and
-Statistics… are intentionally menu-driven. G08 adds only Ctrl+Shift+P for Print Preview and Ctrl+P
-for Print.
+Statistics… are intentionally menu-driven. Reload from Disk uses F5; Ctrl+Shift+P remains Print Preview and Ctrl+P remains Print.
 
-Help commands intentionally have no global accelerator in G08.
+Help commands intentionally have no global accelerator.
 
 Linux Mint/Cinnamon note
 ------------------------
 Graphium does not use Ctrl+Alt+L. New accelerators are checked against active desktop
 global bindings before a desktop candidate is accepted.
 
-G09 text transformations
+Text transformations
   Alt+Up    Move Lines Up
   Alt+Down  Move Lines Down
   Uppercase, Lowercase, Duplicate Line / Selection and Trim Trailing Spaces have no dedicated
   accelerator and remain explicit Edit -> Transform Text menu actions.
+
+
+Preferences and appearance
+  Preferences… has no dedicated accelerator.
+  Appearance -> System / Light / Dark has no dedicated accelerator.
+  A normal Tab key follows the Insert spaces instead of tabs preference; modified Tab combinations
+  are not repurposed by these preferences.

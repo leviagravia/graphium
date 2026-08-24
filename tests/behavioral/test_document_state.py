@@ -1,5 +1,9 @@
 from __future__ import annotations
+import importlib
+import sys
+import types
 import unittest
+from unittest.mock import patch
 from graphium.application.document_session import DocumentSession, DocumentSessionPhase
 from graphium.domain.document_identity import BomKind, ContentFingerprint, DiskObservation, DocumentFileBinding, DocumentFileState, DocumentLoadMetadata, DocumentLoadResult, FileObjectIdentity, LineEnding, LineEndingProfile
 from graphium.domain.history import TextHistory
@@ -98,5 +102,38 @@ class DocumentSessionTests(unittest.TestCase):
         self.session.invalidate_saved_relation()
         self.session.restore_checkpoint(snapshot)
         self.assertEqual(self.session.snapshot(), snapshot)
+
+class ExternalMonitorStateMachineTests(unittest.TestCase):
+    def test_pending_delivery_semantics_are_scheduler_independent(self):
+        gi = types.ModuleType("gi"); gi.require_version = lambda *_args: None
+        repository = types.ModuleType("gi.repository")
+        names = "CHANGED DELETED CREATED ATTRIBUTE_CHANGED MOVED RENAMED MOVED_IN MOVED_OUT CHANGES_DONE_HINT".split()
+        repository.Gio = type("Gio", (), {"FileMonitorEvent": type("FileMonitorEvent", (), dict(zip(names, range(len(names)))))})
+        class FakeGLib:
+            @staticmethod
+            def timeout_add(*_args): raise AssertionError("pending work scheduled a second worker")
+            @staticmethod
+            def source_remove(_source_id): return True
+        repository.GLib = FakeGLib
+        with patch.dict(sys.modules, {"gi": gi, "gi.repository": repository}):
+            sys.modules.pop("graphium.adapters.gtk.external_monitor", None)
+            module = importlib.import_module("graphium.adapters.gtk.external_monitor")
+        accepted = file_state(); history = TextHistory(); session = DocumentSession()
+        session.establish_open(DocumentLoadResult("A\n", accepted, False), history.reset("A\n"))
+        delivered, followups = [], []
+        monitor = module.StrongExternalFileMonitor(session=session, on_result=delivered.append, observer=lambda *_a, **_k: None)
+        generation = monitor._generation; ticket = module._ObservationTicket(generation, accepted.binding.logical_path, accepted)
+        first = module.CheckNowResult(module.CheckNowStatus.UNCHANGED); latest = module.CheckNowResult(module.CheckNowStatus.CONTENT_CHANGED)
+        monitor._inflight_generation = generation; monitor._schedule_observation(generation, immediate=False)
+        self.assertEqual(monitor._pending_generation, generation)
+        with patch.object(module.StrongExternalFileMonitor, "_schedule_observation", autospec=True,
+                          side_effect=lambda _self, gen, *, immediate: followups.append((gen, immediate))):
+            monitor._deliver_result(ticket, first)
+        self.assertEqual((delivered, followups, monitor._pending_generation, monitor._inflight_generation), ([], [(generation, False)], None, None))
+        monitor._inflight_generation = generation; monitor._deliver_result(ticket, latest)
+        self.assertEqual(delivered, [latest])
+        monitor._generation += 1; monitor._inflight_generation = generation; monitor._deliver_result(ticket, first)
+        self.assertEqual(delivered, [latest])
+
 if __name__ == '__main__':
     unittest.main()

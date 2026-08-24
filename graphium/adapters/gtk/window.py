@@ -11,7 +11,12 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk, Gio, GLib, GObject, Gtk
 
 from graphium.application.commands import COMMANDS, command_availability
+from graphium.application.document_properties import CheckNowResult, CheckNowStatus
 from graphium.application.view_status import project_compact_status
+from graphium.application.view_settings import (
+    APPEARANCE_DARK, APPEARANCE_LIGHT, APPEARANCE_SYSTEM, APPEARANCE_VALUES,
+    MAX_WINDOW_HEIGHT, MAX_WINDOW_WIDTH, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH,
+)
 from graphium.application.text_statistics import count_text_statistics
 from graphium.application.text_transform import build_transformation_plan
 from graphium.application.print_model import build_print_snapshot
@@ -27,17 +32,17 @@ from graphium.application.renderability import (
 )
 from graphium.product import PRODUCT_NAME, VERSION
 from .dialogs import (
-    GtkLifecycleUI, choose_copy_path, choose_font, choose_line_number, show_about,
+    GtkLifecycleUI, choose_copy_path, choose_font, choose_line_number, choose_preferences, show_about,
     show_properties, show_statistics, show_text_document,
 )
 from .editor_buffer import GtkTextBufferPort
 from .editor_view import GraphiumTextView
+from .external_monitor import StrongExternalFileMonitor
 
 
 class GraphiumWindow(Gtk.ApplicationWindow):
     def __init__(self, application: Gtk.Application) -> None:
         super().__init__(application=application)
-        self.set_default_size(720, 520)
         self.set_role("graphium-editor")
 
         self._closing_accepted = False
@@ -46,6 +51,15 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._benchmark_ready_emitted = False
         self._implicit_delete_group = False
         self._renderability_notice_pending = False
+        self._normal_window_size = (720, 520)
+        self._window_maximized = False
+        self._window_fullscreen = False
+        self._window_size_persisted = False
+        self._system_prefer_dark_theme = bool(
+            getattr(application, "system_prefer_dark_theme", False)
+        )
+        self._appearance_renderer = None
+        self._external_monitor_bind_source_id = 0
         self._actions: dict[str, Gio.SimpleAction] = {}
         self._print_controller = None
         self._search_bar: Gtk.SearchBar | None = None
@@ -65,6 +79,22 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add(box)
 
+        self._external_info_bar = Gtk.InfoBar()
+        self._external_info_bar.set_no_show_all(True)
+        self._external_info_bar.set_message_type(Gtk.MessageType.WARNING)
+        self._external_info_label = Gtk.Label(label="")
+        self._external_info_label.set_xalign(0.0)
+        self._external_info_label.set_line_wrap(True)
+        self._external_info_bar.get_content_area().pack_start(
+            self._external_info_label, True, True, 0
+        )
+        self._external_info_reload_button = self._external_info_bar.add_button(
+            "Reload from Disk", Gtk.ResponseType.APPLY
+        )
+        self._external_info_bar.connect("response", self._on_external_info_response)
+        box.pack_start(self._external_info_bar, False, False, 0)
+        self._external_info_bar.hide()
+
         self.text_view = GraphiumTextView()
         self.buffer = self.text_view.get_buffer()
         self.buffer_port = GtkTextBufferPort(self.buffer)
@@ -81,8 +111,16 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         ui = GtkLifecycleUI(self)
         self._ui = ui
         self.core = build_core(buffer=self.buffer_port, ui=ui)
+        self._external_file_monitor = StrongExternalFileMonitor(
+            session=self.core.session, on_result=self._on_external_observation_result
+        )
         self.core.editor.initialize_new_text("", clean=True)
+        initial_settings = self.core.view_settings.current
+        self._normal_window_size = (initial_settings.window_width, initial_settings.window_height)
+        self.set_default_size(*self._normal_window_size)
         self._apply_initial_view_settings()
+        if initial_settings.appearance != APPEARANCE_SYSTEM:
+            self._apply_appearance(initial_settings.appearance)
 
         self._install_actions()
         self._install_menu()
@@ -90,9 +128,77 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self.buffer.connect("notify::has-selection", self._on_selection_changed)
         self.buffer.connect("notify::cursor-position", self._on_cursor_position_changed)
         self.connect("delete-event", self._on_delete_event)
+        self.connect("destroy", self._on_destroy_appearance)
         self.connect("map-event", self._on_mapped)
         self.connect("window-state-event", self._on_window_state_event)
+        self.connect("configure-event", self._on_configure_event)
+        self._install_file_drop_target()
         self._refresh_projection()
+
+    def _on_destroy_appearance(self, *_args) -> None:
+        self._cancel_external_monitor_bind()
+        self._external_file_monitor.close()
+        if self._appearance_renderer is not None:
+            self._appearance_renderer.close()
+
+    def _cancel_external_monitor_bind(self) -> None:
+        source_id = int(self._external_monitor_bind_source_id)
+        self._external_monitor_bind_source_id = 0
+        if source_id:
+            try:
+                GLib.source_remove(source_id)
+            except Exception:
+                pass
+
+    def _suspend_external_monitor(self) -> None:
+        self._cancel_external_monitor_bind()
+        self._external_file_monitor.suspend()
+
+    def _schedule_external_monitor_bind(self, delay_ms: int = 80) -> None:
+        self._cancel_external_monitor_bind()
+        self._external_monitor_bind_source_id = GLib.timeout_add(
+            int(delay_ms), self._bind_external_monitor
+        )
+
+    def _bind_external_monitor(self) -> bool:
+        self._external_monitor_bind_source_id = 0
+        self._external_file_monitor.bind_current()
+        return False
+
+    def _clear_external_file_alert(self) -> None:
+        self._external_info_label.set_text("")
+        self._external_info_bar.set_no_show_all(True)
+        self._external_info_bar.hide()
+
+    def _on_external_observation_result(self, result: CheckNowResult) -> None:
+        if result.status is CheckNowStatus.UNCHANGED:
+            self._clear_external_file_alert()
+            return
+        messages = {
+            CheckNowStatus.CONTENT_CHANGED: "File changed on disk.",
+            CheckNowStatus.METADATA_CHANGED: "File metadata changed on disk.",
+            CheckNowStatus.REPLACED_OR_RETARGETED:
+                "File was replaced or this path now refers to a different file.",
+            CheckNowStatus.MISSING: "File no longer exists on disk.",
+            CheckNowStatus.UNAVAILABLE_OR_UNSTABLE:
+                "Graphium could not reliably verify the file on disk.",
+        }
+        self._external_info_label.set_text(messages.get(result.status, result.detail or "File state changed."))
+        self._external_info_bar.set_message_type(
+            Gtk.MessageType.INFO
+            if result.status is CheckNowStatus.METADATA_CHANGED
+            else Gtk.MessageType.WARNING
+        )
+        can_reload = result.status in (
+            CheckNowStatus.CONTENT_CHANGED, CheckNowStatus.REPLACED_OR_RETARGETED
+        )
+        self._external_info_bar.set_no_show_all(False)
+        self._external_info_bar.show_all()
+        self._external_info_reload_button.set_visible(can_reload)
+
+    def _on_external_info_response(self, _bar, response_id) -> None:
+        if response_id == Gtk.ResponseType.APPLY:
+            self._actions["reload"].activate(None)
 
     def _install_actions(self) -> None:
         callbacks = {
@@ -104,6 +210,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "save-as": self._action_save_as,
             "save-copy": self._action_save_copy,
             "save-version-copy": self._action_save_version_copy,
+            "reload": self._action_reload,
             "properties": self._action_properties,
             "page-setup": self._action_page_setup,
             "print-preview": self._action_print_preview,
@@ -116,6 +223,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "paste": self._action_paste,
             "delete": self._action_delete,
             "select-all": self._action_select_all,
+            "preferences": self._action_preferences,
             "uppercase": self._action_uppercase,
             "lowercase": self._action_lowercase,
             "duplicate-line-selection": self._action_duplicate_line_selection,
@@ -130,6 +238,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "status-bar": self._action_status_bar,
             "line-numbers": self._action_line_numbers,
             "word-wrap": self._action_word_wrap,
+            "appearance": self._action_appearance,
             "font": self._action_font,
             "zoom-in": self._action_zoom_in,
             "zoom-out": self._action_zoom_out,
@@ -143,6 +252,12 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         for spec in COMMANDS:
             if spec.action == "open-recent":
                 action = Gio.SimpleAction.new(spec.action, GLib.VariantType.new("s"))
+            elif spec.choices:
+                action = Gio.SimpleAction.new_stateful(
+                    spec.action,
+                    GLib.VariantType.new("s"),
+                    GLib.Variant.new_string(self.core.view_settings.current.appearance),
+                )
             elif spec.stateful:
                 action = Gio.SimpleAction.new_stateful(
                     spec.action, None, GLib.Variant.new_boolean(self._initial_action_state(spec.action))
@@ -171,6 +286,15 @@ class GraphiumWindow(Gtk.ApplicationWindow):
                     continue
                 if spec.action == "open-recent":
                     section.append_submenu(spec.label, self._recent_menu)
+                elif spec.choices:
+                    choices_menu = Gio.Menu()
+                    for choice_label, choice_value in spec.choices:
+                        item = Gio.MenuItem.new(choice_label, None)
+                        item.set_action_and_target_value(
+                            f"win.{spec.action}", GLib.Variant.new_string(choice_value)
+                        )
+                        choices_menu.append_item(item)
+                    section.append_submenu(spec.label, choices_menu)
                 else:
                     section.append(spec.label, f"win.{spec.action}")
             if menu_name == "Edit":
@@ -213,6 +337,8 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         )
         self.text_view.set_line_numbers_visible(settings.line_numbers)
         self.text_view.set_base_font(settings.font_family, settings.font_size_points)
+        self.text_view.set_tab_width(settings.tab_width)
+        self.text_view.set_insert_spaces(settings.insert_spaces)
         self._set_status_bar_visible(settings.status_bar)
 
     def _set_status_bar_visible(self, visible: bool) -> None:
@@ -240,6 +366,89 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         except Exception as exc:
             self._ui.show_warning("View setting was not saved", str(exc))
             return False
+
+    def _apply_appearance(self, value: str) -> None:
+        if value not in APPEARANCE_VALUES:
+            raise ValueError(f"unsupported appearance: {value!r}")
+        if value == APPEARANCE_SYSTEM and self._appearance_renderer is None:
+            return
+        if self._appearance_renderer is None:
+            from .appearance import GtkAppearanceRenderer
+
+            self._appearance_renderer = GtkAppearanceRenderer(
+                Gtk.Settings.get_default(),
+                self.get_screen(),
+                system_prefer_dark_theme=self._system_prefer_dark_theme,
+            )
+        self._appearance_renderer.apply(value)
+
+    @staticmethod
+    def _string_action_value(action: Gio.SimpleAction) -> str:
+        state = action.get_state()
+        assert state is not None
+        return state.get_string()
+
+    @staticmethod
+    def _set_string_action(action: Gio.SimpleAction, value: str) -> None:
+        action.set_state(GLib.Variant.new_string(value))
+
+    def _install_file_drop_target(self) -> None:
+        # GraphiumTextView is the single DnD negotiation authority. The window
+        # owns only local-file filtering and the existing open/dirty/Cancel lifecycle.
+        self.text_view.set_file_drop_handler(self._on_text_view_file_drop_uris)
+
+    def _on_text_view_file_drop_uris(self, uris) -> bool:
+        paths = self._local_file_paths_from_uris(uris)
+        return self._open_dropped_paths(paths)
+
+    @staticmethod
+    def _local_file_paths_from_uris(uris) -> list[str]:
+        paths: list[str] = []
+        for uri in uris:
+            try:
+                path = Gio.File.new_for_uri(uri).get_path()
+            except Exception:
+                path = None
+            if path and Path(path).is_file():
+                paths.append(path)
+        return paths
+
+    def _open_dropped_paths(self, paths: list[str]) -> bool:
+        if not paths:
+            return False
+        completed = self.open_path(paths[0])
+        if completed and len(paths) > 1:
+            application = self.get_application()
+            spawn = getattr(application, "_spawn_additional_paths", None)
+            if callable(spawn):
+                spawn(paths[1:])
+        return bool(completed)
+
+    def _on_configure_event(self, _window, event) -> bool:
+        native = self.get_window()
+        state = native.get_state() if native is not None else Gdk.WindowState(0)
+        if state & (Gdk.WindowState.MAXIMIZED | Gdk.WindowState.FULLSCREEN):
+            return False
+        width = int(event.width)
+        height = int(event.height)
+        if (
+            MIN_WINDOW_WIDTH <= width <= MAX_WINDOW_WIDTH
+            and MIN_WINDOW_HEIGHT <= height <= MAX_WINDOW_HEIGHT
+        ):
+            self._normal_window_size = (width, height)
+        return False
+
+    def _persist_normal_window_size_after_accepted_close(self) -> None:
+        if self._window_size_persisted:
+            return
+        self._window_size_persisted = True
+        width, height = self._normal_window_size
+        try:
+            self.core.view_settings.update(window_width=width, window_height=height)
+        except Exception as exc:
+            # Window geometry is convenience state. Closing remains accepted even when
+            # config persistence fails, and the prior complete settings snapshot stays live.
+            self._ui.show_warning("Window size was not saved", str(exc))
 
     def _connect_native_edit_signals(self) -> None:
         # Real semantic boundaries come from GtkTextBuffer user actions and structural
@@ -381,6 +590,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             has_selection=self.buffer.get_has_selection(),
         )
         self._actions["save"].set_enabled(availability.save)
+        self._actions["reload"].set_enabled(availability.reload)
         self._actions["undo"].set_enabled(availability.undo)
         self._actions["redo"].set_enabled(availability.redo)
         self._actions["cut"].set_enabled(availability.cut)
@@ -402,23 +612,33 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._status_document.set_text(status.document_text)
 
     def _action_new(self, *_args) -> None:
-        self.core.lifecycle.new_document()
+        self._suspend_external_monitor()
+        result = self.core.lifecycle.new_document()
+        if result.completed:
+            self._clear_external_file_alert()
+        self._schedule_external_monitor_bind()
         self._refresh_projection()
         self.text_view.grab_focus()
 
     def _action_open(self, *_args) -> None:
+        self._suspend_external_monitor()
         result = self.core.lifecycle.open_document()
         if result.completed:
+            self._clear_external_file_alert()
             self._refresh_recent_menu()
+        self._schedule_external_monitor_bind()
         self._refresh_projection()
         self.text_view.grab_focus()
 
     def _action_open_recent(self, _action, parameter) -> None:
         if parameter is None:
             return
+        self._suspend_external_monitor()
         result = self.core.lifecycle.open_document(parameter.get_string())
         if result.completed:
+            self._clear_external_file_alert()
             self._refresh_recent_menu()
+        self._schedule_external_monitor_bind()
         self._refresh_projection()
         self.text_view.grab_focus()
 
@@ -430,24 +650,42 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._refresh_recent_menu()
 
     def open_path(self, path: str) -> bool:
+        self._suspend_external_monitor()
         result = self.core.lifecycle.open_document(path)
         if result.completed:
+            self._clear_external_file_alert()
             self._refresh_recent_menu()
+        self._schedule_external_monitor_bind()
         self._refresh_projection()
         self.text_view.grab_focus()
         return result.completed
 
     def _action_save(self, *_args) -> None:
+        self._suspend_external_monitor()
         result = self.core.lifecycle.save()
         if result.completed:
+            self._clear_external_file_alert()
             self._refresh_recent_menu()
+        self._schedule_external_monitor_bind()
         self._refresh_projection()
 
     def _action_save_as(self, *_args) -> None:
+        self._suspend_external_monitor()
         result = self.core.lifecycle.save_as()
         if result.completed:
+            self._clear_external_file_alert()
             self._refresh_recent_menu()
+        self._schedule_external_monitor_bind()
         self._refresh_projection()
+
+    def _action_reload(self, *_args) -> None:
+        self._suspend_external_monitor()
+        result = self.core.lifecycle.reload_document()
+        if result.completed:
+            self._clear_external_file_alert()
+        self._schedule_external_monitor_bind()
+        self._refresh_projection()
+        self.text_view.grab_focus()
 
     def _prepare_nonbinding_copy(self) -> bool:
         try:
@@ -609,6 +847,28 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _action_select_all(self, *_args) -> None:
         start, end = self.buffer.get_bounds()
         self.buffer.select_range(start, end)
+
+    def _commit_preferences(self, *, tab_width: int, insert_spaces: bool) -> bool:
+        try:
+            updated = self.core.view_settings.update(
+                tab_width=tab_width, insert_spaces=insert_spaces
+            )
+        except Exception as exc:
+            self._ui.show_warning("Preferences were not saved", str(exc))
+            return False
+        self.text_view.set_tab_width(updated.tab_width)
+        self.text_view.set_insert_spaces(updated.insert_spaces)
+        return True
+
+    def _action_preferences(self, *_args) -> None:
+        settings = self.core.view_settings.current
+        chosen = choose_preferences(
+            self, tab_width=settings.tab_width, insert_spaces=settings.insert_spaces
+        )
+        if chosen is not None:
+            tab_width, insert_spaces = chosen
+            self._commit_preferences(tab_width=tab_width, insert_spaces=insert_spaces)
+        self.text_view.grab_focus()
 
     def _perform_text_transform(self, action_name: str) -> None:
         captured = self.buffer_port.capture_full()
@@ -992,6 +1252,33 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             Gtk.WrapMode.WORD_CHAR if value else Gtk.WrapMode.NONE
         )
 
+    def _action_appearance(self, action: Gio.SimpleAction, parameter) -> None:
+        if parameter is None:
+            return
+        value = parameter.get_string()
+        if value not in APPEARANCE_VALUES:
+            return
+        previous = self.core.view_settings.current.appearance
+        if value == previous:
+            self._set_string_action(action, value)
+            return
+        try:
+            self._apply_appearance(value)
+        except Exception as exc:
+            self._ui.show_warning("Appearance was not changed", str(exc))
+            return
+        try:
+            self.core.view_settings.update(appearance=value)
+        except Exception as exc:
+            try:
+                self._apply_appearance(previous)
+            except Exception:
+                pass
+            self._ui.show_warning("Appearance was not saved", str(exc))
+            return
+        self._set_string_action(action, value)
+        self.text_view.grab_focus()
+
     def _action_font(self, *_args) -> None:
         settings = self.core.view_settings.current
         chosen = choose_font(
@@ -1027,10 +1314,11 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             self.unfullscreen()
 
     def _on_window_state_event(self, _window, event) -> bool:
-        fullscreen = bool(event.new_window_state & Gdk.WindowState.FULLSCREEN)
+        self._window_fullscreen = bool(event.new_window_state & Gdk.WindowState.FULLSCREEN)
+        self._window_maximized = bool(event.new_window_state & Gdk.WindowState.MAXIMIZED)
         action = self._actions.get("full-screen")
-        if action is not None and self._boolean_action_value(action) != fullscreen:
-            self._set_boolean_action(action, fullscreen)
+        if action is not None and self._boolean_action_value(action) != self._window_fullscreen:
+            self._set_boolean_action(action, self._window_fullscreen)
         return False
 
     def _action_statistics(self, *_args) -> None:
@@ -1066,10 +1354,13 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _on_delete_event(self, *_args) -> bool:
         if self._closing_accepted:
             return False
+        self._suspend_external_monitor()
         result = self.core.lifecycle.request_close()
         if not result.completed:
+            self._schedule_external_monitor_bind()
             self._refresh_projection()
             return True
+        self._persist_normal_window_size_after_accepted_close()
         self._closing_accepted = True
         return False
 

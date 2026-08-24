@@ -28,10 +28,16 @@ class UnsavedDecision(str, Enum):
     CANCEL = "cancel"
 
 
+class ReloadDecision(str, Enum):
+    DISCARD_AND_RELOAD = "discard-and-reload"
+    CANCEL = "cancel"
+
+
 class LifecycleUI(Protocol):
     def choose_open_path(self) -> str | None: ...
     def choose_save_path(self, current_path: str | None) -> str | None: ...
     def confirm_unsaved_changes(self, action_label: str) -> UnsavedDecision: ...
+    def confirm_modified_reload(self) -> ReloadDecision: ...
     def confirm_overwrite(self, path: str) -> bool: ...
     def confirm_mixed_eol_normalization(self) -> bool: ...
     def show_error(self, title: str, message: str) -> None: ...
@@ -221,6 +227,45 @@ class FileLifecycleController:
             self.ui.show_error("Could not install opened file", str(exc))
             return LifecycleResult(False)
         self._touch_recent_nonfatal(result.file_state.binding.logical_path)
+        return LifecycleResult(True, changed_document=True)
+
+    def reload_document(self) -> LifecycleResult:
+        """Reload the active named document from its current logical path.
+
+        Reload is a deliberate disk re-acceptance boundary, not a generic document
+        replacement. A modified buffer therefore gets a dedicated destructive choice:
+        Cancel or Discard Changes and Reload. Reload never invokes the writer.
+        """
+        path = self.session.logical_path
+        if path is None:
+            return LifecycleResult(False)
+
+        # Do not reuse the generic New/Open/Quit SAVE/DISCARD/CANCEL helper here.
+        # Mature Revert/Reload ownership is intentionally asymmetric with Save: a user
+        # choosing Reload either keeps the modified in-memory document or explicitly
+        # discards it and accepts a complete fresh disk load.
+        if self.session.modified:
+            decision = self.ui.confirm_modified_reload()
+            if decision is ReloadDecision.CANCEL:
+                return LifecycleResult(False, cancelled=True)
+            if decision is not ReloadDecision.DISCARD_AND_RELOAD:
+                raise RuntimeError(f"unexpected reload decision: {decision!r}")
+
+        try:
+            result = self.loader(path)
+        except Exception as exc:
+            self.ui.show_error("Could not reload file", str(exc))
+            return LifecycleResult(False)
+        try:
+            ensure_interactive_text_renderable(result.text)
+        except InteractiveRenderabilityError as exc:
+            self.ui.show_error("File not reloaded — line too long for safe editing", str(exc))
+            return LifecycleResult(False)
+        try:
+            self.editor.initialize_open(result)
+        except Exception as exc:
+            self.ui.show_error("Could not install reloaded file", str(exc))
+            return LifecycleResult(False)
         return LifecycleResult(True, changed_document=True)
 
     def request_close(self) -> LifecycleResult:

@@ -6,7 +6,7 @@ gi.require_version("Gtk", "3.0")
 gi.require_version("Pango", "1.0")
 from gi.repository import Gtk, Pango
 
-from graphium.application.file_lifecycle import UnsavedDecision
+from graphium.application.file_lifecycle import ReloadDecision, UnsavedDecision
 
 
 class GtkLifecycleUI:
@@ -64,6 +64,29 @@ class GtkLifecycleUI:
         if response == Gtk.ResponseType.REJECT:
             return UnsavedDecision.DISCARD
         return UnsavedDecision.CANCEL
+
+    def confirm_modified_reload(self) -> ReloadDecision:
+        dialog = Gtk.MessageDialog(
+            transient_for=self.parent,
+            modal=True,
+            message_type=Gtk.MessageType.WARNING,
+            buttons=Gtk.ButtonsType.NONE,
+            text="Discard changes and reload from disk?",
+        )
+        dialog.set_title("Reload from Disk")
+        dialog.format_secondary_text(
+            "The current document has unsaved changes. Reloading will discard those changes and accept the file currently on disk."
+        )
+        dialog.add_button("Cancel", Gtk.ResponseType.CANCEL)
+        dialog.add_button("Discard Changes and Reload", Gtk.ResponseType.REJECT)
+        dialog.set_default_response(Gtk.ResponseType.CANCEL)
+        try:
+            response = dialog.run()
+        finally:
+            dialog.destroy()
+        if response == Gtk.ResponseType.REJECT:
+            return ReloadDecision.DISCARD_AND_RELOAD
+        return ReloadDecision.CANCEL
 
     def confirm_overwrite(self, path: str) -> bool:
         dialog = Gtk.MessageDialog(
@@ -376,5 +399,52 @@ def show_statistics(parent: Gtk.Window, *, document, selection) -> None:
     dialog.show_all()
     try:
         dialog.run()
+    finally:
+        dialog.destroy()
+
+
+def choose_preferences(
+    parent: Gtk.Window,
+    *,
+    tab_width: int,
+    insert_spaces: bool,
+) -> tuple[int, bool] | None:
+    """Show the deliberately small Preferences dialog and return one atomic snapshot."""
+    dialog = Gtk.Dialog(
+        title="Preferences",
+        transient_for=parent,
+        modal=True,
+        destroy_with_parent=True,
+    )
+    dialog.add_button("Cancel", Gtk.ResponseType.CANCEL)
+    dialog.add_button("OK", Gtk.ResponseType.OK)
+    dialog.set_default_response(Gtk.ResponseType.OK)
+
+    content = dialog.get_content_area()
+    content.set_border_width(12)
+    grid = Gtk.Grid(column_spacing=12, row_spacing=12)
+    content.pack_start(grid, True, True, 0)
+
+    tab_label = Gtk.Label(label="Tab width:")
+    tab_label.set_xalign(0.0)
+    adjustment = Gtk.Adjustment(
+        value=float(tab_width), lower=1.0, upper=32.0, step_increment=1.0,
+        page_increment=4.0, page_size=0.0,
+    )
+    tab_spin = Gtk.SpinButton(adjustment=adjustment, climb_rate=1.0, digits=0)
+    tab_spin.set_numeric(True)
+    tab_spin.set_value(float(tab_width))
+
+    spaces_check = Gtk.CheckButton(label="Insert spaces instead of tabs")
+    spaces_check.set_active(bool(insert_spaces))
+
+    grid.attach(tab_label, 0, 0, 1, 1)
+    grid.attach(tab_spin, 1, 0, 1, 1)
+    grid.attach(spaces_check, 0, 1, 2, 1)
+    dialog.show_all()
+    try:
+        if dialog.run() != Gtk.ResponseType.OK:
+            return None
+        return int(tab_spin.get_value_as_int()), bool(spaces_check.get_active())
     finally:
         dialog.destroy()

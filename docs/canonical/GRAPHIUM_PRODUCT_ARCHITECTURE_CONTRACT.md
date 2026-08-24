@@ -2,8 +2,8 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Status: **G00-G05 CLOSED / CERTIFIED / PUBLISHED; G06 OPEN / CONTRACT FROZEN / IMPLEMENTATION AUTHORIZED / DESKTOP CANDIDATE READY**.
-Published G05 baseline: `a9083daf22ab23cf6cd20841be643510e35d700d` / tree `12d55249263e006cc68fa304f3c3cc2a9ef73acb`.
+Current publication boundary: **G11 Candidate R1 certified / publication authorized**. G10 is **FAILED / NOT PUBLISHED / TERMINAL** with its Candidate line exhausted 2/2. G11 becomes **CLOSED / CERTIFIED / PUBLISHED** only if the fail-closed publication finalizer succeeds.
+Canonical parent before G11 publication: GS07 commit `3f3aa896fcf065297e5576e6b3672281a23853d9` / tree `7bff40caac93777d94538dee69633ab4d7654a12`.
 
 ## 1. Product identity
 
@@ -68,7 +68,7 @@ The document session owns the accepted binding and saved-state identity. UI widg
 
 Graphium v1 has exactly **one physical writer authority** for normal persisted document writes. Save, Save As and copy/version operations must converge on the appropriate guarded writer contract rather than inventing parallel write paths.
 
-A future live file monitor is observation-only. It may report changed/deleted/replaced states but may not become a second file identity, automatic reload authority or automatic overwrite authority.
+The live file monitor is observation-only. Gio events are interrupts, never accepted truth. Fresh strong observation remains the sole external-file classifier input; the monitor may report changed/deleted/replaced states but may not become a second file identity, automatic reload authority, accepted-baseline authority or automatic overwrite authority.
 
 ## 5. XDG isolation
 
@@ -1273,3 +1273,85 @@ Packaging/Release. Historical Gxx validation universes are provenance only. Runt
 must remain independent from Candidate/attempt/commit/tree/work-item state, and installed product
 payload excludes the certification laboratory. Reintroducing compatibility wrappers or executable
 historical validation requires a new source-grounded mature-source audit and explicit authorization.
+
+## 21. G10 terminal boundary and G11 Reload / live-monitor contract — 2026-08-24
+
+G10 did not publish. Candidate R1 and R2 each ended in a valid user-visible product failure; the
+line is terminal at 2/2 and R3 is forbidden. A later NON-CANDIDATE recovery is retained only as a
+carry-forward reference. G11 therefore derives formally from the canonical GS07 parent and selectively
+reproduces only the proven user behavior needed for the v1 surface; Candidate/attempt/tree/publication
+lineage remains external release engineering and never enters runtime identity.
+
+`G11_RELOAD=FILE_RELOAD_FROM_DISK_F5`
+`G11_RELOAD_MODIFIED_DECISION=CANCEL_OR_DISCARD_CHANGES_AND_RELOAD`
+`G11_RELOAD_WRITER_INVOCATION=FORBIDDEN`
+`G11_RELOAD_RECENT_MUTATION=FORBIDDEN`
+`G11_MONITOR_BACKEND=GIO_FILE_MONITOR_WATCH_MOVES`
+`G11_MONITOR_EVENT_AS_TRUTH=FORBIDDEN`
+`G11_MONITOR_TRUTH=EXISTING_STRONG_OBSERVER_PLUS_CLASSIFIER`
+`G11_PERIODIC_POLLING=FORBIDDEN`
+`G11_MAX_CONCURRENT_STRONG_OBSERVATIONS=1`
+`G11_GENERIC_JOB_FRAMEWORK=FORBIDDEN`
+`G11_AUTO_RELOAD=FORBIDDEN`
+`G11_EXTERNAL_UI=ONE_NONMODAL_INFOBAR`
+`G11_DIRECT_SYMLINK_COVERAGE=RESOLVED_TARGET_PLUS_LOGICAL_PATH_TOPOLOGY`
+`G11_CANDIDATE_ATTEMPTS=1_OF_2`
+
+### 21.1 Reload is deliberate disk re-acceptance, not Save
+
+Reload is available only for a named document. A Saved document may be fully reloaded directly. A
+Modified document receives a dedicated destructive choice: Cancel, or Discard Changes and Reload.
+Cancel preserves the buffer/session/history/binding exactly. Discard and Reload invokes no writer;
+it completely loads and validates the current logical path and only then installs the fresh document
+state. Reload never touches Recent. This is deliberately asymmetric with ordinary Save, which retains
+the G03/G07 strong accepted-baseline and fail-closed stale-target policy.
+
+### 21.2 Monitor events are interrupts; strong observation remains truth
+
+The GTK/Gio adapter owns filesystem event subscription only. Relevant events are coalesced and schedule
+`observe_document()` outside the GTK main thread. Classification remains the existing strong Check Now
+classification against the immutable accepted `DocumentFileState`: unchanged, content changed,
+metadata changed, replaced/retargeted, missing, or unavailable/unstable. No raw Gio event, mtime,
+ETag or timer may establish accepted document truth.
+
+Exactly one strong observation may execute concurrently. If a lifecycle transition creates a new
+monitor generation while an older read is still running, the stale result is discarded but a pending
+current-generation initial verification must still run. If newer verification work is already pending
+within the same generation, the just-finished older result is suppressed and only the coalesced newer
+observation may reach the UI. This prevents knowingly obsolete external-state presentation without
+adding a worker pool, unbounded queue or generic job framework.
+
+### 21.3 Lifecycle, symlink and UI ownership
+
+Open/New/Save/Save As/Reload/accepted Close suspend or invalidate old monitor ownership and bind fresh
+monitor state to the actual resulting accepted document. An initial asynchronous strong observation
+closes the load-to-monitor-bind race. Untitled has no monitor. Graphium's own accepted writes therefore
+do not rely on a time heuristic to suppress false external-change warnings.
+
+For a directly symlink-opened document, one monitor covers the accepted resolved target and one narrow
+parent-directory monitor filters events for the logical symlink path, so target-content change and
+logical replacement/retarget/removal both cause fresh strong observation. Arbitrary ancestor symlink
+component expansion is not part of the G11 contract without new evidence.
+
+External change is presented through one persistent nonmodal `Gtk.InfoBar`. Content change and
+replacement/retarget offer Reload; missing/unavailable states do not mutate the buffer; metadata-only
+change is informational. The monitor never silently updates accepted `DocumentFileState` and never
+auto-reloads.
+
+### 21.4 Slow-filesystem and qualification boundary
+
+Strong observation hashes content and therefore must not run on the GTK main thread. G11 has no
+periodic poller or idle hashing. Scheduler-independent monitor state-machine semantics belong to the
+permanent Behavioral/Unit authority: one-worker pending ownership, stale-generation discard,
+same-generation obsolete-result suppression and the exactly-one follow-up scheduling decision. The
+permanent True-GTK monitoring authority covers only the real platform boundary: Gio event ownership,
+strong same-size/same-mtime detection through the production observer, own-Save suppression, atomic
+replacement plus Guarded Save fail-closed behavior, missing files, direct symlink target/retarget cases,
+slow-observer GTK-main-loop responsiveness and nonmodal UI/no-dialog-storm behavior.
+
+The permanent qualification topology remains the four GS07 authorities only: Behavioral,
+Integration/Filesystem, True-GTK Desktop and Packaging/Release. G11-specific executable validation
+universes are forbidden. Manual Reload/monitoring tests are not qualification authority; modal response
+and external fixture transitions are machine-owned. User-PC/T480 execution is permitted only when the
+real Gio/GTK platform boundary cannot be established otherwise, and diagnostic reruns are forbidden.
+

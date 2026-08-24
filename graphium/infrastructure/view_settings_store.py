@@ -1,7 +1,8 @@
-"""Small atomic JSON store for Graphium direct View settings.
+"""Small atomic JSON store for Graphium view/preferences settings.
 
 This is convenience configuration, never document authority. Loading is fail-soft and
-read-only; filesystem mutation occurs only after an explicit user setting change.
+read-only; filesystem mutation occurs only after an explicit user setting change or the
+single accepted-close window-size persistence event.
 """
 from __future__ import annotations
 
@@ -27,12 +28,19 @@ class JsonViewSettingsStore:
             payload = json.loads(raw)
             if not isinstance(payload, dict):
                 return ViewSettings()
+            # The dataclass validates the complete snapshot. One malformed owned value
+            # invalidates the convenience payload and falls back to complete defaults.
             return ViewSettings(
                 word_wrap=payload.get("word_wrap", False),
                 line_numbers=payload.get("line_numbers", False),
                 status_bar=payload.get("status_bar", True),
                 font_family=payload.get("font_family", "Monospace"),
                 font_size_points=payload.get("font_size_points", 11.0),
+                appearance=payload.get("appearance", "system"),
+                tab_width=payload.get("tab_width", 8),
+                insert_spaces=payload.get("insert_spaces", False),
+                window_width=payload.get("window_width", 720),
+                window_height=payload.get("window_height", 520),
             )
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return ViewSettings()
@@ -47,6 +55,11 @@ class JsonViewSettingsStore:
             "status_bar": settings.status_bar,
             "font_family": settings.font_family,
             "font_size_points": settings.font_size_points,
+            "appearance": settings.appearance,
+            "tab_width": settings.tab_width,
+            "insert_spaces": settings.insert_spaces,
+            "window_width": settings.window_width,
+            "window_height": settings.window_height,
         }
         encoded = (json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode(
             "utf-8"

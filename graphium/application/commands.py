@@ -16,6 +16,7 @@ class CommandSpec:
     menu: str = ""
     stateful: bool = False
     submenu: str | None = None
+    choices: tuple[tuple[str, str], ...] = ()
 
 
 COMMANDS = (
@@ -27,6 +28,7 @@ COMMANDS = (
     CommandSpec("save-as", "Save As…", "<Ctrl><Shift>S", "File"),
     CommandSpec("save-copy", "Save a Copy…", None, "File"),
     CommandSpec("save-version-copy", "Save Version Copy…", None, "File"),
+    CommandSpec("reload", "Reload from Disk", "F5", "File"),
     CommandSpec("properties", "Properties…", None, "File"),
     CommandSpec("page-setup", "Page Setup…", None, "File"),
     CommandSpec("print-preview", "Print Preview", "<Ctrl><Shift>P", "File"),
@@ -39,6 +41,7 @@ COMMANDS = (
     CommandSpec("paste", "Paste", "<Ctrl>V", "Edit"),
     CommandSpec("delete", "Delete", "Delete", "Edit"),
     CommandSpec("select-all", "Select All", "<Ctrl>A", "Edit"),
+    CommandSpec("preferences", "Preferences…", None, "Edit"),
     CommandSpec("uppercase", "Uppercase", None, "Edit", False, "Transform Text"),
     CommandSpec("lowercase", "Lowercase", None, "Edit", False, "Transform Text"),
     CommandSpec("duplicate-line-selection", "Duplicate Line / Selection", None, "Edit", False, "Transform Text"),
@@ -53,6 +56,10 @@ COMMANDS = (
     CommandSpec("status-bar", "Status Bar", None, "View", True),
     CommandSpec("line-numbers", "Line Numbers", None, "View", True),
     CommandSpec("word-wrap", "Word Wrap", None, "View", True),
+    CommandSpec(
+        "appearance", "Appearance", None, "View", False, None,
+        (("System", "system"), ("Light", "light"), ("Dark", "dark")),
+    ),
     CommandSpec("font", "Font…", None, "View"),
     CommandSpec("zoom-in", "Zoom In", "<Ctrl>plus", "View"),
     CommandSpec("zoom-out", "Zoom Out", "<Ctrl>minus", "View"),
@@ -74,6 +81,7 @@ def accelerator_map() -> dict[str, str]:
 @dataclass(frozen=True)
 class CommandAvailability:
     save: bool
+    reload: bool
     undo: bool
     redo: bool
     cut: bool
@@ -93,6 +101,7 @@ def command_availability(
 ) -> CommandAvailability:
     return CommandAvailability(
         save=modified or not has_path,
+        reload=has_path,
         undo=can_undo,
         redo=can_redo,
         cut=has_selection,

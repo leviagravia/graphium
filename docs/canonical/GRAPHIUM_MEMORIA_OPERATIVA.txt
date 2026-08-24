@@ -3371,3 +3371,1591 @@ Post-cutover state:
   G10_FROZEN=NO
   G10_CANDIDATE_ATTEMPTS=0/2
   G10_RESUME_BASE=GS07_SIMPLIFIED_CANONICAL_ARCHITECTURE
+
+================================================================================
+G10 TERMINAL + G11 RELOAD / STRONG LIVE MONITOR — SOURCE-ONLY CONSOLIDATION
+2026-08-24
+================================================================================
+
+CANONICAL_PARENT
+----------------
+GS07 remains the canonical published baseline:
+  commit 3f3aa896fcf065297e5576e6b3672281a23853d9
+  tree   7bff40caac93777d94538dee69633ab4d7654a12
+
+G10 terminal governance:
+  G10_STATUS=FAILED_NOT_PUBLISHED_TERMINAL
+  CANDIDATE_R1=RETIRED_VALID_PRODUCT_FAIL
+  CANDIDATE_R2=RETIRED_VALID_PRODUCT_FAIL
+  G10_CANDIDATE_ATTEMPTS=2/2
+  R3=FORBIDDEN
+
+A post-G10 NON-CANDIDATE recovery proved useful Preferences/Appearance/normal-window-geometry/DnD
+behavior, but that recovery never became canonical. G11 selectively reproduces those proven
+behaviors while deriving formally from GS07; failed-G10 Candidate/release lineage is not carried
+into runtime identity or permanent qualification.
+
+G11 CONTRACT / STAGE 1
+----------------------
+G11 title remains:
+  Reload + Strong Live External-File Safety + Slow-Filesystem Gate
+
+Reload contract was amended after mature-source audit:
+  Saved -> direct complete Reload
+  Modified -> Cancel OR Discard Changes and Reload
+  Save -> Reload = FORBIDDEN
+  Reload writer invocation = FORBIDDEN
+  Reload Recent mutation = FORBIDDEN
+
+The earlier manual workflow that required switching between Graphium and a terminal while Modified
+was retired as an invalid lifecycle oracle. Permanent True-GTK owns the modal response before the
+trigger. Stage 1 Reload was subsequently proven on T480 automatically with 15/15 lanes, 0 manual:
+  G11_STAGE1_PROVEN_TREE=b5c0f5156786dd276eb791dfa77eb6fb0fc72dd6
+  G11_STAGE1_RELOAD_T480_PROVEN=YES_AUTOMATED_TRUE_GTK
+
+G11 STAGE 2 — SOURCE-FIRST MONITOR EVOLUTION
+--------------------------------------------
+Stage 2 uses real Gio.FileMonitor only as an interrupt source. Strong truth remains the existing
+observe_document() + classify_fresh_observation() authority. Permanent invariants:
+  PERIODIC_POLLING=NO
+  IDLE_BACKGROUND_HASHING=NO
+  AUTO_RELOAD=NO
+  MAX_CONCURRENT_STRONG_OBSERVATIONS=1
+  UNBOUNDED_QUEUE=NO
+  GENERIC_JOB_FRAMEWORK=NO
+  MONITOR_ACCEPTED_BASELINE_MUTATION=NO
+  GUARDED_FILE_WRITER_AUTHORITY_UNCHANGED=YES
+
+Mature-source source-first audits against Mousepad, gedit and GNOME Text Editor identified and
+retired several defects before any further user-PC retry:
+  - permanent-test Gxx-lineage contamination;
+  - cross-generation pending verification loss;
+  - Gtk.InfoBar no-show-all visibility ownership;
+  - fixed-time asynchronous correctness oracles;
+  - same-generation obsolete-result delivery before already-pending newer verification.
+
+The current technical base after those source-only repairs is:
+  SOURCE_TREE=6ded43fe8e037eea2f2e4ca123cdf73c89f05d31
+  PRODUCT_SUBTREE=e6684d5bdca9ccf7b40af197c5da0116ae8da3b9
+
+Source-first post-repair audit result:
+  SOURCE_PROVABLE_BLOCKERS_REMAINING=0
+  STAGE2_SOURCE_CONTRACT=PASS
+  REAL_GIO_GTK_BOUNDARY=NOT_YET_PROVEN_ON_FINAL_PRE_CANDIDATE_TREE
+
+Monitoring semantics now frozen:
+  event -> debounce/coalescing -> one background strong observation -> strong classification ->
+  one low-noise nonmodal InfoBar.
+
+Lifecycle generation ownership suppresses stale results. A current-generation result is also
+suppressed when newer current-generation verification is already pending; only the coalesced newest
+observation may reach the UI. Direct symlink monitoring covers both the accepted resolved target and
+the logical symlink path's replacement/retarget/removal. Additional delete/create-specific settling
+and arbitrary ancestor-symlink monitoring are DEFERRED absent evidence.
+
+USER-PC / T480 POLICY — BINDING
+-------------------------------
+The user's T480 is LAST RESORT validation infrastructure.
+
+  USER_PC_TESTS_ONLY_IF_ABSOLUTELY_NECESSARY_AND_INDISPENSABLE=YES
+  SOURCE_FIRST_BEFORE_T480=MANDATORY
+  LOCAL_HEADLESS_STATIC_AUTOMATION_PREFERRED=YES
+  G11_MANUAL_RELOAD_MONITOR_TESTS=0
+  DIAGNOSTIC_T480_RERUNS=FORBIDDEN
+
+Do not ask the user to type test edits, switch between terminal and Graphium, press Enter to hold
+lifecycle state, or manually answer Reload/monitor dialogs when the permanent GTK authority can own
+those transitions.
+
+One final automated real Gio/GTK proof may be requested only after the source-only pre-candidate tree
+is otherwise frozen and fully qualified, because real Gio event delivery, GTK3 InfoBar visibility,
+real symlink monitor topology and GTK responsiveness on Linux Mint cannot be certified from headless
+source evidence alone. If that single boundary proof fails, do not rerun; return immediately to
+source-first analysis using the permanent semantic checkpoint that failed.
+
+G11 SOURCE-ONLY PRE-CANDIDATE CONSOLIDATION — CURRENT DECISION
+--------------------------------------------------------------
+This consolidation updates product/user/canonical identity to the actual G11 feature set but does
+not declare a Candidate. Product version 0.0.11 is adopted as the next unpublished product version
+after canonical 0.0.10; this is a fresh release-sequence decision, not failed-G10 lineage reuse.
+Candidate/attempt/tree/publication state remains external release engineering.
+
+Before any Candidate R1 declaration, the exact final source must pass:
+  - Behavioral authority;
+  - Integration/Filesystem authority;
+  - Packaging/Release authority;
+  - Structural Continuity with gxx_named=0, gxx_refs=0, runtime_gxx=0, runtime_release=0;
+  - source/user-doc/menu/accelerator synchronization audit;
+  - startup/RSS and shortcut gates;
+  - and, only if still indispensable, one automated real Gio/GTK T480 boundary proof.
+
+Current candidate governance:
+  G11_CANDIDATE_ATTEMPTS=0/2
+  G11_CANDIDATE_R1=NOT_DECLARED
+  PUBLICATION_AUTHORIZED=NO
+  GIT_MUTATION=NO
+================================================================================
+ENTRY — G11 FINAL PRE-CANDIDATE PLATFORM QUALIFICATION FAIL / CURRENT HANDOVER STATE
+Date: 2026-08-24
+State: BINDING CURRENT STATE / NON-CANDIDATE / SOURCE-FIRST REQUIRED / NO RETRY
+================================================================================
+
+PURPOSE OF THIS ENTRY
+---------------------
+This is the current handover boundary. A new chat must read this entry first for current state,
+then use the complete preceding MO as the historical/governance authority.
+
+No prior historical PASS/FAIL may be silently reinterpreted.
+No T480 rerun is allowed before the source-first mature-source audit required below.
+
+PROJECT IDENTITY / PURPOSE
+--------------------------
+PRODUCT=Graphium
+
+Graphium is a native GTK3, single-document, lightweight trust-oriented text editor.
+
+Product identity:
+  FAST + SIMPLE + SAFE + NATIVE GTK
+
+Target user/product position:
+  deliberately small and conventional;
+  more trustworthy file/document lifecycle than minimalist editors;
+  no tabs/session platform/plugin framework/cloud/database/indexing;
+  no Electron;
+  no generic background-job framework;
+  no second writer or second file-identity authority.
+
+Primary mature comparators:
+  Mousepad
+  gedit
+  GNOME Text Editor
+  Leafpad
+  L3afpad
+  FeatherPad
+
+Canonical technology:
+  Python 3
+  PyGObject
+  GTK 3
+  Gtk.TextView
+  Gio / GLib where required
+  unittest + permanent static/integration/True-GTK/release authorities
+
+REPOSITORY / BRANCH / REMOTE / LAUNCH
+-------------------------------------
+Canonical repository on the user's T480:
+  /home/luciano/Projects/graphium-work
+
+Branch:
+  main
+
+Remote:
+  https://github.com/leviagravia/graphium.git
+
+Canonical launch from repository:
+  cd /home/luciano/Projects/graphium-work
+  ./bin/graphium
+
+Canonical self-test launcher:
+  ./bin/graphium-selftest
+
+IMPORTANT:
+  the live canonical Git repository remains the published GS07 baseline until a later work item is
+  certified and published. Unpublished G11 source trees are transport/development authorities only
+  and MUST NOT be assumed to exist in canonical main.
+
+BASELINE PUBLISHED EXACT
+------------------------
+GS07 is the canonical published baseline.
+
+  GS07_COMMIT=3f3aa896fcf065297e5576e6b3672281a23853d9
+  GS07_TREE=7bff40caac93777d94538dee69633ab4d7654a12
+
+Expected live Git state before any mutation:
+  HEAD == GS07_COMMIT
+  HEAD^{tree} == GS07_TREE
+  branch == main
+  worktree == CLEAN
+  origin/main == real remote main == GS07_COMMIT
+
+Read-only Git audit command:
+  cd /home/luciano/Projects/graphium-work
+  printf 'HEAD=%s\n' "$(git rev-parse HEAD)"
+  printf 'TREE=%s\n' "$(git rev-parse HEAD^{tree})"
+  printf 'BRANCH=%s\n' "$(git branch --show-current)"
+  git status --short
+  git remote -v
+  git fetch origin
+  printf 'ORIGIN_MAIN=%s\n' "$(git rev-parse origin/main)"
+
+Do not perform commit/push/reset/cherry-pick/checkout mutation during audit.
+
+RECENT SERIAL CHAIN
+-------------------
+G00-G09:
+  published/certified history recorded in the preceding MO entries.
+
+GS07:
+  canonical structural simplification cutover;
+  permanent authority model:
+    Behavioral
+    Integration/Filesystem
+    True-GTK Desktop
+    Packaging/Release
+
+G10:
+  terminal FAILED / NOT PUBLISHED.
+  Candidate R1 = retired valid visible Appearance product FAIL.
+  Candidate R2 = retired valid visible DnD product FAIL.
+  Candidate attempts = 2/2 exhausted.
+  R3 = FORBIDDEN.
+
+Post-G10 recovery:
+  useful Preferences / Appearance / normal-window geometry / DnD behavior was recovered and fully
+  requalified NON-CANDIDATE, but never became canonical and may not be called a successful G10.
+
+G11:
+  active work item.
+  Title:
+    Reload + Strong Live External-File Safety + Slow-Filesystem Gate
+
+G11 candidate attempts:
+  0/2
+
+G11 Candidate R1:
+  NOT DECLARED
+
+G11 publication:
+  NOT AUTHORIZED
+
+G11 Git mutation:
+  NONE
+
+G11 STAGE 1 — RELOAD
+--------------------
+Final Reload contract:
+  Saved -> direct complete Reload from Disk.
+  Modified -> dedicated choice:
+    Cancel
+    Discard Changes and Reload
+
+Forbidden:
+  Save -> Reload
+  automatic Save
+  Reload invoking physical writer
+  Reload touching Recent
+
+Stage 1 permanent True-GTK lifecycle qualification:
+  15/15 automated PASS
+  0 manual tests
+
+Stage-1 proven tree:
+  b5c0f5156786dd276eb791dfa77eb6fb0fc72dd6
+
+Stage-1 product runtime remained the repaired product subtree from:
+  2eb239a0642d6243f711673e07302a867db1cde3
+with the final Stage-1 tree change being permanent-test-only state isolation.
+
+G11 STAGE 2 — STRONG LIVE MONITOR
+---------------------------------
+Frozen architecture:
+  Gio.FileMonitor events are interrupt/wakeup signals only.
+  They are NEVER accepted disk truth.
+
+Strong truth remains:
+  observe_document()
+  +
+  classify_fresh_observation()
+
+Strong observation owns:
+  logical-path identity;
+  canonical/resolved object observation;
+  device/inode identity;
+  complete SHA-256 content fingerprint;
+  size/mtime/ctime/mode/uid/gid/nlink facts;
+  stable-before/stable-after observation;
+  fail-closed unstable/torn evidence handling.
+
+GuardedFileWriter remains:
+  the sole physical writer;
+  the sole ordinary-Save safety authority.
+
+Monitoring invariants:
+  PERIODIC_POLLING=NO
+  IDLE_BACKGROUND_HASHING=NO
+  AUTO_RELOAD=NO
+  MAX_CONCURRENT_STRONG_OBSERVATIONS=1
+  UNBOUNDED_QUEUE=NO
+  GENERIC_JOB_FRAMEWORK=NO
+  MONITOR_ACCEPTED_BASELINE_MUTATION=NO
+  EVENT_AS_TRUTH=NO
+
+Lifecycle:
+  suspend/rebind around New/Open/Open Recent/direct open/Save/Save As/Reload/Close.
+  stale lifecycle-generation results must never reach the UI.
+
+Symlink:
+  direct symlink-opened document monitors:
+    accepted resolved target
+    +
+    logical symlink path topology through a narrowly-scoped parent-directory monitor.
+
+External-state UI:
+  one low-noise nonmodal Gtk.InfoBar;
+  no repeated modal warning storm;
+  no automatic reload;
+  Reload button only where semantically applicable.
+
+MATURE-SOURCE AUDITS ALREADY BINDING FOR G11
+--------------------------------------------
+Mousepad 0.7.0:
+  ADOPT/ADAPT:
+    GFileMonitor + WATCH_MOVES;
+    monitor events as operational interrupts;
+    delayed/coalesced external-change handling;
+    explicit monitor suppression/rebinding around own Save;
+    symlink-aware monitor lifecycle.
+  REJECT:
+    any weaker mtime/ETag truth as replacement for Graphium strong observer.
+
+gedit:
+  ADOPT/ADAPT:
+    dedicated Reload/Revert lifecycle rather than generic Open/New/Quit Save path;
+    Cancel is terminal;
+    explicit GtkInfoBar visibility ownership;
+    conventional GTK3 direct notification ownership.
+  REJECT:
+    any architecture that weakens Graphium Guarded Save or strong observation.
+
+GNOME Text Editor:
+  ADOPT/ADAPT:
+    monitor event -> coalesce -> async fresh verification;
+    explicit pause/unpause monitor ownership;
+    persistent/nonmodal externally-modified UI;
+    "Discard Changes and Reload" semantics.
+  ADAPT:
+    replace its weaker ETag truth with Graphium strong observer.
+  REJECT:
+    ETag alone as Graphium disk-truth authority.
+
+FeatherPad:
+  ADOPT/ADAPT:
+    lightweight editor UX lessons where they do not weaken safety.
+  REJECT:
+    lastModified/mtime-only external-change truth.
+
+Leafpad / L3afpad:
+  ADOPT:
+    lightweight scope and conventional editor simplicity.
+  DEFER/REJECT:
+    no stronger live-monitor authority was found in supplied sources.
+
+PERMANENT ADOPT / ADAPT / REJECT / DEFER MATRIX
+------------------------------------------------
+ADOPT:
+  one active DocumentSession;
+  one GuardedFileWriter;
+  one strong observation/classification authority;
+  explicit Reload;
+  nonmodal external-change notification;
+  monitor coalescing;
+  monitor lifecycle suspend/rebind;
+  semantic permanent authorities;
+  real GTK lifecycle proof where headless evidence cannot establish the boundary.
+
+ADAPT:
+  Mousepad/GNOME monitor control patterns to Graphium's stronger SHA-256/object/topology truth;
+  gedit/GNOME Reload UI semantics to Graphium single-document lifecycle;
+  symlink monitor topology narrowly to Graphium logical-path contract.
+
+REJECT:
+  polling;
+  mtime-only truth;
+  ETag-only truth;
+  event-type-as-truth;
+  generic job framework;
+  multiple worker queue;
+  auto reload;
+  Save-then-Reload;
+  monitor mutating accepted DocumentFileState;
+  compatibility wrappers;
+  executable historical Gxx test universes;
+  Gxx/release/candidate metadata in runtime;
+  manual tests merely compensating for inadequate harness ownership.
+
+DEFER:
+  delete/create-specific second settling state machine unless real evidence proves necessary;
+  arbitrary ancestor-symlink-component monitor expansion;
+  generic cancellable worker framework;
+  any feature not required by current G11 contract.
+
+SOURCE-ONLY G11 CONSOLIDATED PRE-CANDIDATE TREE
+-----------------------------------------------
+After all source-first repairs, source-only audit found:
+  SOURCE_PROVABLE_BLOCKERS_REMAINING=0
+
+Technical repaired Stage-2 tree before document/version consolidation:
+  6ded43fe8e037eea2f2e4ca123cdf73c89f05d31
+
+Technical product subtree:
+  e6684d5bdca9ccf7b40af197c5da0116ae8da3b9
+
+Source-only consolidated G11 pre-candidate tree:
+  3e658918aec28f384690c350cf3cd44696b8c33d
+
+Consolidated product subtree:
+  3f9c82070d53d9654ed89826a5164ae678c5fbb7
+
+Unpublished product version:
+  0.0.11
+
+This version is the next unpublished version after canonical 0.0.10.
+It is NOT the failed-G10 release lineage.
+
+Source-only consolidated local qualification:
+  Behavioral          148/148 PASS
+  Integration         120/120 PASS
+  Packaging/Release    11/11 PASS
+  Structural Continuity PASS
+
+Structural state:
+  validation_files=51
+  validation_loc=4772
+  harness_files=20
+  harness_loc=1273
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=101
+  gxx_named=0
+  gxx_refs=0
+  historical=0
+  exact=0
+  compat=0
+  runtime_gxx=0
+  runtime_release=0
+
+FINAL PRE-CANDIDATE T480 PLATFORM QUALIFICATION — 2026-08-24
+------------------------------------------------------------
+Because source-only work was exhausted, one final automated T480 platform-boundary qualification
+was authorized as indispensable.
+
+Runner policy:
+  16 automated lanes
+  10 True-GTK sections
+  0 manual tests
+  no automatic PRODUCT_FAIL preclassification
+  no retry without source-first audit
+
+Exact tested tree:
+  3e658918aec28f384690c350cf3cd44696b8c33d
+
+Exact tested product subtree:
+  3f9c82070d53d9654ed89826a5164ae678c5fbb7
+
+T480 environment proved before the failure:
+  GTK_VERSION=3.24.41
+  GDK_VERSION=3.24.41
+  GDK_DISPLAY=X11Display
+  GDK3_GTK3_NAMESPACE_OWNERSHIP=PASS
+
+Passed in this final run:
+  Behavioral          PASS
+  Integration         PASS
+  Packaging/Release   PASS
+  Structural          PASS
+  True-GTK lifecycle  PASS
+  True-GTK actions    PASS
+  True-GTK editing    PASS
+  True-GTK search     PASS
+  True-GTK view       PASS
+  True-GTK printing   PASS
+  True-GTK preferences PASS
+  True-GTK dnd        PASS
+
+True-GTK monitoring checkpoints observed PASS before the failure:
+  MONITOR_CHECK=INITIAL_BIND
+  MONITOR_CHECK=CONTENT_CHANGE_STRONG_TRUTH
+  MONITOR_CHECK=CLEAN_RELOAD_REBIND
+  MONITOR_CHECK=OWN_SAVE_NO_FALSE_ALERT
+  MONITOR_CHECK=ATOMIC_REPLACEMENT_SAVE_FAIL_CLOSED
+  MONITOR_CHECK=DESTRUCTIVE_RELOAD_RECOVERY
+  MONITOR_CHECK=MISSING_NONDESTRUCTIVE
+  MONITOR_CHECK=SYMLINK_TARGET_AND_RETARGET
+  MONITOR_CHECK=SLOW_OBSERVER_AND_GENERATION_OWNERSHIP
+  MONITOR_CHECK=PENDING_SUPPRESSES_OBSOLETE_RESULT
+
+Then:
+  DESKTOP_SECTION=monitoring RESULT=FAIL
+
+The next checkpoint:
+  MONITOR_CHECK=NONMODAL_NO_DIALOG_STORM
+
+was NOT reached.
+
+Therefore the failure is narrowly located AFTER emission of:
+  MONITOR_CHECK=PENDING_SUPPRESSES_OBSOLETE_RESULT
+
+and BEFORE:
+  MONITOR_CHECK=NONMODAL_NO_DIALOG_STORM
+
+The exact failing assertion/subcondition is NOT yet classified from the run log and MUST NOT be
+invented.
+
+Runner final classification:
+  G11_FINAL_PRE_CANDIDATE_PLATFORM_QUALIFICATION=FAIL
+  RESULT_CLASS=NONCANDIDATE_FAIL_REQUIRES_SOURCE_FIRST_CLASSIFICATION
+  PRODUCT_FAIL=NOT_PRECLASSIFIED_BY_RUNNER
+  G11_CANDIDATE_ATTEMPTS=0/2
+  G11_CANDIDATE_R1=NOT_DECLARED
+  NEW_CANDIDATE_ATTEMPT_CONSUMED=NO
+  GIT_MUTATION=NO
+  RETRY_WITHOUT_SOURCE_AUDIT=FORBIDDEN
+
+CURRENT G11 STATE
+-----------------
+G11_STATUS=NONCANDIDATE_PRE_CANDIDATE_PLATFORM_QUALIFICATION_FAILED_AT_TRUE_GTK_MONITORING
+G11_CANDIDATE_ATTEMPTS=0/2
+G11_CANDIDATE_R1=NOT_DECLARED
+CANDIDATE_READY=NO
+PUBLICATION_AUTHORIZED=NO
+GIT_MUTATION=NO
+
+No Candidate attempt was consumed.
+
+USER-PC / TEST POLICY — BINDING
+-------------------------------
+The user's T480 may be used ONLY when absolutely necessary and indispensable.
+
+  USER_PC_TESTS_ONLY_IF_ABSOLUTELY_NECESSARY_AND_INDISPENSABLE=YES
+  SOURCE_FIRST_BEFORE_T480=MANDATORY
+  LOCAL_HEADLESS_STATIC_AUTOMATION_PREFERRED=YES
+  MANUAL_TESTS_DEFAULT=0
+  DIAGNOSTIC_RERUNS=FORBIDDEN
+
+After the current FAIL:
+  DO NOT rerun the final qualification.
+  DO NOT make exploratory T480 probes.
+  DO NOT patch by trial and error.
+  DO NOT consume a Candidate attempt.
+
+Return to mature source analysis first.
+
+EXACT NEXT ACTION FOR A NEW CHAT
+--------------------------------
+NEXT_ACTION=DEEP_SOURCE_FIRST_MATURE_SOURCE_AUDIT_OF_FINAL_TRUE_GTK_MONITORING_FAIL
+
+Required inputs/authorities:
+  exact G11 consolidated source tree:
+    3e658918aec28f384690c350cf3cd44696b8c33d
+
+  focus permanent authority:
+    tests/desktop/scenarios/monitoring.py
+
+  focus runtime:
+    graphium/adapters/gtk/external_monitor.py
+    graphium/adapters/gtk/window.py
+    graphium/application/lifecycle.py
+    graphium/infrastructure/document_observer.py
+    graphium/infrastructure/guarded_file_writer.py
+
+  mature sources in priority order:
+    1. Mousepad 0.7.0
+    2. GNOME Text Editor
+    3. gedit
+    4. FeatherPad
+    5. Leafpad
+    6. L3afpad
+
+Audit focus:
+  The final run emitted PENDING_SUPPRESSES_OBSOLETE_RESULT and failed before
+  NONMODAL_NO_DIALOG_STORM.
+
+  First determine by source whether the remaining failure is:
+    - permanent-test oracle/lifecycle defect;
+    - StrongExternalFileMonitor state/cleanup defect;
+    - GLib source ownership/cleanup defect;
+    - stale Gtk.Dialog left visible by preceding automated save/reload responders;
+    - monitor bind scheduling race after the slow-observer synthetic monitor is closed;
+    - or another source-provable issue.
+
+  Compare the exact ownership and cleanup patterns with mature source code BEFORE proposing a repair.
+
+  No T480 rerun until:
+    source-first audit complete;
+    any source-provable defect repaired;
+    permanent authority locally requalified;
+    post-repair source audit finds no further blocker;
+    and the remaining real-platform proof is again absolutely indispensable.
+
+PROCEDURE AFTER REPEATED DESKTOP FAIL / STOP
+--------------------------------------------
+Binding:
+  1. stop immediately;
+  2. preserve exact tree / product subtree / log / semantic checkpoint;
+  3. classify only what evidence proves;
+  4. inspect exact Graphium source;
+  5. inspect supplied mature source archives directly;
+  6. produce ADOPT / ADAPT / REJECT / DEFER matrix;
+  7. repair only source-proven defect;
+  8. qualify locally/headlessly;
+  9. perform post-repair read-only source audit;
+ 10. use T480 only if the remaining boundary cannot otherwise be proven.
+
+Never:
+  rerun merely to get more output;
+  weaken a safety guarantee to make a gate pass;
+  invent a timeout/sleep retry;
+  add a new test framework;
+  add Gxx-specific permanent test lineage;
+  classify harness failure as product failure without evidence;
+  classify product failure as harness failure merely to preserve the line.
+
+TRUE APP / TRUE GTK RULES
+-------------------------
+True-GTK authority must use:
+  real Gtk.Application / Gtk.Window / Gtk.TextView;
+  real GLib/Gio behavior where the product contract depends on it;
+  real lifecycle nesting for modal actions;
+  responder armed before modal-capable trigger;
+  unexpected-dialog tripwire;
+  exact session/buffer/history/path/baseline postconditions;
+  GLib source cleanup;
+  no title-only lifecycle oracle;
+  no fixed sleep as asynchronous correctness oracle.
+
+Human desktop validation:
+  permitted only when a genuinely visual/user-perceptual property cannot be established by the
+  permanent True-GTK authority;
+  requires explicit authorization;
+  must be minimal and click-by-click;
+  must not ask the user to perform machine-owned lifecycle setup.
+
+If a human validation is ever truly indispensable:
+  give no more than 3 tests at once;
+  terminal instructions must be copy/paste ready;
+  disclose exact manual-test count;
+  each test must state REQUIRED / FORBIDDEN behavior;
+  do not require terminal switching while preserving a Modified/modal precondition unless no
+  machine-owned alternative exists.
+
+CONTRACT FREEZE RULES
+---------------------
+Before implementation of a new semantic branch:
+  - source-first mature audit;
+  - explicit scope;
+  - ADOPT / ADAPT / REJECT / DEFER;
+  - positive behavior;
+  - negative behavior;
+  - ownership authority;
+  - failure/cancel semantics;
+  - performance boundary;
+  - hostile tests;
+  - explicit deferrals;
+  - explicit user authorization.
+
+After freeze:
+  do not silently alter semantics to satisfy tests.
+  Any material change requires a source-backed contract amendment.
+
+HOSTILE G11 CASES — BINDING
+---------------------------
+Permanent G11 hostile coverage includes:
+  accepted A -> external atomic replacement B -> ordinary Save must not overwrite B;
+  same-size + same-mtime different bytes -> strong content change;
+  direct symlink target content change;
+  direct logical symlink retarget/replacement;
+  active file deletion -> buffer/session preserved;
+  repeated events -> coalesced/no dialog storm;
+  own Save -> no false external-change warning;
+  Modified + Reload Cancel -> exact modified state preserved;
+  Modified + Discard Changes and Reload -> explicit disk reacceptance;
+  stale generation result -> discarded;
+  older same-generation result with newer pending verification -> suppressed;
+  slow observer -> GTK main loop remains responsive;
+  max concurrent strong observations = 1.
+
+STAGE / COMMIT / PUSH / REMOTE RULES
+------------------------------------
+No Git mutation is permitted merely because a NON-CANDIDATE tree passes.
+
+Candidate:
+  requires separate explicit authorization.
+  Candidate attempt is consumed only after Candidate declaration under the frozen attempt policy.
+
+Publication:
+  requires desktop/candidate certification first;
+  product/test/user-doc bytes must be those certified unless an explicitly allowed publication-only
+  metadata/evidence transaction says otherwise.
+
+User executes canonical commit/push unless explicitly authorizing a finalizer.
+
+After any publication transaction verify:
+  HEAD;
+  HEAD tree;
+  clean worktree;
+  origin/main after fetch;
+  real remote main;
+  expected commit subject;
+  exact certified/published tree relationship.
+
+MEMORIA OPERATIVA RULES
+-----------------------
+Canonical document cap remains 3:
+  GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  GRAPHIUM_ROADMAP.md
+  GRAPHIUM_MEMORIA_OPERATIVA.txt
+
+MO is append-only operational authority.
+Historical evidence is non-canonical provenance and cannot override current canonical truth.
+Executable historical Gxx validation universes are forbidden.
+Candidate/attempt/commit/tree/publication chronology must remain external to product runtime.
+
+BEHAVIOR REQUIRED FROM A NEW CHAT
+---------------------------------
+1. Read this entire MO before changing Graphium.
+2. Treat the CURRENT G11 STATE and EXACT NEXT ACTION above as binding.
+3. Do not ask the user to rerun the failed T480 qualification.
+4. Do not ask for manual tests unless absolutely indispensable.
+5. Start with direct source audit and supplied mature source code, not speculative patching.
+6. Explicitly distinguish:
+     PRODUCT FAIL
+     HARNESS/ORACLE FAIL
+     ENVIRONMENT STOP
+     UNRESOLVED
+7. Do not call the current G11 tree Candidate-ready.
+8. Keep G11 Candidate attempts at 0/2.
+9. Do not open G12.
+10. Do not mutate canonical Git.
+11. Preserve GS07 as canonical parent until a future certified publication.
+12. Any proposed repair must be net-small, authority-preserving and source-backed.
+
+FINAL HANDOVER STATE
+--------------------
+CANONICAL_BASELINE=GS07
+CANONICAL_COMMIT=3f3aa896fcf065297e5576e6b3672281a23853d9
+CANONICAL_TREE=7bff40caac93777d94538dee69633ab4d7654a12
+
+G10_STATUS=FAILED_NOT_PUBLISHED_TERMINAL
+G10_CANDIDATE_ATTEMPTS=2/2_EXHAUSTED
+G10_R3=FORBIDDEN
+
+G11_CONSOLIDATED_SOURCE_TREE=3e658918aec28f384690c350cf3cd44696b8c33d
+G11_CONSOLIDATED_PRODUCT_SUBTREE=3f9c82070d53d9654ed89826a5164ae678c5fbb7
+G11_PRODUCT_VERSION=0.0.11_UNPUBLISHED
+
+G11_SOURCE_ONLY_AUTHORITIES=PASS
+G11_FINAL_T480_PLATFORM_QUALIFICATION=FAIL_TRUE_GTK_MONITORING
+LAST_PASS_CHECKPOINT=MONITOR_CHECK=PENDING_SUPPRESSES_OBSOLETE_RESULT
+NEXT_CHECKPOINT_NOT_REACHED=MONITOR_CHECK=NONMODAL_NO_DIALOG_STORM
+
+PRODUCT_FAIL=NOT_PRECLASSIFIED
+G11_CANDIDATE_ATTEMPTS=0/2
+G11_CANDIDATE_R1=NOT_DECLARED
+PUBLICATION_AUTHORIZED=NO
+GIT_MUTATION=NO
+
+NEXT_STEP=DEEP_SOURCE_FIRST_MATURE_SOURCE_AUDIT
+T480_RERUN=FORBIDDEN_UNTIL_SOURCE_FIRST_PROCESS_COMPLETES
+FINAL_PHASE=G11_HANDOVER_AFTER_FINAL_PRE_CANDIDATE_TRUE_GTK_MONITORING_FAIL
+
+================================================================================
+ENTRY — G11 SOURCE-FIRST FAILURE CLASSIFICATION / NARROW SOURCE-ONLY REPAIR / LOCAL REQUALIFICATION
+Date: 2026-08-24
+State: BINDING / NON-CANDIDATE / SOURCE-FIRST REPAIR PASS / T480 NOT RUN / GIT UNCHANGED
+================================================================================
+
+AUTHORIZATION / SCOPE
+---------------------
+The user explicitly authorized the next source-first step after the final pre-candidate True-GTK
+monitoring FAIL.
+
+This entry does NOT authorize or declare Candidate R1, publication, canonical Git mutation or an
+uncontrolled T480 retry. The work is limited to the source-proven failure class identified from the
+exact failed tree and the supplied mature-source corpus.
+
+Exact failed pre-candidate authority:
+  SOURCE_TREE=3e658918aec28f384690c350cf3cd44696b8c33d
+  PRODUCT_SUBTREE=3f9c82070d53d9654ed89826a5164ae678c5fbb7
+  LAST_PASS_CHECKPOINT=MONITOR_CHECK=PENDING_SUPPRESSES_OBSOLETE_RESULT
+  NEXT_CHECKPOINT_NOT_REACHED=MONITOR_CHECK=NONMODAL_NO_DIALOG_STORM
+
+The exact failed assertion was not logged and is still not invented.
+
+SOURCE-FIRST CLASSIFICATION
+---------------------------
+Direct inspection of tests/desktop/scenarios/monitoring.py, StrongExternalFileMonitor and the
+supplied Mousepad 0.7.0 / GNOME Text Editor / gedit sources proves two separate issues.
+
+1. PERMANENT TEST TOPOLOGY DEFECT — SOURCE PROVEN
+
+The PENDING_SUPPRESSES_OBSOLETE_RESULT regression was intended to prove an internal semantic
+invariant:
+  - older same-generation result is suppressed when newer verification is pending;
+  - the newest result is delivered;
+  - at most one strong observation executes concurrently;
+  - the state machine converges to quiescence.
+
+Instead, the test kept a real Gio.FileMonitor bound to next_path, mutated that real monitored file,
+and immediately injected a second private synthetic _schedule_observation() request while asserting
+an exact observer-call total. Real Gio event cardinality is backend-dependent and may legitimately
+contain multiple events for one write. Therefore the regression mixed two independent interrupt
+sources and treated raw callback cardinality as semantic truth.
+
+Classification:
+  PERMANENT_TEST_TOPOLOGY_DEFECT=YES_SOURCE_PROVEN
+  EXACT_T480_EVENT_TRACE=NOT_CLAIMED
+  BLIND_DIAGNOSTIC_RERUN_REQUIRED=NO
+
+2. PRODUCT EVENT-FILTERING WEAKNESS — SOURCE PROVEN
+
+Graphium treated G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT as a generic independent external-change
+interrupt. The supplied mature controls do not support that model:
+
+  Mousepad:
+    CHANGES_DONE_HINT is used only in a narrow delete/create settling condition; it is not a generic
+    second modification signal.
+
+  GNOME Text Editor:
+    generic external-change scheduling is driven by CHANGED / DELETED / RENAMED and then coalesced;
+    CHANGES_DONE_HINT is not treated as another ordinary modification.
+
+Graphium already has its own application-level debounce and one-worker strong-observation lane.
+Treating CHANGES_DONE_HINT as generic input can therefore create redundant follow-up observations
+without adding disk truth.
+
+Classification:
+  GENERIC_CHANGES_DONE_HINT_OVERTRIGGER=YES_SOURCE_PROVEN
+  PRODUCT_RUNTIME_DEFECT=NARROW_EVENT_FILTER_NOISE_OVERTRIGGER
+  VALID_USER_VISIBLE_PRODUCT_FAIL_FROM_T480_RUN=NOT_PROVEN
+  CORE_STRONG_MONITOR_ARCHITECTURE=KEEP
+  WHOLESALE_REDESIGN=REJECT
+
+ADOPT / ADAPT / REJECT / DEFER
+------------------------------
+ADOPT:
+  mature state-based/coalesced external-change ownership;
+  semantic convergence rather than raw Gio callback cardinality.
+
+ADAPT:
+  keep Graphium's stronger observe_document() + classify_fresh_observation() truth;
+  keep Graphium's existing 120 ms application debounce and one-worker lane;
+  isolate the internal pending/generation regression from real Gio delivery.
+
+REJECT:
+  generic CHANGES_DONE_HINT as an independent strong-observation interrupt;
+  exact Gio callback-count assertions while a live monitor is active;
+  timeout/sleep retries to make the failed regression pass;
+  weakening SHA-256/object/topology/Guarded Save safety.
+
+DEFER:
+  Gio.FileMonitor.set_rate_limit() addition. GNOME Text Editor uses one, but Graphium already owns
+  application-level debounce; no evidence currently requires a second rate limiter.
+
+SOURCE-ONLY REPAIR
+------------------
+Only two paths are changed relative to failed tree 3e658918... before MO synchronization:
+
+  graphium/adapters/gtk/external_monitor.py
+    - remove generic CHANGES_DONE_HINT from _relevant_event();
+    - retain CHANGED, DELETED, CREATED, ATTRIBUTE_CHANGED, MOVED, RENAMED, MOVED_IN, MOVED_OUT;
+    - no change to strong truth, worker ownership, generation ownership, symlink topology, UI or
+      GuardedFileWriter.
+
+  tests/desktop/scenarios/monitoring.py
+    - add an explicit permanent semantic guard that CHANGES_DONE_HINT is not generically relevant;
+    - make the synthetic slow-observer/generation block use a deterministic StrongExternalFileMonitor
+      subclass whose _create_monitors() returns no real Gio monitors;
+    - preserve the earlier real-Gio checkpoints unchanged, so real initial binding, content change,
+      own-save suppression, replacement, deletion and symlink behavior remain platform-bound tests;
+    - preserve pending suppression, newest-result delivery, quiescence and max-concurrency semantic
+      assertions without mixing in backend-dependent Gio event multiplicity.
+
+No new framework, queue, worker abstraction, compatibility shim or Gxx-specific executable
+validation universe is added.
+
+Technical repaired tree before this MO synchronization:
+  SOURCE_TREE=0103232829f2650612ba83f9b36a653be265286c
+  PRODUCT_SUBTREE=1f51f8c85c771e64d0095483e83da658f676728c
+
+LOCAL NON-DESKTOP REQUALIFICATION
+---------------------------------
+Exact repaired technical source was requalified locally without T480:
+
+  Behavioral          148/148 PASS
+  Integration         120/120 PASS
+  Packaging/Release    11/11 PASS
+  TOTAL               279/279 PASS
+
+Release qualification again proves Python-source compilation, canonical-document cap, product
+identity, architecture boundaries, single physical writer, repository hygiene and forbidden-scope
+absence.
+
+T480_TESTS_THIS_STEP=0
+MANUAL_TESTS_THIS_STEP=0
+CANDIDATE_ATTEMPTS_CONSUMED=0
+GIT_MUTATION=NO
+
+POST-REPAIR READ-ONLY SOURCE AUDIT
+----------------------------------
+The exact diff was re-read against the failed source and the supplied mature monitor implementations.
+
+Result:
+  REPAIR_SCOPE=2_PATHS_BEFORE_MO_SYNC
+  STRONG_OBSERVER_TRUTH_UNCHANGED=YES
+  GUARDED_WRITER_AUTHORITY_UNCHANGED=YES
+  MAX_ONE_WORKER_INVARIANT_UNCHANGED=YES
+  GENERATION_OWNERSHIP_UNCHANGED=YES
+  SYMLINK_MONITOR_TOPOLOGY_UNCHANGED=YES
+  NONMODAL_INFOBAR_OWNERSHIP_UNCHANGED=YES
+  NEW_BACKGROUND_FRAMEWORK=NO
+  NEW_POLLING=NO
+  NEW_IDLE_HASHING=NO
+  NEW_RATE_LIMITER=NO
+  SOURCE_PROVABLE_BLOCKERS_REMAINING=0
+
+The previous late True-GTK FAIL is therefore not evidence for abandoning the strong-monitor design.
+All earlier real monitoring checkpoints from the failed T480 run remain valid evidence for their
+exact tested tree; the repaired tree still requires one fresh real-platform proof because product
+runtime event filtering changed and the deterministic pending regression itself has changed.
+
+CURRENT G11 GOVERNANCE AFTER THIS ENTRY
+---------------------------------------
+CANONICAL_BASELINE=GS07
+CANONICAL_COMMIT=3f3aa896fcf065297e5576e6b3672281a23853d9
+CANONICAL_TREE=7bff40caac93777d94538dee69633ab4d7654a12
+
+G10_STATUS=FAILED_NOT_PUBLISHED_TERMINAL
+G10_CANDIDATE_ATTEMPTS=2/2_EXHAUSTED
+G10_R3=FORBIDDEN
+
+G11_STATUS=NONCANDIDATE_SOURCE_ONLY_REPAIR_LOCALLY_REQUALIFIED
+G11_PRODUCT_VERSION=0.0.11_UNPUBLISHED
+G11_CANDIDATE_ATTEMPTS=0/2
+G11_CANDIDATE_R1=NOT_DECLARED
+CANDIDATE_READY=NO
+PUBLICATION_AUTHORIZED=NO
+GIT_MUTATION=NO
+
+T480_RERUN_OF_FAILED_TREE=FORBIDDEN
+DIAGNOSTIC_T480_PROBE=FORBIDDEN
+
+NEXT ACTION
+-----------
+Source-first work for this specific failure class is now complete:
+  mature-source audit = complete;
+  source-proven defects = repaired;
+  local permanent non-desktop authorities = PASS;
+  post-repair read-only source audit = PASS;
+  source-provable blockers remaining = 0.
+
+The remaining boundary is real Gio/GLib/GTK behavior on the user's Linux Mint/X11 environment. A
+single automated NON-CANDIDATE True-GTK/platform requalification of the exact MO-synchronized repair
+tree is now technically justified and indispensable before any Candidate declaration.
+
+It must:
+  - be automated, not manual;
+  - run the permanent authorities, not a diagnostic one-off;
+  - preserve 0/2 Candidate attempts;
+  - fail closed on the first semantic failure;
+  - never auto-classify an unproven failure as product or harness;
+  - perform no Git mutation;
+  - not be repeated after a FAIL without returning to source-first analysis.
+
+NEXT_STEP=ONE_AUTOMATED_NONCANDIDATE_T480_PLATFORM_REQUALIFICATION_AFTER_EXPLICIT_AUTHORIZATION
+G11_CANDIDATE_ATTEMPTS=0/2
+FINAL_PHASE=G11_SOURCE_FIRST_EVENT_FILTER_AND_DETERMINISTIC_PENDING_REPAIR_LOCAL_PASS
+
+================================================================================
+ENTRY — G11 POST-REPAIR T480 PREDELIVERY STRUCTURAL CONTINUITY PREFLIGHT
+Date: 2026-08-24
+State: BINDING / NON-CANDIDATE / PREDELIVERY SOURCE-ONLY HARDENING / NO T480 / NO GIT
+================================================================================
+
+During preparation of the explicitly authorized single automated T480 post-repair requalification,
+the unchanged permanent GS07 structural-continuity measurer was run before delivery and correctly
+blocked the first packaging draft:
+
+  failed-tree validation_loc = 4772
+  first repaired-tree validation_loc = 4786
+  permanent ceiling          = 9557 * 0.5 = 4778.5
+  STRUCTURAL_CONTINUITY      = FAIL
+
+This was discovered before any T480 execution. The structural gate was NOT weakened, rebased or
+removed.
+
+Source-first disposition:
+  - product runtime repair remains unchanged;
+  - CHANGES_DONE_HINT filtering remains unchanged;
+  - deterministic pending/generation semantics remain unchanged;
+  - only explanatory comments/blank layout in the permanent monitoring regression were compacted;
+  - the permanent semantic guard and deterministic monitor subclass remain executable assertions;
+  - no test, assertion, checkpoint, framework or safety authority was removed.
+
+After compaction:
+  validation_files = 51
+  validation_loc   = 4777
+  harness_files    = 20
+  harness_loc      = 1278
+  authority_nodes  = 3
+  cross_edges      = 4
+  G10_STRUCTURAL_CONTINUITY = PASS
+
+Local non-desktop authorities were rerun on the compacted exact source:
+  Behavioral        148/148 PASS
+  Integration       120/120 PASS
+  Packaging/Release  11/11 PASS
+  TOTAL             279/279 PASS
+
+Classification:
+  PREDELIVERY_BLOCKER_CAUGHT_BEFORE_T480=YES
+  PRODUCT_RUNTIME_CHANGE_FROM_COMPACTION=NO
+  TEST_SEMANTIC_CHANGE_FROM_COMPACTION=NO
+  STRUCTURAL_GATE_WEAKENED=NO
+  T480_TESTS_THIS_STEP=0
+  MANUAL_TESTS_THIS_STEP=0
+  G11_CANDIDATE_ATTEMPTS=0/2
+  G11_CANDIDATE_R1=NOT_DECLARED
+  GIT_MUTATION=NO
+
+The previously authorized next action remains exactly one full automated NON-CANDIDATE T480
+platform requalification of the final packaged repair source. A FAIL/STOP forbids rerun and returns
+to source-first classification. A PASS does not declare Candidate R1; Candidate R1 still requires a
+separate explicit authorization.
+
+NEXT_STEP=ONE_AUTHORIZED_FULL_AUTOMATED_NONCANDIDATE_T480_POST_REPAIR_REQUALIFICATION
+FINAL_PHASE=G11_POST_REPAIR_PREDELIVERY_STRUCTURAL_CONTINUITY_PASS
+
+================================================================================
+ENTRY — G11 SECOND POST-REPAIR TRUE-GTK MONITORING FAIL / NET-REDUCTIVE AUTHORITY REPAIR
+Date: 2026-08-24
+State: BINDING / NON-CANDIDATE / SOURCE-FIRST REPAIR COMPLETE / NO T480 RERUN / NO GIT
+================================================================================
+
+SECOND EMPIRICAL FAIL — SUPERSEDES THE PRIOR "SOURCE BLOCKERS = 0" CONCLUSION
+--------------------------------------------------------------------------------
+The explicitly authorized post-repair full automated NON-CANDIDATE T480 requalification tested:
+
+  SOURCE_TREE=db8f7291d304b811a1ba29f20f8f1e1894fc6123
+  PRODUCT_SUBTREE=1f51f8c85c771e64d0095483e83da658f676728c
+  PRODUCT_VERSION=0.0.11_UNPUBLISHED
+
+It passed:
+  Behavioral          148/148 PASS
+  Integration         120/120 PASS
+  Packaging/Release    11/11 PASS
+  Structural Continuity      PASS
+  True-GTK lifecycle         PASS
+  True-GTK actions           PASS
+  True-GTK editing           PASS
+  True-GTK search            PASS
+  True-GTK view              PASS
+  True-GTK printing          PASS
+  True-GTK preferences       PASS
+  True-GTK dnd               PASS
+
+True-GTK monitoring again emitted all checkpoints through:
+  MONITOR_CHECK=PENDING_SUPPRESSES_OBSOLETE_RESULT
+and then failed before:
+  MONITOR_CHECK=NONMODAL_NO_DIALOG_STORM
+
+Runner classification remained fail-closed:
+  G11_POST_REPAIR_T480_PLATFORM_REQUALIFICATION=FAIL
+  RESULT_CLASS=NONCANDIDATE_FAIL_REQUIRES_SOURCE_FIRST_CLASSIFICATION
+  PRODUCT_FAIL=NOT_PRECLASSIFIED_BY_RUNNER
+  G11_CANDIDATE_ATTEMPTS=0/2
+  G11_CANDIDATE_R1=NOT_DECLARED
+  NEW_CANDIDATE_ATTEMPT_CONSUMED=NO
+  GIT_MUTATION=NO
+  RETRY_WITHOUT_SOURCE_AUDIT=FORBIDDEN
+
+The prior MO statement SOURCE_PROVABLE_BLOCKERS_REMAINING=0 was a valid conclusion from the evidence
+available before this second platform run. This later empirical FAIL supersedes that conclusion for
+current-state routing; the historical entry is not rewritten.
+
+REVISED SOURCE-FIRST CLASSIFICATION
+-----------------------------------
+The second FAIL falsifies the first causal explanation as sufficient.
+
+The failing synthetic pending block already used a StrongExternalFileMonitor subclass whose
+_create_monitors() returned an empty list. Therefore no real Gio.FileMonitor existed inside the
+remaining pending-result block. Backend CHANGED + CHANGES_DONE_HINT multiplicity cannot be the direct
+cause of this second failure there.
+
+The mature-backed runtime narrowing that rejects generic CHANGES_DONE_HINT remains independently
+correct and is retained. It is not reverted.
+
+Source audit of StrongExternalFileMonitor again found:
+  - one in-flight strong observer only;
+  - one coalesced pending generation only;
+  - no unbounded queue;
+  - stale-generation result discard;
+  - current same-generation result suppression when newer current work is pending;
+  - one follow-up scheduling decision for current pending work;
+  - accepted DocumentFileState remains immutable monitor truth;
+  - no event type is accepted as disk truth;
+  - GuardedFileWriter remains the sole physical writer.
+
+No source-proven runtime defect justifies changing that state machine.
+
+The permanent True-GTK regression itself was not deterministic: despite the no-Gio subclass, it
+still combined real GLib.timeout_add(), GLib.idle_add(), threading.Thread, filesystem observation,
+threading.Event synchronization, short wall-clock deadlines and exact call/result cardinalities.
+That authority could not distinguish an internal state-machine defect from scheduler/executor/result-
+delivery convergence timing.
+
+Classification:
+  FIRST_CAUSAL_DIAGNOSIS=INCOMPLETE
+  CHANGES_DONE_HINT_FILTER=KEEP
+  VALID_PRODUCT_FAIL=NOT_PROVEN
+  STRONG_MONITOR_RUNTIME_REDESIGN_JUSTIFIED=NO
+  PERMANENT_INTERNAL_STATE_MACHINE_ORACLE_DEFECT=SOURCE_PROVEN
+  EXACT_FAILED_SUBCONDITION=NOT_LOGGED_AND_NOT_INVENTED
+
+NET-REDUCTIVE PERMANENT-AUTHORITY REPAIR
+----------------------------------------
+User authorized the source-only repair. Product runtime is byte-identical to the second-fail tree.
+Only permanent validation authority changes before this MO append:
+
+  tests/behavioral/test_document_state.py
+    - adds one scheduler-independent test of the real StrongExternalFileMonitor pending/delivery
+      state machine;
+    - imports the production monitor under a minimal fake gi.repository module so the semantic
+      authority is headless and does not require a GTK display;
+    - when one worker is marked in-flight, another request must become the single pending generation
+      and must not schedule a second worker;
+    - current result + newer current pending work is suppressed;
+    - exactly one follow-up scheduling decision is requested;
+    - pending and in-flight ownership are cleared by delivery;
+    - latest current result with no newer pending work is delivered;
+    - stale-generation result is discarded.
+
+  tests/desktop/scenarios/monitoring.py
+    - removes the synthetic same-generation pending/exact-cardinality block from True-GTK;
+    - removes the fixed-duration heartbeat-count oracle and helper;
+    - retains real GTK/Gio monitoring checkpoints for initial bind, strong content truth,
+      Reload/rebind, own-Save suppression, replacement/Guarded-Save fail-closed, deletion and
+      symlink target/retarget behavior;
+    - retains one real GLib/thread boundary proof that a blocked strong observer does not block the
+      GTK main loop, using one idle heartbeat rather than callback-rate/cardinality timing;
+    - retains the final nonmodal/no-dialog-storm UI check.
+
+No product file changed.
+No new test framework, worker abstraction, queue, polling loop, rate limiter or compatibility layer
+was added.
+
+ANTI-COSMETIC / STRUCTURAL PROOF
+--------------------------------
+Second-fail tree structural metrics:
+  validation_files=51
+  validation_loc=4777
+  harness_files=20
+  harness_loc=1278
+
+First authority-repair draft exceeded the permanent validation ceiling by 2 LOC and was rejected
+before finalization. The structural gate was not rebased or weakened.
+
+Final authority repair:
+  validation_files=51
+  validation_loc=4778
+  permanent ceiling=4778.5
+  harness_files=20
+  harness_loc=1242
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=101
+  gxx_named=0
+  gxx_refs=0
+  historical=0
+  exact=0
+  compat=0
+  runtime_gxx=0
+  runtime_release=0
+  G10_STRUCTURAL_CONTINUITY=PASS
+
+The desktop harness therefore deletes 36 LOC net while the deterministic semantic authority is moved
+below the platform scheduler boundary. This is net-reductive authority consolidation, not a cosmetic
+rebaseline.
+
+LOCAL SOURCE-ONLY REQUALIFICATION
+---------------------------------
+On the exact final authority-repair source before this MO append:
+  Behavioral          149/149 PASS
+  Integration         120/120 PASS
+  Packaging/Release    11/11 PASS
+  TOTAL               280/280 PASS
+  Structural Continuity      PASS
+
+Technical tree before this MO append:
+  SOURCE_TREE=d09a4e5c019c284d5b89c8b3ea40ececc3056ff9
+
+Product subtree remains exactly:
+  PRODUCT_SUBTREE=1f51f8c85c771e64d0095483e83da658f676728c
+
+Post-repair diff against the second-fail tree before this MO append contains only:
+  tests/behavioral/test_document_state.py
+  tests/desktop/scenarios/monitoring.py
+
+Runtime comparison:
+  graphium/ byte/mode diff = NONE
+  STRONG_MONITOR_RUNTIME_CHANGE=NO
+  GUARDED_WRITER_CHANGE=NO
+  PRODUCT_BEHAVIOR_CHANGE_THIS_REPAIR=NO
+
+POST-REPAIR SOURCE AUDIT
+------------------------
+The final test diff and unchanged runtime were re-read after qualification.
+
+Result:
+  INTERNAL_PENDING_SEMANTICS_NOW_HEADLESS_DETERMINISTIC=YES
+  TRUE_GTK_PRIVATE_PENDING_CARDINALITY_ORACLE_REMOVED=YES
+  TRUE_GTK_SLOW_OBSERVER_MAIN_LOOP_BOUNDARY_RETAINED=YES
+  REAL_GIO_MONITORING_BOUNDARIES_RETAINED=YES
+  NONMODAL_UI_BOUNDARY_RETAINED=YES
+  STRONG_MONITOR_RUNTIME_BYTE_IDENTICAL=YES
+  CHANGES_DONE_HINT_FILTER_RETAINED=YES
+  STRUCTURAL_GATE_WEAKENED=NO
+  SOURCE_PROVABLE_BLOCKERS_REMAINING=0
+
+No additional T480 test was run during this source-only repair.
+
+CURRENT GOVERNANCE
+------------------
+CANONICAL_BASELINE=GS07
+CANONICAL_COMMIT=3f3aa896fcf065297e5576e6b3672281a23853d9
+CANONICAL_TREE=7bff40caac93777d94538dee69633ab4d7654a12
+
+G11_STATUS=NONCANDIDATE_SECOND_FAIL_AUTHORITY_REPAIR_LOCALLY_QUALIFIED
+G11_PRODUCT_VERSION=0.0.11_UNPUBLISHED
+G11_CANDIDATE_ATTEMPTS=0/2
+G11_CANDIDATE_R1=NOT_DECLARED
+CANDIDATE_READY=NO
+PUBLICATION_AUTHORIZED=NO
+GIT_MUTATION=NO
+MANUAL_TESTS=0
+
+T480_TESTS_DURING_THIS_REPAIR=0
+DIAGNOSTIC_T480_RERUN=FORBIDDEN
+REPEAT_OF_SECOND_FAILED_TREE=FORBIDDEN
+
+NEXT ACTION
+-----------
+Source-only work for the second-fail authority defect is exhausted. The remaining unproven boundary
+is the simplified permanent real Gio/GLib/GTK monitoring authority on the user's Linux Mint/X11
+platform.
+
+Any future T480 use still requires separate explicit authorization and must be ONE automated
+NON-CANDIDATE platform requalification of the exact MO-synchronized tree. It must not restore the
+removed private pending/cardinality block, must contain 0 manual tests, must preserve Candidate
+attempts at 0/2, must mutate no Git state, and any FAIL/STOP must return immediately to source-first
+audit without rerun.
+
+NEXT_STEP=ONE_AUTOMATED_NONCANDIDATE_T480_PLATFORM_REQUALIFICATION_ONLY_AFTER_EXPLICIT_AUTHORIZATION
+FINAL_PHASE=G11_SECOND_FAIL_NET_REDUCTIVE_PERMANENT_AUTHORITY_REPAIR_LOCAL_PASS
+
+================================================================================
+ENTRY — G11 SECOND-FAIL AUTHORITY REPAIR T480 PASS / POST-PASS AUDIT / CANONICAL AUTHORITY SYNC
+Date: 2026-08-24
+State: BINDING / NON-CANDIDATE / PLATFORM REQUALIFIED / CANONICAL-SYNC SOURCE-ONLY
+================================================================================
+
+AUTHORIZED T480 PLATFORM REQUALIFICATION — VALID PASS
+-----------------------------------------------------
+After the net-reductive permanent-authority repair, the user explicitly authorized one full automated
+NON-CANDIDATE T480 platform requalification of the exact MO-synchronized source:
+
+  SOURCE_TREE=21e9b82f564d47e8572a7f6812f2c63b1c55a6d1
+  PRODUCT_SUBTREE=1f51f8c85c771e64d0095483e83da658f676728c
+  PRODUCT_VERSION=0.0.11_UNPUBLISHED
+
+The T480 run completed with:
+  Behavioral          149/149 PASS
+  Integration         120/120 PASS
+  Packaging/Release    11/11 PASS
+  Structural Continuity      PASS
+  True-GTK Desktop      10/10 sections PASS
+  Automated lanes       16/16 PASS
+  Manual tests            0
+
+Platform/runtime checkpoints included:
+  REAL_GIO_GTK_BOUNDARY=PASS
+  RELOAD_TRUE_GTK_BOUNDARY=PASS
+  MONITORING_REAL_GIO_BOUNDARY=PASS
+  CHANGES_DONE_HINT_FILTER_PLATFORM_REQUALIFIED=PASS
+  PENDING_STATE_MACHINE_HEADLESS_AUTHORITY=PASS
+  TRUE_GTK_PRIVATE_PENDING_CARDINALITY_ORACLE=ABSENT
+  DIRECT_SYMLINK_MONITOR_TOPOLOGY=PASS
+  SLOW_FILESYSTEM_GTK_RESPONSIVENESS=PASS
+  STARTUP_RSS_POST_REPAIR_CHECKPOINT=PASS
+  CINNAMON_F5_PLATFORM_BOUNDARY=PASS
+
+The monitoring sequence reached and passed:
+  MONITOR_CHECK=INITIAL_BIND
+  MONITOR_CHECK=CONTENT_CHANGE_STRONG_TRUTH
+  MONITOR_CHECK=CLEAN_RELOAD_REBIND
+  MONITOR_CHECK=OWN_SAVE_NO_FALSE_ALERT
+  MONITOR_CHECK=ATOMIC_REPLACEMENT_SAVE_FAIL_CLOSED
+  MONITOR_CHECK=DESTRUCTIVE_RELOAD_RECOVERY
+  MONITOR_CHECK=MISSING_NONDESTRUCTIVE
+  MONITOR_CHECK=SYMLINK_TARGET_AND_RETARGET
+  MONITOR_CHECK=SLOW_OBSERVER_MAIN_LOOP_RESPONSIVE
+  MONITOR_CHECK=NONMODAL_NO_DIALOG_STORM
+  MONITORING_AUTHORITY=PASS
+
+Candidate governance remained unchanged during that run:
+  G11_CANDIDATE_ATTEMPTS=0/2
+  G11_CANDIDATE_R1=NOT_DECLARED
+  NEW_CANDIDATE_ATTEMPT_CONSUMED=NO
+  PUBLICATION_AUTHORIZED=NO
+  GIT_MUTATION=NO
+
+POST-PASS SOURCE AUDIT
+----------------------
+The exact T480-proven tree was reconstructed independently and requalified source-first after the PASS.
+No product or safety blocker was found.
+
+Runtime conclusions:
+  PRODUCT_SOURCE_PROVABLE_BLOCKERS=0
+  SAFETY_GUARANTEE_WEAKENING=NO
+  STRONG_MONITOR_RUNTIME_REDESIGN_REQUIRED=NO
+  PRODUCT_RUNTIME_CHANGE_AFTER_T480_PROOF=NO
+
+The permanent authority split is now:
+
+  Behavioral/Unit owns scheduler-independent monitor state-machine semantics:
+    - one-worker pending ownership;
+    - stale lifecycle-generation discard;
+    - same-generation obsolete-result suppression;
+    - exactly-one follow-up scheduling decision.
+
+  True-GTK Desktop owns real platform behavior:
+    - Gio interrupt/event ownership;
+    - strong content truth through the production observer;
+    - Reload/rebind;
+    - own-Save suppression;
+    - replacement/deletion/direct-symlink behavior;
+    - blocked-observer GTK-main-loop responsiveness;
+    - nonmodal UI/no dialog storm.
+
+The successful T480 run emitted Gtk/GLib warnings from test responder/source cleanup. Source audit
+classified them as HARNESS CLEANUP NOISE: they are not product monitor state, did not alter semantic
+postconditions, are not a Candidate blocker, and are deferred rather than changing the just-proven
+True-GTK test bytes.
+
+CANONICAL AUTHORITY SYNC — SOURCE-ONLY
+--------------------------------------
+The post-PASS audit found one textual canonical mismatch only: Architecture Contract section 21.4
+still attributed generation ownership and obsolete-result suppression to the True-GTK authority even
+though the authorized net-reductive repair had moved those scheduler-independent semantics to the
+Behavioral/Unit authority.
+
+User authorized one source-only canonical-sync transaction.
+
+Permitted mutation scope:
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+
+Forbidden mutation scope for this synchronization:
+  graphium/
+  tests/
+  docs/user/
+  bin/
+  roadmap/runtime/product/test/user-help semantics
+
+Architecture Contract section 21.4 is amended only to synchronize validation ownership with the
+already T480-proven permanent authority topology. This is not a product semantic change and does not
+weaken monitoring, Reload, Guarded Save, strong observation, symlink safety or UI behavior.
+
+The MO remains append-only. Historical FAIL/PASS classifications above are not rewritten.
+
+FINAL GOVERNANCE AFTER SUCCESSFUL LOCAL CANONICAL-SYNC QUALIFICATION
+--------------------------------------------------------------------
+Subject to the local qualification and byte-identity checks performed on the completed synchronization:
+  PRODUCT_RUNTIME_CHANGE=NO
+  T480_PROVEN_TEST_BYTES_CHANGE=NO
+  USER_DOC_BYTES_CHANGE=NO
+  BIN_BYTES_CHANGE=NO
+  NEW_T480_REQUIRED=NO
+  MANUAL_TESTS_REQUIRED=NO
+
+If those checks pass, current governance becomes:
+  G11_STATUS=NONCANDIDATE_PLATFORM_REQUALIFIED_CANONICALLY_SYNCHRONIZED
+  CANDIDATE_READY=YES
+  G11_CANDIDATE_ATTEMPTS=0/2
+  G11_CANDIDATE_R1=NOT_DECLARED
+  PUBLICATION_AUTHORIZED=NO
+  GIT_MUTATION=NO
+
+Candidate-ready does not declare Candidate R1 and consumes no attempt. Any Candidate still requires
+separate explicit user authorization and must use the exact canonical-sync source recorded by the
+external source-only qualification receipt. No T480 rerun is justified merely by this documentation-
+only synchronization.
+
+NEXT_STEP=AWAIT_EXPLICIT_G11_CANDIDATE_AUTHORIZATION_IF_LOCAL_CANONICAL_SYNC_QUALIFICATION_PASSES
+FINAL_PHASE=G11_CANONICAL_AUTHORITY_SYNC_PENDING_LOCAL_QUALIFICATION_AT_ENTRY_APPEND_TIME
+
+================================================================================
+ENTRY — G11 CANONICAL AUTHORITY SYNC LOCAL QUALIFICATION CLOSURE
+Date: 2026-08-24
+State: BINDING / NON-CANDIDATE / CANDIDATE-READY / NO GIT
+================================================================================
+
+The authorized source-only canonical authority synchronization completed without touching any
+T480-proven product, test, user-documentation or launcher byte.
+
+Pre-closure local qualification of the synchronized authorities:
+  Behavioral          149/149 PASS
+  Integration         120/120 PASS
+  Packaging/Release    11/11 PASS
+  TOTAL               280/280 PASS
+  Structural Continuity      PASS
+
+Structural metrics remained exactly:
+  validation_files=51
+  validation_loc=4778
+  harness_files=20
+  harness_loc=1242
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=101
+  gxx_named=0
+  gxx_refs=0
+  historical=0
+  exact=0
+  compat=0
+  source_inspection=5
+  runtime_gxx=0
+  runtime_release=0
+
+Exact mutation scope against the T480-proven source tree:
+  MODIFIED docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  MODIFIED docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+  CHANGED_PATHS_COUNT=2
+
+Byte-identity proof:
+  graphium/ = IDENTICAL
+  tests/ = IDENTICAL
+  docs/user/ = IDENTICAL
+  bin/ = IDENTICAL
+  PRODUCT_SUBTREE=1f51f8c85c771e64d0095483e83da658f676728c
+
+The final source tree cannot be embedded in the MO that is itself part of that tree. Its exact hash,
+complete final qualification result and package checksum are therefore recorded in the external
+source-only canonical-sync qualification receipt after this entry is closed and no further source
+bytes are changed.
+
+Current governance is now:
+  G11_STATUS=NONCANDIDATE_PLATFORM_REQUALIFIED_CANONICALLY_SYNCHRONIZED
+  G11_PRODUCT_VERSION=0.0.11_UNPUBLISHED
+  CANDIDATE_READY=YES
+  G11_CANDIDATE_ATTEMPTS=0/2
+  G11_CANDIDATE_R1=NOT_DECLARED
+  PUBLICATION_AUTHORIZED=NO
+  GIT_MUTATION=NO
+  NEW_T480_REQUIRED=NO
+  MANUAL_TESTS_REQUIRED=NO
+
+Candidate-ready is not Candidate R1 and consumes no attempt. The next permitted state transition is
+an explicitly authorized G11 Candidate R1 constructed from the exact externally receipted final
+canonical-sync source tree. No additional T480 requalification is required merely because the two
+canonical documents were synchronized.
+
+NEXT_STEP=AWAIT_EXPLICIT_G11_CANDIDATE_R1_AUTHORIZATION
+FINAL_PHASE=G11_CANONICAL_AUTHORITY_SYNC_CANDIDATE_READY
+
+
+================================================================================
+ENTRY — G11 CANDIDATE R1 CERTIFICATION / PUBLICATION AUTHORIZATION BOUNDARY
+Date: 2026-08-24
+State: BINDING / CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED
+================================================================================
+
+CANDIDATE R1 CERTIFICATION
+--------------------------
+The user explicitly authorized G11 Candidate R1 after the canonical-sync tree became Candidate-ready.
+Candidate R1 was declared on the exact frozen source tree:
+
+  G11_CANDIDATE_R1_SOURCE_TREE=a3cc213e844155ef632c720a7d320412a2ac574a
+  G11_CANDIDATE_R1_PRODUCT_SUBTREE=1f51f8c85c771e64d0095483e83da658f676728c
+  G11_PRODUCT_VERSION=0.0.11
+
+Certification used evidence adoption rather than a redundant new T480 run because all platform-bound
+product/test/launcher/user-help bytes were byte-identical to the already successful T480 authority tree
+`21e9b82f564d47e8572a7f6812f2c63b1c55a6d1`. That run passed 16/16 automated lanes and 10/10 True-GTK
+sections with 0 manual tests. The exact Candidate tree then passed the permanent local authorities and
+Structural Continuity again.
+
+Candidate accounting:
+  G11_CANDIDATE_R1=DECLARED_AND_CERTIFIED
+  G11_CANDIDATE_R1_PRODUCT_FAILS=0
+  G11_CANDIDATE_R1_HARNESS_FAILS=0
+  G11_CANDIDATE_ATTEMPTS_USED=1/2
+  G11_CANDIDATE_ATTEMPTS_REMAINING=1/2
+  DESKTOP_CERTIFIED=YES
+  MANUAL_TESTS=0
+
+PUBLICATION AUTHORIZATION
+-------------------------
+The user subsequently explicitly authorized the next step: G11 publication from Candidate R1.
+
+Canonical parent before publication remains:
+  GS07_COMMIT=3f3aa896fcf065297e5576e6b3672281a23853d9
+  GS07_TREE=7bff40caac93777d94538dee69633ab4d7654a12
+
+Publication is an authority/evidence closure transaction. Certified product behavior MUST NOT change.
+The only permitted delta relative to Candidate R1 is exactly:
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_ROADMAP.md
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+  evidence/G11_DESKTOP_CERTIFICATION_RECEIPT_20260824.txt
+  evidence/SHA256SUMS.txt
+
+Frozen byte identity required through publication:
+  graphium/ = IDENTICAL_TO_CERTIFIED_CANDIDATE
+  bin/ = IDENTICAL_TO_CERTIFIED_CANDIDATE
+  tests/ = IDENTICAL_TO_CERTIFIED_CANDIDATE
+  docs/user/ = IDENTICAL_TO_CERTIFIED_CANDIDATE
+  PRODUCT_SUBTREE=1f51f8c85c771e64d0095483e83da658f676728c
+
+The publication target tree is intentionally recorded in the external finalizer qualification receipt
+after this MO entry is closed; the MO cannot embed the hash of a tree that contains itself.
+
+FAIL-CLOSED FINALIZER CONTRACT
+------------------------------
+Before Git mutation the finalizer must prove:
+  - live repository path `/home/luciano/Projects/graphium-work`;
+  - branch `main`;
+  - clean worktree;
+  - HEAD/tree/origin-main/remote-main all exactly at the GS07 parent;
+  - self-contained publication payload integrity;
+  - exact five-path publication delta relative to Candidate R1;
+  - certified protected-byte identity;
+  - Behavioral 149/149, Integration 120/120, Packaging/Release 11/11 PASS;
+  - Structural Continuity PASS;
+  - exact staged publication target tree.
+
+Only then may it commit and push. After push it must fetch and prove:
+  HEAD == origin/main == real remote main == created publication commit;
+  HEAD tree == frozen publication target tree;
+  worktree == CLEAN;
+  commit subject == `G11: add reload and strong external file safety`.
+
+No new Candidate attempt is consumed by publication. No new desktop/manual test is required merely for
+publication because certified product/test/launcher bytes are unchanged.
+
+ON FINALIZER PASS
+-----------------
+  G11_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  G11_CANDIDATE_R1=DESKTOP_CERTIFIED_PUBLICATION_SOURCE
+  G11_CANDIDATE_ATTEMPTS_USED=1/2
+  G12_STARTED=NO
+  NEXT_SERIAL_ITEM=G12
+  G12_IMPLEMENTATION=FORBIDDEN_UNTIL_SEPARATE_POST_PUBLICATION_READONLY_AUDIT_AND_EXPLICIT_AUTHORIZATION
+
+Until finalizer PASS:
+  CANONICAL_BASELINE=GS07
+  PUBLICATION_COMPLETE=NO
+  GIT_MUTATION=NO
+
+PUBLICATION_TARGET_TREE=EXTERNAL_FINALIZER_QUALIFICATION_RECEIPT
+NEXT_STEP=RUN_FAIL_CLOSED_G11_PUBLICATION_FINALIZER
+FINAL_PHASE=G11_CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_PENDING

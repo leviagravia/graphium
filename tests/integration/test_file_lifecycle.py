@@ -4,7 +4,7 @@ from pathlib import Path
 import unittest
 from graphium.application.document_save_service import DocumentSaveService
 from graphium.application.document_session import DocumentSession
-from graphium.application.file_lifecycle import FileLifecycleController, UnsavedDecision
+from graphium.application.file_lifecycle import FileLifecycleController, ReloadDecision, UnsavedDecision
 from graphium.application.native_editor import NativeEditorController
 from graphium.domain.edit_history import DeltaHistory, EditKind, ReplayPlan, ViewState
 from graphium.domain.history import HistoryState
@@ -56,11 +56,13 @@ class FakeUI:
         self.open_path: str | None = None
         self.save_path: str | None = None
         self.unsaved = UnsavedDecision.CANCEL
+        self.reload_decision = ReloadDecision.CANCEL
         self.overwrite = False
         self.mixed = False
         self.errors: list[tuple[str, str]] = []
         self.warnings: list[tuple[str, str]] = []
         self.unsaved_prompts: list[str] = []
+        self.reload_prompts = 0
         self.overwrite_prompts: list[str] = []
 
     def choose_open_path(self):
@@ -72,6 +74,10 @@ class FakeUI:
     def confirm_unsaved_changes(self, action_label):
         self.unsaved_prompts.append(action_label)
         return self.unsaved
+
+    def confirm_modified_reload(self):
+        self.reload_prompts += 1
+        return self.reload_decision
 
     def confirm_overwrite(self, path):
         self.overwrite_prompts.append(path)
@@ -244,6 +250,120 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertEqual(source.read_bytes(), b'theirs')
         self.assertTrue(self.session.modified)
         self.assertTrue(self.ui.errors)
+
+    def test_reload_clean_accepts_fresh_disk_bytes_without_touching_recent(self):
+        source = self.root / 'reload.txt'
+        source.write_bytes(b'first')
+        self.assertTrue(self.lifecycle.open_document(str(source)).completed)
+        class RecentSpy:
+            def __init__(self): self.touches=[]
+            def touch(self, path): self.touches.append(path)
+        recent=RecentSpy(); self.lifecycle.recent_files=recent
+        source.write_bytes(b'second')
+        result = self.lifecycle.reload_document()
+        self.assertTrue(result.completed)
+        self.assertTrue(result.changed_document)
+        self.assertEqual(self.buffer.text, 'second')
+        self.assertEqual(self.session.logical_path, str(source))
+        self.assertFalse(self.session.modified)
+        self.assertFalse(self.editor.can_undo)
+        self.assertEqual(recent.touches, [])
+
+    def test_reload_modified_cancel_preserves_buffer_session_and_history(self):
+        source = self.root / 'reload-cancel.txt'
+        source.write_bytes(b'disk')
+        self.assertTrue(self.lifecycle.open_document(str(source)).completed)
+        self.buffer.user_insert(self.editor, len(self.buffer.text), ' mine')
+        source.write_bytes(b'external')
+        before_session=self.session.snapshot(); before_history=self.history.checkpoint(); before_text=self.buffer.text
+        self.ui.reload_decision = ReloadDecision.CANCEL
+        result = self.lifecycle.reload_document()
+        self.assertFalse(result.completed); self.assertTrue(result.cancelled)
+        self.assertEqual(self.buffer.text,before_text)
+        self.assertEqual(self.session.snapshot(),before_session)
+        self.assertEqual(self.history.checkpoint(),before_history)
+        self.assertEqual(source.read_bytes(),b'external')
+        self.assertEqual(self.ui.reload_prompts, 1)
+        self.assertEqual(self.ui.unsaved_prompts, [])
+
+    def test_reload_modified_discard_accepts_current_disk_object(self):
+        source = self.root / 'reload-discard.txt'
+        source.write_bytes(b'alpha')
+        self.assertTrue(self.lifecycle.open_document(str(source)).completed)
+        self.buffer.user_insert(self.editor, len(self.buffer.text), ' mine')
+        replacement = self.root / 'replacement.tmp'
+        replacement.write_bytes(b'beta')
+        old_object=self.session.file_state.binding.object_id
+        replacement.replace(source)
+        class NeverReloadWriter(GuardedFileWriter):
+            def observe_target(self, *args, **kwargs):
+                raise AssertionError('Reload must never invoke writer observation')
+            def commit(self, *args, **kwargs):
+                raise AssertionError('Reload must never invoke writer commit')
+        self.lifecycle.save_service = DocumentSaveService(
+            session=self.session, writer=NeverReloadWriter()
+        )
+        self.ui.reload_decision = ReloadDecision.DISCARD_AND_RELOAD
+        result=self.lifecycle.reload_document()
+        self.assertTrue(result.completed)
+        self.assertEqual(self.buffer.text,'beta')
+        self.assertNotEqual(self.session.file_state.binding.object_id,old_object)
+        self.assertFalse(self.session.modified)
+        self.assertEqual(self.ui.reload_prompts, 1)
+        self.assertEqual(self.ui.unsaved_prompts, [])
+
+    def test_reload_modified_uses_dedicated_decision_and_never_generic_save_prompt(self):
+        source = self.root / 'reload-dedicated.txt'
+        source.write_bytes(b'alpha')
+        self.assertTrue(self.lifecycle.open_document(str(source)).completed)
+        self.buffer.user_insert(self.editor, len(self.buffer.text), ' mine')
+        source.write_bytes(b'external')
+        self.ui.unsaved = UnsavedDecision.SAVE  # tripwire: generic path must never be consulted
+        self.ui.reload_decision = ReloadDecision.CANCEL
+        before_text = self.buffer.text
+        result = self.lifecycle.reload_document()
+        self.assertFalse(result.completed)
+        self.assertTrue(result.cancelled)
+        self.assertEqual(self.ui.reload_prompts, 1)
+        self.assertEqual(self.ui.unsaved_prompts, [])
+        self.assertEqual(self.buffer.text, before_text)
+        self.assertEqual(source.read_bytes(), b'external')
+        self.assertTrue(self.session.modified)
+
+    def test_reload_failure_preserves_current_document(self):
+        source = self.root / 'reload-missing.txt'
+        source.write_bytes(b'keep')
+        self.assertTrue(self.lifecycle.open_document(str(source)).completed)
+        before_session=self.session.snapshot(); before_history=self.history.checkpoint(); before_text=self.buffer.text
+        source.unlink()
+        result=self.lifecycle.reload_document()
+        self.assertFalse(result.completed)
+        self.assertEqual(self.buffer.text,before_text)
+        self.assertEqual(self.session.snapshot(),before_session)
+        self.assertEqual(self.history.checkpoint(),before_history)
+        self.assertTrue(self.ui.errors)
+
+    def test_reload_pathological_line_is_rejected_before_buffer_install(self):
+        from graphium.application.renderability import MAX_INTERACTIVE_LINE_CHARS
+        source = self.root / 'reload-huge.txt'
+        source.write_bytes(b'safe')
+        self.assertTrue(self.lifecycle.open_document(str(source)).completed)
+        before_session=self.session.snapshot(); before_history=self.history.checkpoint(); before_text=self.buffer.text
+        source.write_text('x' * (MAX_INTERACTIVE_LINE_CHARS + 1), encoding='utf-8')
+        result=self.lifecycle.reload_document()
+        self.assertFalse(result.completed)
+        self.assertEqual(self.buffer.text,before_text)
+        self.assertEqual(self.session.snapshot(),before_session)
+        self.assertEqual(self.history.checkpoint(),before_history)
+        self.assertTrue(self.ui.errors)
+        self.assertIn('line too long', self.ui.errors[-1][0].lower())
+
+    def test_reload_untitled_is_inert(self):
+        before=self.session.snapshot(); before_history=self.history.checkpoint()
+        result=self.lifecycle.reload_document()
+        self.assertFalse(result.completed)
+        self.assertEqual(self.session.snapshot(),before)
+        self.assertEqual(self.history.checkpoint(),before_history)
 
     def test_close_save_cancelled_keeps_window_open_semantics(self):
         self.edit('draft')

@@ -9,10 +9,11 @@ class ContractArchitectureTests(unittest.TestCase):
 
     def test_file_command_surface_and_accelerators_are_exact(self):
         file_commands = [(c.action, c.label, c.accelerator) for c in COMMANDS if c.menu == 'File']
-        self.assertEqual(file_commands, [('new', 'New', '<Ctrl>N'), ('open', 'Open…', '<Ctrl>O'), ('open-recent', 'Open Recent', None), ('save', 'Save', '<Ctrl>S'), ('save-as', 'Save As…', '<Ctrl><Shift>S'), ('save-copy', 'Save a Copy…', None), ('save-version-copy', 'Save Version Copy…', None), ('properties', 'Properties…', None), ('page-setup', 'Page Setup…', None), ('print-preview', 'Print Preview', '<Ctrl><Shift>P'), ('print', 'Print…', '<Ctrl>P'), ('quit', 'Quit', '<Ctrl>Q')])
+        self.assertEqual(file_commands, [('new', 'New', '<Ctrl>N'), ('open', 'Open…', '<Ctrl>O'), ('open-recent', 'Open Recent', None), ('save', 'Save', '<Ctrl>S'), ('save-as', 'Save As…', '<Ctrl><Shift>S'), ('save-copy', 'Save a Copy…', None), ('save-version-copy', 'Save Version Copy…', None), ('reload', 'Reload from Disk', 'F5'), ('properties', 'Properties…', None), ('page-setup', 'Page Setup…', None), ('print-preview', 'Print Preview', '<Ctrl><Shift>P'), ('print', 'Print…', '<Ctrl>P'), ('quit', 'Quit', '<Ctrl>Q')])
         self.assertEqual(accelerator_map()['print'], '<Ctrl>P')
         self.assertEqual(accelerator_map()['print-preview'], '<Ctrl><Shift>P')
         self.assertNotIn('page-setup', accelerator_map())
+        self.assertEqual(accelerator_map()['reload'], 'F5')
 
     def test_search_commands_are_product_owned_and_exact(self):
         search = [(c.action, c.label, c.accelerator) for c in COMMANDS if c.menu == 'Search']
@@ -44,12 +45,26 @@ class ArchitectureTests(unittest.TestCase):
         self.assertFalse(off.lowercase)
         self.assertTrue(on.uppercase)
         self.assertTrue(on.lowercase)
+        self.assertTrue(off.reload)
+        untitled = command_availability(modified=False, has_path=False, can_undo=False, can_redo=False, has_selection=False)
+        self.assertFalse(untitled.reload)
 
 class CurrentCommandSurfaceTests(unittest.TestCase):
 
     def test_command_surface_is_classic_and_has_no_format_menu(self):
         actual = {(c.menu, c.action) for c in COMMANDS}
-        for pair in {('File', 'new'), ('File', 'open'), ('File', 'save'), ('File', 'save-as'), ('File', 'quit'), ('Edit', 'undo'), ('Edit', 'redo'), ('Edit', 'cut'), ('Edit', 'copy'), ('Edit', 'paste'), ('Edit', 'delete'), ('Edit', 'select-all'), ('Help', 'user-guide'), ('Help', 'keyboard-shortcuts'), ('Help', 'about')}:
+        for pair in {('File', 'new'), ('File', 'open'), ('File', 'save'), ('File', 'save-as'), ('File', 'reload'), ('File', 'quit'), ('Edit', 'undo'), ('Edit', 'redo'), ('Edit', 'cut'), ('Edit', 'copy'), ('Edit', 'paste'), ('Edit', 'delete'), ('Edit', 'select-all'), ('Help', 'user-guide'), ('Help', 'keyboard-shortcuts'), ('Help', 'about')}:
             self.assertIn(pair, actual)
         self.assertNotIn('Format', {c.menu for c in COMMANDS})
         self.assertEqual([c.action for c in COMMANDS if c.menu == 'Document'], ['statistics'])
+
+
+class PreferenceCommandSurfaceTests(unittest.TestCase):
+    def test_preferences_and_appearance_have_one_semantic_owner_and_no_accelerators(self):
+        prefs=[c for c in COMMANDS if c.action=="preferences"]
+        appearance=[c for c in COMMANDS if c.action=="appearance"]
+        self.assertEqual([(c.label,c.menu,c.accelerator) for c in prefs],[("Preferences…","Edit",None)])
+        self.assertEqual(len(appearance),1)
+        self.assertEqual((appearance[0].menu,appearance[0].accelerator),("View",None))
+        self.assertEqual(appearance[0].choices,(("System","system"),("Light","light"),("Dark","dark")))
+        amap=accelerator_map(); self.assertNotIn("preferences",amap); self.assertNotIn("appearance",amap)

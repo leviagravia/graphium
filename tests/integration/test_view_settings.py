@@ -64,7 +64,7 @@ class ViewSettingsTests(unittest.TestCase):
             self.assertEqual(oct(path.stat().st_mode & 511), '0o600')
             self.assertFalse(list(path.parent.glob('.view-settings-*.tmp')))
             payload = json.loads(path.read_text(encoding='utf-8'))
-            self.assertEqual(set(payload), {'word_wrap', 'line_numbers', 'status_bar', 'font_family', 'font_size_points'})
+            self.assertEqual(set(payload), {'word_wrap', 'line_numbers', 'status_bar', 'font_family', 'font_size_points', 'appearance', 'tab_width', 'insert_spaces', 'window_width', 'window_height'})
 
     def test_missing_or_corrupt_config_falls_back_without_creating_file(self):
         with tempfile.TemporaryDirectory() as td:
@@ -103,3 +103,35 @@ class CurrentViewSettingsTests(unittest.TestCase):
         fields = set(ViewSettings.__dataclass_fields__)
         self.assertNotIn('zoom_percent', fields)
         self.assertNotIn('fullscreen', fields)
+
+
+class PreferencePersistenceTests(unittest.TestCase):
+    def test_legacy_five_key_payload_loads_new_defaults_without_rewrite(self):
+        with tempfile.TemporaryDirectory() as td:
+            path=Path(td)/'view.json'
+            old={'word_wrap':True,'line_numbers':True,'status_bar':False,'font_family':'Monospace','font_size_points':12.0}
+            path.write_text(json.dumps(old),encoding='utf-8'); before=path.read_bytes()
+            got=JsonViewSettingsStore(path).load()
+            self.assertTrue(got.word_wrap); self.assertTrue(got.line_numbers); self.assertFalse(got.status_bar)
+            self.assertEqual((got.appearance,got.tab_width,got.insert_spaces,got.window_width,got.window_height),('system',8,False,720,520))
+            self.assertEqual(path.read_bytes(),before)
+
+    def test_invalid_owned_preference_falls_back_to_complete_defaults(self):
+        cases=({'tab_width':'8'},{'appearance':'blue'},{'window_width':1,'window_height':520})
+        with tempfile.TemporaryDirectory() as td:
+            for i,payload in enumerate(cases):
+                path=Path(td)/f'view-{i}.json'; path.write_text(json.dumps(payload),encoding='utf-8')
+                self.assertEqual(JsonViewSettingsStore(path).load(),ViewSettings())
+
+    def test_unknown_keys_do_not_gain_authority(self):
+        with tempfile.TemporaryDirectory() as td:
+            path=Path(td)/'view.json'; path.write_text(json.dumps({'tab_width':4,'mystery':'ignored'}),encoding='utf-8')
+            got=JsonViewSettingsStore(path).load(); self.assertEqual(got.tab_width,4); self.assertFalse(hasattr(got,'mystery'))
+
+    def test_preference_update_is_one_atomic_snapshot_and_failure_does_not_publish(self):
+        store=MemoryStore(); controller=ViewSettingsController(store)
+        got=controller.update(tab_width=4,insert_spaces=True)
+        self.assertEqual(store.saves,1); self.assertEqual((got.tab_width,got.insert_spaces),(4,True))
+        failing=MemoryStore(value=got,fail_save=True); controller=ViewSettingsController(failing); before=controller.current
+        with self.assertRaises(OSError): controller.update(tab_width=6,insert_spaces=False)
+        self.assertEqual(controller.current,before); self.assertEqual(failing.saves,1)

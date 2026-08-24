@@ -1,11 +1,12 @@
 GRAPHIUM USER GUIDE
 ===================
 
-Graphium is a fast, simple and safety-focused plain-text editor for Linux. G07 keeps the
-single-document quick-edit, Search and View model from G06 and adds a bounded Recent list,
-non-binding copy commands, read-only Properties/Check Now and explicit on-demand Statistics.
-Graphium does not use tabs, projects, syntax modes, plugins, cloud services, session restoration
-or hidden document databases.
+Graphium is a fast, simple and safety-focused plain-text editor for Linux. It keeps a
+single-document quick-edit model with Search and View controls, a bounded Recent list,
+non-binding copy commands, read-only Properties/Check Now, explicit Reload from Disk,
+strong low-noise live external-file monitoring and on-demand Statistics. Graphium does not use
+tabs, projects, syntax modes, plugins, cloud services, session restoration or hidden document
+databases.
 
 1. THE BASIC MODEL
 ------------------
@@ -83,7 +84,7 @@ Graphium stores insertion/deletion deltas, not a complete document snapshot per 
 GTK user-action boundaries and structural continuity define normal edit groups; no wall-clock
 idle timer decides Undo semantics.
 
-Programmatic replacement in G05 uses the same delta authority. Replace All is one logical
+Programmatic replacement uses the same delta authority. Replace All is one logical
 Undo step and one editor-state advance. If it cannot be completed safely, Graphium leaves
 buffer/history/savepoint authorities unchanged rather than leaving a partial replacement.
 
@@ -93,12 +94,12 @@ Undo / Redo
   Move through native delta history while preserving exact Saved/Modified semantics.
 
 Cut / Copy / Paste / Delete / Select All
-  Use normal GTK editing behavior. The G04 renderer-safety guard remains active for normal
+  Use normal GTK editing behavior. The renderer-safety guard remains active for normal
   typing, paste and deletion.
 
 6. SEARCH AND REPLACE
 ---------------------
-Search is current-document and literal in G05. It is intentionally not a regex, project or
+Search is current-document and literal. It is intentionally not a regex, project or
 multi-file search platform.
 
 Find… (Ctrl+F)
@@ -109,7 +110,7 @@ Find… (Ctrl+F)
 Find Next / Find Previous (F3 / Shift+F3)
   Navigate to the next or previous occurrence and wrap once automatically. The current
   occurrence is simply the native text selection. There is no eager highlight-all scan or
-  background search index in G05. Once a query is known, F3/Shift+F3 remain real commands
+  background search index. Once a query is known, F3/Shift+F3 remain real commands
   even when the search bar is hidden.
 
 Match Case
@@ -120,7 +121,7 @@ Match Case
 Replace… (Ctrl+H)
   Expands the same search bar with a single-line replacement field plus Replace and Replace
   All. Replacement may be empty. Multi-line query/replacement, regular expressions, fuzzy
-  search, Whole Word mode and search-history storage are outside the frozen G05 scope.
+  search, Whole Word mode and search-history storage are outside the current product scope.
 
 Replace
   One activation either replaces the current exact match or acquires the next match and
@@ -177,7 +178,7 @@ Full Screen
   F11 toggles transient full-screen window presentation. It is not session state.
 
 Toolbar
-  Graphium v1 deliberately has no toolbar. The G06 Lightweight Budget audit found that a
+  Graphium v1 deliberately has no toolbar. The lightweight-product audit found that a
   second button surface would duplicate a small conventional menu/shortcut command set
   without enough quick-edit value.
 
@@ -216,13 +217,13 @@ worker/thread, background print service or persistent printer-history platform.
 11. RENDERER SAFETY
 -------------------
 Large ordinary multiline documents keep normal editing and Undo. A different case is a
-pathological single logical line: G04 demonstrated that very long unbroken lines can drive
+pathological single logical line: validation demonstrated that very long unbroken lines can drive
 the Gtk.TextView rendering path into unacceptable responsiveness.
 
 Graphium therefore uses a conservative 20,000-Unicode-character interactive logical-line
 budget. An over-budget file is refused before Gtk.TextBuffer installation. Graphium never
 truncates the source, inserts line breaks/markers or silently rewrites it to make it fit.
-Normal insert/paste/newline-join edits cannot create an over-budget line. G05 Replace All
+Normal insert/paste/newline-join edits cannot create an over-budget line. Replace All
 preflights the complete final result before using its programmatic transaction path.
 
 12. MULTIPLE FILES
@@ -248,36 +249,67 @@ The current product applies these invariants:
 * Save a Copy / Version Copy reuse the sole guarded writer but never rebind or move savepoint;
 * Properties -> Check Now observes strongly but never refreshes the accepted baseline.
 
-Live external-file notifications and Reload remain routed to G11. Save itself already revalidates the
-accepted file state and fails closed on stale data.
+Reload from Disk is a deliberate disk re-acceptance boundary. It never writes the file and never
+touches Recent. If the active document is Modified, Reload uses its own dedicated decision:
+Cancel, or Discard Changes and Reload. Reload never performs Save or Save As automatically.
+It fully loads and validates the current logical path before replacing the buffer; any failure leaves
+the active document unchanged. Ordinary Save remains separately guarded and fails closed when the
+accepted on-disk baseline has become stale.
 
-14. PERFORMANCE DISCIPLINE
+14. RELOAD FROM DISK
+--------------------
+File -> Reload from Disk (F5) explicitly re-accepts the file currently named by the active logical
+path. Reload is available only for a named document. For a Saved document, Graphium loads and
+validates the complete file before replacing the editor state. For a Modified document, the Reload
+dialog offers only Cancel and Discard Changes and Reload; Cancel preserves the modified buffer
+exactly, while Discard Changes and Reload deliberately abandons the in-memory edits and accepts the
+fresh disk state. Reload never invokes the physical writer and never changes Recent. A successful
+Reload becomes Saved and resets Undo/Redo to the newly loaded document.
+
+15. LIVE EXTERNAL-FILE MONITORING
+---------------------------------
+For a named local document, Graphium uses Gio file monitoring only as an interrupt source. A raw
+filesystem event is never accepted as document truth. After coalescing duplicate events, Graphium
+performs the same strong observation used by Check Now: logical/canonical identity, object topology,
+metadata and a full SHA-256 content fingerprint are compared with the accepted document baseline.
+The strong read runs outside the GTK main thread, with at most one observation in flight and no
+periodic polling or idle background hashing.
+
+Material external changes appear in one nonmodal information bar. Content changes and physical
+replacement/retargeting offer Reload from Disk; missing or unavailable/unstable files are reported
+without changing the buffer. Metadata-only change is informational. Graphium never auto-reloads and
+the monitor never silently replaces the accepted baseline. Open, Save, Save As and Reload suspend
+and rebind monitoring around their authoritative lifecycle transition so Graphium's own writes do not
+become false external-change warnings. For a directly symlink-opened document, monitoring covers both
+the accepted resolved target and replacement/retarget/removal of the logical symlink path.
+
+16. PERFORMANCE DISCIPLINE
 --------------------------
 Graphium targets lightweight quick-edit behavior. Search does no startup scan, idle scan, background indexing or eager match highlighting.
-G06 View status is event-driven: it reads cursor/session metadata and does not scan the
+View status is event-driven: it reads cursor/session metadata and does not scan the
 document. Line-number drawing is viewport-bounded. Persistent View settings are loaded once
-from a small XDG file and written only on explicit user changes. G07 Recent state is lazy and
+from a small XDG file and written only on explicit user changes. Recent state is lazy and
 bounded to ten paths; Statistics is O(n) only after explicit activation and has no live worker.
-G08 printing is likewise dormant at startup: its module/controller/Page Setup I/O are deferred until
+Printing is likewise dormant at startup: its module/controller/Page Setup I/O are deferred until
 an explicit Page Setup/Preview/Print action.
 
 Performance remains measured separately as common FIRST_VISIBLE for Graphium and permanent
 comparators Leafpad/L3afpad/Mousepad/FeatherPad, plus Graphium's exact internal
 FIRST_EDITABLE handshake.
 
-15. KEYBOARD SHORTCUTS
+17. KEYBOARD SHORTCUTS
 ----------------------
 Choose Help > Keyboard Shortcuts for the current list. Accelerators are audited against the
 active Linux Mint/Cinnamon global bindings before release. Ctrl+Alt+L is reserved in the
 target environment and is not used by Graphium.
 
-16. WHAT G08 DELIBERATELY DOES NOT ADD
+18. WHAT GRAPHIUM DELIBERATELY DOES NOT ADD
 --------------------------------------
-G08 adds no toolbar, GtkSourceView, syntax engine, tabs, session restoration, plugin platform,
+Graphium adds no toolbar, GtkSourceView, syntax engine, tabs, session restoration, plugin platform,
 automatic backup, revision database/timeline, background statistics, global recent manager,
-custom print preview, print worker/service, persistent printer history, file monitor, Reload, theme
-platform or Appearance implementation. Appearance remains G10 and Reload/live external-file
-monitoring G11.
+custom print preview, print worker/service, persistent printer history, automatic reload, periodic
+filesystem polling, conflict/merge platform or custom theme platform. Appearance is deliberately
+limited to System, Light and Dark.
 
 
 SEARCH SCALE SAFETY
@@ -289,11 +321,29 @@ most 50,000 source matches and must also fit the Undo payload budget. If either 
 be exceeded, Graphium refuses the operation before changing the document. This does not
 limit ordinary Find Next/Previous.
 
-17. G09 EXPLICIT TEXT TRANSFORMATIONS
+19. EXPLICIT TEXT TRANSFORMATIONS
 
 Edit -> Transform Text contains Uppercase, Lowercase, Duplicate Line / Selection, Move Lines Up,
 Move Lines Down and Trim Trailing Spaces. Uppercase/Lowercase require a selection. Duplicate and
 Move use the current line when there is no selection. Trim Trailing Spaces affects selected lines,
 or the whole document when there is no selection, and removes only ASCII spaces/tabs at line ends.
 These commands are never applied automatically on Open or Save. Move Lines Up/Down use Alt+Up and
-Alt+Down; the remaining G09 actions are menu-driven.
+Alt+Down; the remaining transformation actions are menu-driven.
+
+20. PREFERENCES, APPEARANCE AND DESKTOP POLISH
+--------------------------------------------------
+Edit -> Preferences… contains exactly two settings: Tab width (1-32, default 8) and Insert spaces
+instead of tabs. Changing Tab width affects how literal TAB characters are displayed; it never
+rewrites existing text. When Insert spaces instead of tabs is enabled, a normal Tab key inserts
+spaces to the next configured tab stop. Shift+Tab, Ctrl+Tab and Alt+Tab are not repurposed.
+
+View -> Appearance contains System, Light and Dark. Appearance is changed and persisted only from
+this View submenu; it is intentionally not duplicated in Preferences.
+
+Graphium remembers the latest normal window size after an accepted close. It does not remember
+window position, monitor, maximized state or fullscreen state.
+
+You can drag a local file onto Graphium to open it through the same guarded Open lifecycle used by
+File -> Open. If the active document is Modified, the normal Save/Discard/Cancel prompt still owns
+the decision. Dropped plain text remains normal text editing. Remote URIs and directories are not
+opened as documents.
