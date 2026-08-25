@@ -2,8 +2,8 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **G12 / Graphium v1 CLOSED / CERTIFIED / PUBLISHED** at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`. The later MO-only canonical sync advanced repository HEAD without changing product bytes. G13 is **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED** on product version `0.0.13`: exact Candidate local 336/336 PASS, Structural Continuity PASS, and focused automated T480 True-GTK recovery proof 4/4 PASS with no manual tests. Candidate R1 consumes attempt 1/2; 1/2 remains historical if publication succeeds. G13 becomes **CLOSED / CERTIFIED / PUBLISHED** only when the fail-closed publication finalizer verifies the exact canonical parent, exact publication tree, preserved Candidate product/test/user-help bytes, commit/push/fetch synchronization, and a clean worktree.
-G12 publication parent was published G11 commit `10be01b7909c3efe6f76b4c80ea46d1586aea65c` / tree `82619dfb95df46a33ca6d0e08ade282be44ff2c1`; the authoritative G12 publication identity is the commit/tree above even if a later document-only canonical-sync commit advances repository HEAD.
+Current publication boundary: **G13 CLOSED / CERTIFIED / PUBLISHED** at commit `053bcde3f5bcb4f51ce9edd8a89538a7630949ae`, tree `eb6925d3b779fa8ae12d1d0947a31fe460fbee0e`, product subtree `033ae482b19cf81a4852cf4e22773b2740387443`, product version `0.0.13`. The authorized fail-closed publication finalizer requalified 336/336 permanent local authorities, G13 focused 43/43, Structural Continuity PASS, adopted the binding S4 fresh-process True-GTK recovery proof 4/4, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G13 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G13 product publication commit/tree above.
+G12 / Graphium v1 remains CLOSED / CERTIFIED / PUBLISHED at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`; later governance-only commits do not replace that product publication identity.
 
 ## 1. Product identity
 
@@ -1663,3 +1663,26 @@ S1, S2 and S3 are complete as NON-CANDIDATE source work. S4 is also complete: th
 ### 23.2 G13 Candidate R1 publication authorization
 
 The user explicitly authorized continuation with G13 after Candidate R1 certification. Publication is a separate fail-closed Git transaction. The certified Candidate product subtree `033ae482b19cf81a4852cf4e22773b2740387443`, tests subtree `b1911fdee492d9fea5655182913d9e63eb8c37ed`, launchers and `docs/user/` are frozen publication inputs. Publication may change only the three canonical authority documents, additive `evidence/G13_DESKTOP_CERTIFICATION_RECEIPT_20260825.txt`, and regenerated `evidence/SHA256SUMS.txt` relative to the certified Candidate. The finalizer must start from canonical HEAD `f32beeeca58fdc4d68b7d9253ec98d2b76b38018` / tree `23c6dde1b69f36b71dcaa6eb0deb4b19f2370075`, apply the exact G13 Candidate delta, prove the frozen publication target tree, re-run 336/336 permanent local authorities and Structural Continuity, commit with subject `G13: add crash recovery cache`, push, verify `HEAD=origin/main=remote main`, and leave the worktree CLEAN. No new T480 functional or manual test is required by publication; the binding S4 True-GTK 4/4 evidence remains the platform proof.
+
+### 23.3 G13 publication closure and canonical convergence
+
+The user-executed fail-closed G13 publication finalizer completed successfully on 2026-08-25. The
+authoritative product publication identity is commit `053bcde3f5bcb4f51ce9edd8a89538a7630949ae`, tree
+`eb6925d3b779fa8ae12d1d0947a31fe460fbee0e`, product subtree
+`033ae482b19cf81a4852cf4e22773b2740387443`, version `0.0.13`, commit subject
+`G13: add crash recovery cache`. The finalizer proved Behavioral 173/173, Integration 150/150,
+Packaging/Release 13/13 = 336/336 PASS, G13 focused 43/43 PASS, Structural Continuity PASS, adopted
+the binding S4 True-GTK 4/4 proof, and finished with local HEAD, `origin/main` and real remote main
+identical and a CLEAN worktree. No new T480 functional or manual test was required by publication.
+
+The subsequent read-only audit found no product, test, platform or Candidate defect. It found only
+pre-finalizer current-state wording in the precomputed publication target. This explicitly authorized
+post-publication convergence changes only the three canonical documents plus additive final-publication
+evidence and its SHA-256 manifest. `graphium/`, `bin/`, `tests/` and `docs/user/` remain byte-identical
+to the published G13 product. The historical G13 Candidate/platform certification receipt remains
+unchanged; `evidence/G13_PUBLICATION_FINAL_RECEIPT_20260825.txt` records the completed transaction.
+
+G13 is therefore **CLOSED / CERTIFIED / PUBLISHED**. G14 External Spellcheck is the next Core work item
+but remains **NOT OPENED**. It may be opened only after the final post-sync read-only audit passes and
+the user gives separate explicit authorization.
+
