@@ -6393,3 +6393,88 @@ Until finalizer PASS:
 PUBLICATION_TARGET_TREE=EXTERNAL_FINALIZER_QUALIFICATION_RECEIPT
 NEXT_STEP=RUN_FAIL_CLOSED_G12_PUBLICATION_FINALIZER
 FINAL_PHASE=G12_CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_PENDING
+
+
+================================================================================
+ENTRY — G12 / GRAPHIUM V1 FINAL PUBLICATION + POST-PUBLICATION CANONICAL CONVERGENCE
+Date: 2026-08-25
+State: BINDING / G12 CLOSED / CERTIFIED / PUBLISHED / V1 CLOSED / CERTIFIED / PUBLISHED
+================================================================================
+
+FINAL PUBLICATION FACTS
+-----------------------
+The user-executed fail-closed G12 publication finalizer completed successfully against the canonical
+repository `/home/luciano/Projects/graphium-work` and real remote `https://github.com/leviagravia/graphium.git`.
+Its terminal result established:
+
+  G12_PUBLICATION_COMMIT=cb71d9575f7c347fd10334cd7ddb54e5c921ea34
+  G12_PUBLICATION_TREE=4e4651b9323c080716bfb28340fa274bd48c0017
+  G12_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+  G12_PRODUCT_VERSION=0.0.12
+  COMMIT_SUBJECT=G12: close v1 product and competitive qualification
+  G12_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  GRAPHIUM_V1_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  G12_CANDIDATE_ATTEMPTS_USED=1/2
+  LOCAL_AUTOMATED=293/293_PASS
+  REBASELINED_COMPETITIVE_AUTHORITY=PASS
+  STRUCTURAL_CONTINUITY=PASS
+  HEAD=ORIGIN_MAIN=REMOTE_MAIN=cb71d9575f7c347fd10334cd7ddb54e5c921ea34
+  WORKTREE=CLEAN
+  EXIT=0
+  ERR=NONE
+  FINAL_PHASE=G12_PUBLICATION_PASS
+
+The product publication identity remains the G12 commit/tree above. A later document/evidence-only
+canonical-sync commit may advance repository HEAD but does not replace the G12 product publication identity.
+
+POST-PUBLICATION READ-ONLY AUDIT
+--------------------------------
+The authorized publication was independently reconstructed from the self-contained target bytes and
+requalified read-only: product subtree identity PASS, evidence manifest PASS, Behavioral 154/154,
+Integration 126/126, Packaging/Release 13/13, local total 293/293, rebaselined competitive authority
+PASS and Structural Continuity PASS at validation_loc=4708 / harness_loc=1198. The product/platform
+evidence remained complete and no product failure was found.
+
+That audit found one blocker only: the precomputed publication target necessarily still contained
+pre-finalizer current-state wording (`publication authorized / finalizer pending`). No runtime, test,
+T480, Candidate or benchmark repair was required.
+
+THIS CANONICAL CONVERGENCE
+--------------------------
+This revision is the explicitly authorized post-publication authority sync. Its repository delta is
+strictly document/evidence-only:
+  - the three canonical documents converge to direct final G12/v1 published state;
+  - historical pre-publication MO entries remain untouched and remain valid history;
+  - `evidence/G12_DESKTOP_CERTIFICATION_RECEIPT_20260825.txt` remains unchanged as the historical
+    Candidate/platform certification + publication-authorization receipt;
+  - additive `evidence/G12_PUBLICATION_FINAL_RECEIPT_20260825.txt` records the completed publication;
+  - `evidence/SHA256SUMS.txt` is regenerated only to cover the new final receipt.
+
+Protected byte identity for this sync:
+  graphium/ = IDENTICAL_TO_G12_PUBLISHED_TREE
+  bin/ = IDENTICAL_TO_G12_PUBLISHED_TREE
+  tests/ = IDENTICAL_TO_G12_PUBLISHED_TREE
+  docs/user/ = IDENTICAL_TO_G12_PUBLISHED_TREE
+  G12_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+
+No Candidate attempt, T480 run or manual test is consumed by this governance-only convergence.
+
+CURRENT GOVERNANCE
+------------------
+G12_STATUS=CLOSED/CERTIFIED/PUBLISHED
+GRAPHIUM_V1_STATUS=CLOSED/CERTIFIED/PUBLISHED
+G12_PUBLICATION_COMMIT=cb71d9575f7c347fd10334cd7ddb54e5c921ea34
+G12_PUBLICATION_TREE=4e4651b9323c080716bfb28340fa274bd48c0017
+G12_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+G12_CANDIDATE_ATTEMPTS_USED=1/2
+G12_CANDIDATE_ATTEMPTS_REMAINING=1/2_HISTORICAL_UNUSED
+POST_PUBLICATION_CANONICAL_SYNC=COMPLETE_BY_THIS_REVISION
+G13_STATUS=POST_V1_HIGH_PRIORITY_BACKLOG_NOT_OPENED
+G14_STATUS=POST_V1_OPTIONAL_BACKLOG_NOT_OPENED
+T480_THIS_SYNC=0
+MANUAL_TESTS_THIS_SYNC=0
+PRODUCT_MUTATION_THIS_SYNC=NO
+TEST_MUTATION_THIS_SYNC=NO
+
+NEXT_STEP=FINAL_POST_SYNC_READONLY_AUDIT_BEFORE_ANY_G13_AUTHORIZATION
+FINAL_PHASE=G12_V1_POST_PUBLICATION_CANONICAL_CONVERGENCE_COMPLETE_BY_THIS_REVISION

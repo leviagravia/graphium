@@ -2,8 +2,8 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **G12 Candidate R1 certified / publication authorized** on frozen Candidate source tree `7c855a0058e180c557d0fbb0c1de51af378e7bdf`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`. G12 and Graphium v1 become **CLOSED / CERTIFIED / PUBLISHED** only if the fail-closed G12 publication finalizer succeeds. G10 remains **FAILED / NOT PUBLISHED / TERMINAL**; G11 remains **CLOSED / CERTIFIED / PUBLISHED**. Candidate accounting is 1/2 used with 1/2 remaining.
-Canonical parent for G12 remains published G11 commit `10be01b7909c3efe6f76b4c80ea46d1586aea65c` / tree `82619dfb95df46a33ca6d0e08ade282be44ff2c1`.
+Current publication boundary: **G12 / Graphium v1 CLOSED / CERTIFIED / PUBLISHED** at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`. The authorized fail-closed publication finalizer completed with `HEAD=origin/main=remote main`, worktree CLEAN, local 293/293 PASS, rebaselined competitive authority PASS and Structural Continuity PASS. G10 remains **FAILED / NOT PUBLISHED / TERMINAL**; G11 remains **CLOSED / CERTIFIED / PUBLISHED**. G12 Candidate accounting is historical at 1/2 used, 1/2 unused; published G12 is not reopened by that unused attempt. G13 remains post-v1 and NOT OPENED.
+G12 publication parent was published G11 commit `10be01b7909c3efe6f76b4c80ea46d1586aea65c` / tree `82619dfb95df46a33ca6d0e08ade282be44ff2c1`; the authoritative G12 publication identity is the commit/tree above even if a later document-only canonical-sync commit advances repository HEAD.
 
 ## 1. Product identity
 
@@ -1380,12 +1380,12 @@ real Gio/GTK platform boundary cannot be established otherwise, and diagnostic r
 `G12_COMPARATOR_PROCESS_OWNERSHIP=EXACT_PID_PLUS_POST_EXIT_X11_QUIESCENCE`
 `G12_COMPARATOR_BLOCKED=INCOMPLETE_NOT_PASS_NOT_PRODUCT_FAIL`
 `G12_T480_BEFORE_SOURCE_ONLY_EXHAUSTION=FORBIDDEN`
-`G12_PRODUCT_VERSION=0.0.12_UNPUBLISHED`
+`G12_PRODUCT_VERSION=0.0.12_PUBLISHED`
 `G12_NONCANDIDATE_PLATFORM_PROOF=PASS_LANES_1_17_PLUS_REBASELINED_FIRST_VISIBLE_RSS`
 `G12_PLATFORM_SOURCE_TREE=648c4891b7e1ee2cb798b747fafb50fd7ed817ba`
 `G12_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6`
 `G12_COMPETITIVE_RECEIPT_SHA256=9031403e1de3ec68db070c00e43c0d6d633799ba84fbafc10f2dcfe99fec7059`
-`G12_CANDIDATE_R1=NOT_DECLARED_AUTHORIZATION_READY`
+`G12_CANDIDATE_R1=DECLARED_CERTIFIED_PUBLISHED_ATTEMPTS_1_OF_2`
 
 ### 22.1 Representation conversion extends the one document-state relation
 
