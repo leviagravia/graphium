@@ -51,8 +51,13 @@ class GraphiumApplication(Gtk.Application):
 
     def do_activate(self) -> None:
         window = self._ensure_window()
+        window.begin_startup_open()
         window.show_all()
         window.present()
+        try:
+            window.offer_startup_recovery()
+        finally:
+            window.finish_startup_open()
 
     @staticmethod
     def _spawn_additional_paths(paths) -> None:
@@ -77,14 +82,14 @@ class GraphiumApplication(Gtk.Application):
     def do_open(self, files, _n_files, _hint) -> None:
         window = self._ensure_window()
         first_path = files[0].get_path() if files else None
-        if first_path:
-            window.begin_startup_open()
+        window.begin_startup_open()
         window.show_all()
         window.present()
-        if first_path:
-            try:
+        try:
+            startup = window.offer_startup_recovery(first_path)
+            if first_path and not startup.recovered:
                 window.open_path(first_path)
-            finally:
-                window.finish_startup_open()
+        finally:
+            window.finish_startup_open()
         if len(files) > 1:
             self._spawn_additional_files(files[1:])

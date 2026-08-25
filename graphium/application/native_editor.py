@@ -6,10 +6,11 @@ captured only at lifecycle boundaries that actually require it (Open/New rollbac
 """
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Callable, Protocol
 
 from graphium.application.document_session import DocumentSession
 from graphium.domain.document_identity import DocumentLoadResult
+from graphium.domain.document_serialization import DocumentSerializationProfile
 from graphium.domain.edit_history import (
     DeleteDirection,
     DeltaHistory,
@@ -32,7 +33,7 @@ class NativeEditorBufferPort(Protocol):
 
 
 class NativeEditorController:
-    __slots__ = ("session", "history", "buffer", "_restoring_depth")
+    __slots__ = ("session", "history", "buffer", "_restoring_depth", "_state_changed")
 
     def __init__(
         self,
@@ -51,6 +52,17 @@ class NativeEditorController:
         self.history = history
         self.buffer = buffer
         self._restoring_depth = 0
+        self._state_changed: Callable[[], None] | None = None
+
+    def set_document_state_listener(self, callback: Callable[[], None] | None) -> None:
+        if callback is not None and not callable(callback):
+            raise TypeError("document state listener must be callable or None")
+        self._state_changed = callback
+
+    def _notify_document_state_changed(self) -> None:
+        callback = self._state_changed
+        if callback is not None:
+            callback()
 
     @property
     def restoring(self) -> bool:
@@ -91,6 +103,7 @@ class NativeEditorController:
             state_id = self.history.reset()
             state = self._assigned_state(text, state_id, self.buffer.capture_view())
             self.session.establish_new(state, clean=clean)
+            self._notify_document_state_changed()
             return state
         except BaseException:
             self.history.restore_checkpoint(hcp)
@@ -115,6 +128,73 @@ class NativeEditorController:
             state_id = self.history.reset()
             state = self._assigned_state(result.text, state_id, self.buffer.capture_view())
             self.session.establish_open(result, state)
+            self._notify_document_state_changed()
+            return state
+        except BaseException:
+            self.history.restore_checkpoint(hcp)
+            self.session.restore_checkpoint(scp)
+            self.buffer.restore_full(before)
+            raise
+        finally:
+            self._restoring_depth -= 1
+
+    def initialize_recovered_named(
+        self,
+        result: DocumentLoadResult,
+        text: str,
+        current_profile: DocumentSerializationProfile,
+    ) -> HistoryState:
+        """Restore recovered text over a fresh named baseline with empty Undo/Redo."""
+        if not isinstance(result, DocumentLoadResult):
+            raise TypeError("result must be DocumentLoadResult")
+        if not isinstance(text, str):
+            raise TypeError("text must be a string")
+        if not isinstance(current_profile, DocumentSerializationProfile):
+            raise TypeError("current_profile must be DocumentSerializationProfile")
+        ensure_interactive_text_renderable(text)
+        hcp, scp, before = self.history.checkpoint(), self.session.snapshot(), self.buffer.capture_full()
+        self._restoring_depth += 1
+        try:
+            self.buffer.restore_full(HistoryState(text))
+            captured = self.buffer.capture_full()
+            if captured.text != text:
+                raise RuntimeError("buffer restore did not reproduce recovered text")
+            saved_state_id = self.history.reset()
+            current_state_id = self.history.reset()
+            state = self._assigned_state(text, current_state_id, self.buffer.capture_view())
+            self.session.establish_recovered_named(
+                result, state, saved_state_id=saved_state_id, current_profile=current_profile
+            )
+            self._notify_document_state_changed()
+            return state
+        except BaseException:
+            self.history.restore_checkpoint(hcp)
+            self.session.restore_checkpoint(scp)
+            self.buffer.restore_full(before)
+            raise
+        finally:
+            self._restoring_depth -= 1
+
+    def initialize_recovered_unbound(
+        self, text: str, current_profile: DocumentSerializationProfile
+    ) -> HistoryState:
+        """Restore recovered content as a fresh unbound Modified document."""
+        if not isinstance(text, str):
+            raise TypeError("text must be a string")
+        if not isinstance(current_profile, DocumentSerializationProfile):
+            raise TypeError("current_profile must be DocumentSerializationProfile")
+        ensure_interactive_text_renderable(text)
+        hcp, scp, before = self.history.checkpoint(), self.session.snapshot(), self.buffer.capture_full()
+        self._restoring_depth += 1
+        try:
+            self.buffer.restore_full(HistoryState(text))
+            captured = self.buffer.capture_full()
+            if captured.text != text:
+                raise RuntimeError("buffer restore did not reproduce recovered text")
+            state_id = self.history.reset()
+            state = self._assigned_state(text, state_id, self.buffer.capture_view())
+            self.session.establish_recovered_unbound(state, current_profile=current_profile)
+            self._notify_document_state_changed()
             return state
         except BaseException:
             self.history.restore_checkpoint(hcp)
@@ -154,6 +234,7 @@ class NativeEditorController:
             saved_state_id=self.session.saved_editor_state_id,
         )
         self.session.advance_editor_state(state_id)
+        self._notify_document_state_changed()
         return state_id
 
     def prepare_for_save(self) -> int:
@@ -178,6 +259,7 @@ class NativeEditorController:
         try:
             self.buffer.apply_replay(plan)
             self.session.advance_editor_state(plan.target_state_id)
+            self._notify_document_state_changed()
             return plan
         except BaseException:
             self.history.restore_checkpoint(hcp)
@@ -263,6 +345,7 @@ class NativeEditorController:
                 saved_state_id=self.session.saved_editor_state_id,
             )
             self.session.advance_editor_state(state_id)
+            self._notify_document_state_changed()
             return state_id
         except BaseException as exc:
             rollback_error: BaseException | None = None

@@ -3,57 +3,8 @@ import unittest
 from graphium.application.document_session import DocumentSession
 from graphium.application.native_editor import NativeEditorController
 from graphium.domain.edit_history import DeltaHistory, EditKind, ReplayOperation, ViewState
-from graphium.domain.history import HistoryState
 
-class FakeBuffer:
-
-    def __init__(self, text=''):
-        self.text = text
-        self.insert = len(text)
-        self.bound = len(text)
-        self.fail_after_operations: int | None = None
-
-    def capture_full(self):
-        return HistoryState(self.text, self.insert, self.bound)
-
-    def restore_full(self, state):
-        self.text = state.text
-        self.insert = state.insert_offset
-        self.bound = state.selection_bound_offset
-
-    def capture_view(self):
-        return ViewState(self.insert, self.bound)
-
-    def _apply(self, op):
-        if op.kind is EditKind.INSERT:
-            self.text = self.text[:op.offset] + op.text + self.text[op.offset:]
-        else:
-            actual = self.text[op.offset:op.offset + len(op.text)]
-            if actual != op.text:
-                raise RuntimeError('expected-delete mismatch')
-            self.text = self.text[:op.offset] + self.text[op.offset + len(op.text):]
-
-    @staticmethod
-    def _inverse(op):
-        return ReplayOperation(EditKind.DELETE if op.kind is EditKind.INSERT else EditKind.INSERT, op.offset, op.text)
-
-    def apply_operations(self, operations, target_view):
-        applied = []
-        try:
-            for i, op in enumerate(operations, 1):
-                self._apply(op)
-                applied.append(op)
-                if self.fail_after_operations is not None and i >= self.fail_after_operations:
-                    raise RuntimeError('injected operation failure')
-        except BaseException:
-            for op in reversed(applied):
-                self._apply(self._inverse(op))
-            raise
-        self.insert = target_view.insert_offset
-        self.bound = target_view.selection_bound_offset
-
-    def apply_replay(self, plan):
-        self.apply_operations(plan.operations, plan.target_view)
+from tests.behavioral._native_test_support import NativeTestBuffer
 
 class EndGroupFailureHistory(DeltaHistory):
     fail_end = False
@@ -67,7 +18,7 @@ class EndGroupFailureHistory(DeltaHistory):
 def make(text='abc', *, history=None):
     s = DocumentSession()
     h = history or DeltaHistory()
-    b = FakeBuffer(text)
+    b = NativeTestBuffer(text)
     e = NativeEditorController(session=s, history=h, buffer=b)
     e.initialize_new_text(text, clean=True)
     return (s, h, b, e)

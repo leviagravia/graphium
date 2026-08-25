@@ -11,6 +11,7 @@ from .application.recent_files import RecentFilesController, RecentFilesStorePor
 from .application.document_copy import DocumentCopyService
 from .application.document_properties import DocumentPropertiesController
 from .application.native_editor import NativeEditorBufferPort, NativeEditorController
+from .application.recovery import RecoveryController, RecoverySchedulerPort, RecoveryWorkerPort
 from .application.search import SearchController
 from .application.view_settings import ViewSettingsController, ViewSettingsStorePort
 from .domain.document_identity import DocumentLoadResult
@@ -20,6 +21,8 @@ from .infrastructure.document_observer import observe_document
 from .infrastructure.guarded_file_writer import GuardedFileWriter
 from .infrastructure.view_settings_store import JsonViewSettingsStore
 from .infrastructure.recent_files_store import JsonRecentFilesStore
+from .infrastructure.recovery_store import RecoveryArtifactStore
+from .infrastructure.recovery_worker import DedicatedRecoveryWorker
 from .paths import resolve_xdg_paths
 
 
@@ -36,6 +39,7 @@ class GraphiumCore:
     recent_files: RecentFilesController
     document_copy: DocumentCopyService
     document_properties: DocumentPropertiesController
+    recovery: RecoveryController | None
 
 
 def build_core(
@@ -45,6 +49,9 @@ def build_core(
     loader: Callable[[str], DocumentLoadResult] = load_document,
     view_settings_store: ViewSettingsStorePort | None = None,
     recent_files_store: RecentFilesStorePort | None = None,
+    recovery_scheduler: RecoverySchedulerPort | None = None,
+    recovery_store: RecoveryArtifactStore | None = None,
+    recovery_worker: RecoveryWorkerPort | None = None,
 ) -> GraphiumCore:
     session = DocumentSession()
     history = DeltaHistory()
@@ -60,6 +67,21 @@ def build_core(
     recent_files = RecentFilesController(recent_files_store)
     document_copy = DocumentCopyService(session=session, writer=writer)
     document_properties = DocumentPropertiesController(session=session, observer=observe_document)
+    recovery: RecoveryController | None = None
+    if recovery_scheduler is not None:
+        if recovery_store is None:
+            recovery_store = RecoveryArtifactStore(resolve_xdg_paths().state / "recovery")
+        if recovery_worker is None:
+            recovery_worker = DedicatedRecoveryWorker(recovery_scheduler.dispatch)
+        recovery = RecoveryController(
+            session=session,
+            capture=buffer,
+            store=recovery_store,
+            scheduler=recovery_scheduler,
+            worker=recovery_worker,
+            warn=ui.show_warning,
+        )
+        editor.set_document_state_listener(recovery.document_state_changed)
     lifecycle = FileLifecycleController(
         session=session,
         editor=editor,
@@ -67,6 +89,7 @@ def build_core(
         loader=loader,
         ui=ui,
         recent_files=recent_files,
+        recovery=recovery,
     )
     return GraphiumCore(
         session=session,
@@ -80,4 +103,5 @@ def build_core(
         recent_files=recent_files,
         document_copy=document_copy,
         document_properties=document_properties,
+        recovery=recovery,
     )

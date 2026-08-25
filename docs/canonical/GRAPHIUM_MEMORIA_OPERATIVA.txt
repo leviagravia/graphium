@@ -6585,3 +6585,486 @@ CANDIDATE_ATTEMPTS_CONSUMED_THIS_TRANSACTION=0
 
 NEXT_STEP=AWAIT_EXPLICIT_G13_OPEN_AUTHORIZATION
 FINAL_PHASE=FINAL_POST_SYNC_READONLY_AUDIT_PASS_G13_AUTHORIZATION_READY_NOT_OPENED
+
+
+================================================================================
+ENTRY — G13 OPENING + S1 RECOVERY ARTIFACT/STORAGE CORE
+Date: 2026-08-25
+State: BINDING / G13 OPEN / S1 COMPLETE / NON-CANDIDATE
+================================================================================
+
+AUTHORIZATION AND BASELINE
+--------------------------
+The user separately authorized opening G13 after the final post-sync audit/MO-only canonicalization,
+then explicitly authorized G13-S1. The canonical parent state for this source-only work is:
+
+  BASE_HEAD=f32beeeca58fdc4d68b7d9253ec98d2b76b38018
+  BASE_TREE=23c6dde1b69f36b71dcaa6eb0deb4b19f2370075
+  BASE_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+  BASE_WORKTREE=CLEAN
+
+G13 opening completed source-first against Mousepad, GNOME Text Editor, gedit and FeatherPad before
+implementation. Frozen central rule: recovery is private restart-persistent state, never Save and never
+the accepted user target. Mousepad/GNOME auxiliary/draft separation is ADOPT/ADAPT; gedit/FeatherPad
+autosave-to-target is REJECT for G13.
+
+S1 IMPLEMENTED BOUNDARY
+-----------------------
+S1 adds only the GTK-free storage foundation:
+  - pure versioned `RecoveryRecord` codec with strict UTF-8 body, length and SHA-256 self-validation;
+  - current/saved representation profile metadata without target serialization;
+  - named baseline provenance or identity-free Untitled records;
+  - pure `XDG_STATE_HOME/graphium/recovery` resolution;
+  - canonical random UUID artifact identity and UUID-derived filenames only;
+  - private 0700 root / 0600 artifact+lock files;
+  - atomic temp -> fsync -> readback length/digest -> replace -> directory fsync persistence;
+  - POSIX advisory ownership lock compatible with NON_UNIQUE Graphium processes;
+  - corrupt/truncated/version/digest/UTF-8 mismatch rejection;
+  - no GTK, timer, worker, DocumentSession/lifecycle integration or restore UI.
+
+The storage API accepts no arbitrary target destination and imports neither normal Save service nor
+`GuardedFileWriter`. `GuardedFileWriter` remains the sole user-document writer authority.
+
+PERMANENT-GATE CLASSIFICATION
+-----------------------------
+The first full local run exposed one release-oracle mismatch: the historical `single_physical_writer`
+gate classified any `os.replace/fsync` outside its old allowlist as a second document writer. The frozen
+G13 contract itself requires a distinct private recovery-state writer and forbids using `GuardedFileWriter`
+for recovery. Source-first reinspection therefore classified this as authority-gate drift, not product
+FAIL. The gate was narrowly adapted only to allow `graphium/infrastructure/recovery_store.py`; its
+existing assertion that `GuardedFileWriter` is the only `*Writer` document authority remains unchanged.
+Permanent S1 tests separately prove the recovery API has no arbitrary destination path.
+
+PRODUCT-LINE DECISION
+---------------------
+The user has additionally frozen the cumulative edition roadmap:
+  Graphium Core = current lightweight editor + G13 Recovery + G14 External Spellcheck.
+  Graphium Plus = Core + compact icon toolbar + Writing Workspace adapted from Calamus.
+  Graphium Ultra = Plus + Markdown viewer/editor.
+G14 belongs to Core and must be optional/on-demand external spellcheck; Plus/Ultra are NOT OPENED.
+
+QUALIFICATION / ACCOUNTING
+--------------------------
+S1 focused hostile tests: 16/16 PASS.
+Permanent full qualification after the gate adaptation is required to remain PASS before delivery.
+Structural Continuity must remain within the existing unrebaselined budget; S1 test coverage is kept
+compact rather than expanding validation infrastructure.
+
+G13_STATUS=OPEN/S1_COMPLETE/NONCANDIDATE
+G13_S2=NOT_OPENED
+G13_CANDIDATE=NOT_DECLARED
+G13_CANDIDATE_ATTEMPTS=NOT_OPENED
+T480_TESTS=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+G14_STATUS=CORE_NOT_OPENED
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
+NEXT_STEP=AWAIT_EXPLICIT_G13_S2_AUTHORIZATION
+FINAL_PHASE=G13_S1_RECOVERY_ARTIFACT_STORAGE_CORE_SOURCE_ONLY_PASS
+
+
+
+================================================================================
+ENTRY — G13-S2 RECOVERY STATE-MACHINE / LIFECYCLE INTEGRATION
+Date: 2026-08-25
+State: BINDING / G13 OPEN / S1-S2 COMPLETE / NON-CANDIDATE
+================================================================================
+
+AUTHORIZATION / SCOPE
+---------------------
+The user explicitly authorized the next step after G13-S1. S2 remains NON-CANDIDATE and source-first:
+no Git mutation, T480 run, manual test, Candidate declaration or publication is authorized here.
+
+S2 IMPLEMENTED BOUNDARY
+-----------------------
+S2 connects the S1 private artifact to the live single-document state machine without adding recovery
+presentation UI. The accepted design is:
+  - fixed RECOVERY_DELAY_SECONDS=30, one-shot and non-resetting while pending;
+  - native buffer full capture only at that timed boundary, on the GTK/main context;
+  - repeated edits while a timer is pending collapse into that one newest capture;
+  - exactly one dedicated recovery worker, created lazily as an executor thread only when work is
+    submitted; no generic job framework or permanent background scan;
+  - while a recovery write is in flight, later changes collapse into one newest-pending state and at
+    most one subsequent timer;
+  - storage now separates durable staging from final atomic publication so controller generation
+    invalidation can fence stale worker completion before os.replace;
+  - publication/invalidation share a narrow lock only around generation check + final replace/fsync;
+  - accepted invalidation wins over stale completion; if publication wins first, cleanup follows;
+  - clean process close drains the dedicated recovery queue so queued stale-write discard/removal is
+    not cancelled and cannot become a false crash orphan;
+  - NativeEditorController emits a narrow document-state notification after successful committed
+    editor state changes, Undo/Redo and successful New/Open installation, never during failed rollback;
+  - FileLifecycleController notifies recovery only after successful Save/Save As and invalidates only
+    after accepted close; Cancel/failed Save/Open/Reload preserve current recovery;
+  - representation-only Encoding/EOL changes explicitly notify the recovery state machine;
+  - Save a Copy / Version Copy remains nonbinding and has no recovery invalidation path;
+  - recovery success/failure never advances Saved state, changes DocumentFileState, or writes the user
+    target.
+
+STRUCTURAL CONSOLIDATION
+------------------------
+The first straightforward S2 hostile-test addition exceeded the unrebaselined permanent validation-LOC
+ceiling. The ceiling was NOT weakened or rebaselined. Existing duplicated native-buffer test doubles in
+Behavioral/Integration tests were consolidated into one concern-owned shared test support module. S2
+coverage was then kept compact. This is a real authority/duplication reduction, not whitespace-only or
+cosmetic gate gaming.
+
+USER-PC COMMAND DELIVERY POLICY — BINDING CLARIFICATION
+-------------------------------------------------------
+The MO already required copy/paste-ready terminal instructions when indispensable human/T480 validation
+is requested. The user explicitly asked that this be stated for every user-PC test request, not only
+human-manual validation. Binding clarification from this entry onward:
+
+  EVERY_USER_PC_TEST_REQUEST_INCLUDES_TERMINAL_COMMAND_SAME_MESSAGE=YES
+  TERMINAL_COMMAND_MUST_BE_COMPLETE_COPY_PASTE_READY=YES
+  TEST_PACKAGE_AND_COMMAND_MUST_BE_DELIVERED_TOGETHER=YES
+  NO_USER_PC_TEST_REQUEST_WITHOUT_ITS_EXACT_LAUNCH_COMMAND=YES
+
+This supplements, and does not replace, the existing last-resort T480/source-first/manual-test policy.
+If no user-PC execution is required, no terminal command is invented merely for ceremony.
+
+QUALIFICATION / ACCOUNTING
+--------------------------
+Focused S1 storage/codec tests remain PASS. S2 adds permanent headless state-machine/lifecycle hostile
+coverage for lazy clean startup, exact 30-second coalescing, timed full capture, Untitled/Unicode,
+representation-only recovery, Undo-to-savepoint invalidation, stale worker fencing, one-pending-after-
+in-flight behavior, clean-close fencing, failed Open preservation, successful replacement timing and
+Close Cancel/Discard semantics. Full permanent qualification and Structural Continuity must PASS from
+the exact delivered bytes before S2 can be called complete.
+
+G13_STATUS=OPEN/S1_S2_COMPLETE/NONCANDIDATE
+G13_S3=NOT_OPENED
+G13_CANDIDATE=NOT_DECLARED
+G13_CANDIDATE_ATTEMPTS=NOT_OPENED
+T480_TESTS=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+G14_STATUS=CORE_NOT_OPENED
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
+NEXT_STEP=AWAIT_EXPLICIT_G13_S3_AUTHORIZATION
+FINAL_PHASE=G13_S2_RECOVERY_STATE_MACHINE_LIFECYCLE_SOURCE_ONLY_PASS
+
+================================================================================
+ENTRY — G13-S3 STARTUP RECOVERY DISCOVERY / PRESENTATION / RESTORE
+Date: 2026-08-25
+State: BINDING / G13 OPEN / S1-S3 COMPLETE / NON-CANDIDATE
+================================================================================
+
+AUTHORIZATION / SCOPE
+---------------------
+The user explicitly authorized the next step after G13-S2. S3 remains NON-CANDIDATE and source-first:
+no Git mutation, T480 run, manual test, Candidate declaration or publication is authorized here.
+
+S3 IMPLEMENTED BOUNDARY
+-----------------------
+S3 makes the frozen recovery cache visible only at process startup, without introducing a session
+manager or general restore platform:
+  - discovery is lazy and does not create XDG recovery storage when the directory is absent;
+  - published UUID artifacts are validated before candidacy; corrupt/malformed entries are never offered;
+  - valid artifacts are ordered newest-first by capture time; one process offers at most one;
+  - a candidate is claimed with its advisory lock and reread under that lock before presentation, so two
+    NON_UNIQUE Graphium processes cannot validly offer the same orphan concurrently;
+  - plain activation may offer the newest valid unlocked orphan; explicit file-open startup may offer only
+    a named artifact associated with that normalized logical path, never an unrelated orphan;
+  - startup choice is exactly Recover Unsaved Content / Discard Recovery / Start Without Recovering;
+  - Start Without Recovering releases ownership and retains the artifact; Discard removes only the selected
+    artifact explicitly; other valid artifacts remain untouched for later launches;
+  - Recover performs the existing strong document load/observation before any named binding is adopted;
+  - named baseline match requires the same normalized logical path, canonical target, device/inode when
+    known, and accepted SHA-256 content fingerprint;
+  - exact match establishes the freshly loaded disk object as Saved baseline and installs recovered text as
+    a fresh Modified state with recovered current Encoding/BOM/EOL profile and empty Undo/Redo;
+  - missing/content-replaced/object-replaced/symlink-retargeted targets recover fail-closed as unbound
+    Modified content; the old path is UI provenance only and later writing therefore requires normal Save As;
+  - Untitled recovery is always unbound Modified and invents no file identity;
+  - the claimed orphan artifact remains owned after successful Recover and is reused until later accepted
+    Save/Discard/lifecycle invalidation; recovery restoration itself never gains Save authority;
+  - the dedicated recovery ThreadPoolExecutor is now fully lazy and is instantiated only on first submitted
+    persistence work, so a no-recovery clean startup starts no recovery executor/thread.
+
+VISIBLE UX / USER GUIDE
+-----------------------
+The GTK adapter adds one narrow startup MessageDialog titled `Recovered unsaved content`. It has no menu,
+preferences, history browser, tab/session surface or background recovery status UI. The offline User Guide
+is updated in this same S3 tree because recovery is now user-visible.
+
+STRUCTURAL CONTINUITY
+---------------------
+The first complete S3 hostile-test addition raised permanent validation LOC above the unrebaselined ceiling.
+The ceiling was NOT raised. Existing lifecycle-test setup/preservation duplication was consolidated into
+shared helpers and a smaller test UI, retaining all previous assertions plus the new S3 cases. Final
+Structural Continuity remains within the existing budget.
+
+HOSTILE COVERAGE ADDED
+----------------------
+S3 permanent tests cover: absent-root lazy startup; newest-orphan selection; Start Without retention;
+explicit-path filtering; live-lock exclusion; explicit discard isolation; corrupt-artifact exclusion; exact
+named baseline recovery; same-bytes inode replacement -> unbound; symlink retarget -> unbound; missing
+target -> unbound; Untitled unbound restore; recovered representation state; Modified state with empty
+Undo/Redo; fresh Saved baseline identity for exact named recovery; and lazy recovery executor creation.
+
+USER-PC COMMAND DELIVERY POLICY
+-------------------------------
+The binding S2 clarification remains unchanged: every future request that asks the user to execute a test
+on the PC/T480 must deliver the exact package and the complete copy/paste-ready terminal command in the
+same message. S3 requires no user-PC execution.
+
+QUALIFICATION / ACCOUNTING
+--------------------------
+Behavioral: 173/173 PASS.
+Integration: 150/150 PASS.
+Packaging/Release: 13/13 PASS.
+LOCAL_AUTOMATED=336/336_PASS
+G13_FOCUSED_S1_S2_S3=43/43_PASS
+STRUCTURAL_CONTINUITY=PASS
+validation_files=56
+validation_loc=4778
+harness_files=20
+harness_loc=1198
+T480_TESTS=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+G13_CANDIDATE=NOT_DECLARED
+G13_CANDIDATE_ATTEMPTS=NOT_OPENED
+G13_STATUS=OPEN/S1_S2_S3_COMPLETE/NONCANDIDATE
+G13_S4=NOT_OPENED
+G14_STATUS=CORE_NOT_OPENED
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
+NEXT_STEP=AWAIT_EXPLICIT_G13_S4_CONSOLIDATED_EXACT_BYTE_QUALIFICATION_AUTHORIZATION
+FINAL_PHASE=G13_S3_STARTUP_RECOVERY_PRESENTATION_RESTORE_SOURCE_ONLY_PASS
+
+================================================================================
+ENTRY — G13-S4 CLOSURE / PRE-CANDIDATE READINESS CONSOLIDATION
+Date: 2026-08-25
+State: BINDING / G13 OPEN / S1-S4 COMPLETE / NON-CANDIDATE / CANDIDATE R1 AUTHORIZATION READY
+================================================================================
+
+AUTHORIZATION / SCOPE
+---------------------
+The user supplied the completed G13-S4 T480 output and explicitly authorized the next step. This step is
+Candidate Readiness only: Candidate R1 is NOT declared, no attempt is consumed, no Git mutation is
+authorized, and no additional T480/manual execution is requested.
+
+S4 PLATFORM CLOSURE — USER-PROVIDED EXECUTION
+---------------------------------------------
+The self-contained S4 package passed integrity and exact-source checks on the T480. The focused automated
+fresh-process GTK3 proof completed:
+  G13_S4_T480_GTK=3.24.41
+  G13_S4_TRUE_GTK_CLEAN=PASS
+  G13_S4_TRUE_GTK_START_WITHOUT=PASS
+  G13_S4_TRUE_GTK_DISCARD=PASS
+  G13_S4_TRUE_GTK_RECOVER_UNTITLED=PASS
+  G13_S4_TRUE_GTK=4/4_PASS
+  PRE_T480_SOURCE_TREE=e2aa30ece4bb2355ad4c84a2799f32882095120c
+  POST_T480_SOURCE_TREE=e2aa30ece4bb2355ad4c84a2799f32882095120c
+  G13_S4_MANUAL_TESTS=0
+  G13_S4_GIT_MUTATION=NO
+  G13_S4_CANDIDATE=NOT_DECLARED
+  FINAL_PHASE=G13_S4_CONSOLIDATED_EXACT_BYTE_TRUE_GTK_PASS
+
+The T480 proof closes the only S4 property that headless/source evidence could not establish: real GTK3
+application startup routing through the recovery MessageDialog and the three response paths. It is not a
+Candidate execution and consumes no Candidate attempt.
+
+PRE-CANDIDATE IDENTITY AUDIT / SOURCE-ONLY CONSOLIDATION
+--------------------------------------------------------
+The readiness audit found one release-identity defect in the otherwise qualified S4 source: `graphium/product.py`
+still declared version `0.0.12`, which is already the published G12/v1 version. Reusing that version for a
+future G13 Candidate would make the new recovery-bearing product indistinguishable from the published release.
+This is not a recovery/product FAIL; it is a source-proven pre-Candidate release-identity incompleteness.
+
+The exact NON-CANDIDATE consolidation therefore advances only the product version literal to:
+  G13_PRODUCT_VERSION=0.0.13_UNPUBLISHED
+
+and converges the three canonical authority documents to the actual S4/Candidate-ready state. All G13 recovery
+implementation modules, GTK recovery routing, lifecycle code, tests, user documentation, launcher and the S4
+hostile/True-GTK semantics remain byte-identical to the S4-proven tree. The version literal only changes About/
+product identity and is independently checked by local release authority; repeating the recovery T480 probe would
+add no new evidence and is therefore forbidden as unnecessary.
+
+CANDIDATE READINESS BASIS
+-------------------------
+Binding evidence now consists of:
+  - G13 opening source-first mature comparison + 36-clause hostile contract freeze;
+  - S1 storage/codec PASS;
+  - S2 state-machine/lifecycle PASS;
+  - S3 startup discovery/presentation/restore PASS;
+  - exact S4 local qualification: Behavioral 173/173, Integration 150/150, Packaging/Release 13/13;
+  - G13 focused S1-S3 permanent tests 43/43 PASS;
+  - Structural Continuity PASS without rebaseline;
+  - S4 post-implementation mature-source/source-confinement audit PASS;
+  - focused automated T480 True-GTK recovery proof 4/4 PASS;
+  - manual tests 0 because the new visible startup surface and all response paths are owned by automated real-GTK
+    evidence; no manual-only semantic/visual claim remains;
+  - source tree unchanged by T480 execution;
+  - no product/test failure in the G13 line.
+
+The only product-byte delta introduced after the S4 T480 tree is the serial version literal `0.0.12 -> 0.0.13`.
+No recovery/lifecycle/GTK recovery byte changed. Candidate certification may therefore adopt the already valid S4
+platform proof if the exact Candidate-ready source passes all local permanent authorities and the readiness
+verifier confirms this confinement.
+
+GOVERNANCE
+----------
+G13_STATUS=OPEN/S1_S2_S3_S4_COMPLETE/NONCANDIDATE/CANDIDATE_R1_AUTHORIZATION_READY
+G13_PRODUCT_VERSION=0.0.13_UNPUBLISHED
+G13_CANDIDATE_R1=NOT_DECLARED
+G13_CANDIDATE_ATTEMPTS=0/2
+G13_PRODUCT_FAILS=0
+G13_MANUAL_TESTS_REQUIRED=0
+G13_NEW_T480_REQUIRED_BEFORE_CANDIDATE=NO
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+G14_STATUS=CORE_NOT_OPENED
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
+
+NEXT_STEP=AWAIT_EXPLICIT_G13_CANDIDATE_R1_AUTHORIZATION
+FINAL_PHASE=G13_PRE_CANDIDATE_READINESS_PASS_CANDIDATE_R1_AUTHORIZATION_READY
+
+================================================================================
+ENTRY — G13 CANDIDATE R1 DECLARATION / CERTIFICATION
+Date: 2026-08-25
+State: BINDING / CANDIDATE R1 DECLARED AND CERTIFIED / PUBLICATION AUTHORIZATION READY
+================================================================================
+
+AUTHORIZATION / DECLARATION
+---------------------------
+The user explicitly authorized the next step after G13 Candidate Readiness PASS. Candidate R1 is therefore
+declared on the exact frozen 0.0.13 line. This declaration consumes Candidate attempt 1/2. Publication is
+NOT authorized by this step.
+
+CANDIDATE BASIS
+---------------
+Candidate-ready predecessor:
+  G13_CANDIDATE_READY_SOURCE_TREE=c2bafe56d7eadd5ce41dfc435b314bc7545a0da8
+  G13_CANDIDATE_READY_PRODUCT_SUBTREE=033ae482b19cf81a4852cf4e22773b2740387443
+  G13_PRODUCT_VERSION=0.0.13
+
+The Candidate declaration changes canonical authority state only. Product, tests, launcher and user-facing
+documentation remain byte-identical to the Candidate-ready source.
+
+PLATFORM EVIDENCE ADOPTION
+--------------------------
+The focused S4 T480 fresh-process GTK3 proof remains binding:
+  G13_S4_TRUE_GTK=4/4_PASS
+  G13_S4_MANUAL_TESTS=0
+  S4_SOURCE_TREE=e2aa30ece4bb2355ad4c84a2799f32882095120c
+
+No new T480/manual run is required for Candidate certification. The only product-byte delta introduced after
+that S4 platform proof is the source-proven serial version literal `0.0.12 -> 0.0.13` in
+`graphium/product.py`; every recovery/lifecycle/GTK-recovery implementation byte is unchanged. Repeating the
+recovery T480 proof would establish no new recovery property and is forbidden as redundant under the binding
+last-resort T480 policy.
+
+The binding user-PC delivery rule remains in force: whenever a future release/Candidate/probe must be executed
+on the user's PC/T480, the package and exact complete copy/paste-ready terminal command MUST be delivered
+together in the same message.
+
+CANDIDATE CERTIFICATION
+-----------------------
+The exact frozen Candidate source is requalified by the permanent local authorities before certification:
+  Behavioral          173/173 PASS
+  Integration         150/150 PASS
+  Packaging/Release    13/13 PASS
+  TOTAL               336/336 PASS
+  G13 focused          43/43 PASS
+  Structural Continuity PASS
+    validation_files=56
+    validation_loc=4778
+    harness_files=20
+    harness_loc=1198
+
+CANDIDATE ACCOUNTING
+--------------------
+G13_CANDIDATE_R1=DECLARED_AND_CERTIFIED
+G13_CANDIDATE_R1_PRODUCT_FAILS=0
+G13_CANDIDATE_R1_HARNESS_FAILS=0
+G13_CANDIDATE_ATTEMPTS_USED=1/2
+G13_CANDIDATE_ATTEMPTS_REMAINING=1/2
+DESKTOP_CERTIFIED=YES
+S4_TRUE_GTK_ADOPTED=4/4_PASS
+MANUAL_TESTS=0
+NEW_T480_REQUIRED=NO
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+G14_STATUS=CORE_NOT_OPENED
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
+
+NEXT_STEP=AWAIT_EXPLICIT_G13_PUBLICATION_AUTHORIZATION
+FINAL_PHASE=G13_CANDIDATE_R1_DECLARED_AND_CERTIFIED_PUBLICATION_AUTHORIZATION_READY
+
+
+
+================================================================================
+ENTRY — G13 CANDIDATE R1 PUBLICATION AUTHORIZATION / FINALIZER PRECONDITION
+Date: 2026-08-25
+State: BINDING / CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED
+================================================================================
+
+AUTHORIZATION
+-------------
+The user explicitly authorized continuation with G13 after Candidate R1 certification. This authorization
+opens only the fail-closed publication transaction. It does not authorize G14, Graphium Plus or Graphium Ultra.
+
+CANONICAL PUBLICATION PARENT
+----------------------------
+REPO=/home/luciano/Projects/graphium-work
+BRANCH=main
+REMOTE=https://github.com/leviagravia/graphium.git
+BASE_HEAD=f32beeeca58fdc4d68b7d9253ec98d2b76b38018
+BASE_TREE=23c6dde1b69f36b71dcaa6eb0deb4b19f2370075
+BASE_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+
+CERTIFIED CANDIDATE INPUT
+-------------------------
+G13_CANDIDATE_R1_SOURCE_TREE=78fcace69426a9afe80658f56112deadb557c6cd
+G13_CANDIDATE_R1_PRODUCT_SUBTREE=033ae482b19cf81a4852cf4e22773b2740387443
+G13_CANDIDATE_R1_TESTS_SUBTREE=b1911fdee492d9fea5655182913d9e63eb8c37ed
+G13_CANDIDATE_R1_USER_DOCS_SUBTREE=f5b989731d1b0fcc75f7166812701a2f51c85328
+G13_PRODUCT_VERSION=0.0.13
+LOCAL_AUTOMATED=336/336_PASS
+G13_FOCUSED=43/43_PASS
+STRUCTURAL_CONTINUITY=PASS
+S4_TRUE_GTK_ADOPTED=4/4_PASS
+MANUAL_TESTS=0
+CANDIDATE_ATTEMPTS_USED=1/2
+CANDIDATE_ATTEMPTS_REMAINING=1/2
+
+PUBLICATION CONFINEMENT
+-----------------------
+Relative to the certified Candidate, publication may change only:
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_ROADMAP.md
+  evidence/G13_DESKTOP_CERTIFICATION_RECEIPT_20260825.txt
+  evidence/SHA256SUMS.txt
+
+The following must remain byte-identical to Candidate R1:
+  graphium/
+  bin/
+  tests/
+  docs/user/
+
+The publication finalizer must verify exact parent/remote/worktree state, exact Candidate protected bytes,
+336/336 local authorities, Structural Continuity, exact staged publication tree, commit/push/fetch synchronization,
+and final CLEAN worktree. Commit subject is frozen as:
+  G13: add crash recovery cache
+
+No new T480 functional or manual test is required. The S4 fresh-process True-GTK 4/4 proof remains binding.
+The user-PC command delivery policy remains binding: any package to be executed on the user's PC is delivered
+with its exact complete copy/paste-ready terminal command in the same message.
+
+G13_PUBLICATION_AUTHORIZED=YES
+G13_PUBLICATION_COMPLETE=NO
+G13_STATUS=CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_REQUIRED
+G14_STATUS=CORE_NOT_OPENED
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
+GIT_MUTATION_THIS_PREPARATION=NO
+NEXT_STEP=RUN_FAIL_CLOSED_G13_PUBLICATION_FINALIZER
+FINAL_PHASE=G13_CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_PENDING

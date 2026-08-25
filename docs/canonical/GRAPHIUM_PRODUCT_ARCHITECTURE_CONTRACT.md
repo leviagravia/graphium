@@ -2,7 +2,7 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **G12 / Graphium v1 CLOSED / CERTIFIED / PUBLISHED** at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`. The authorized fail-closed publication finalizer completed with `HEAD=origin/main=remote main`, worktree CLEAN, local 293/293 PASS, rebaselined competitive authority PASS and Structural Continuity PASS. G10 remains **FAILED / NOT PUBLISHED / TERMINAL**; G11 remains **CLOSED / CERTIFIED / PUBLISHED**. G12 Candidate accounting is historical at 1/2 used, 1/2 unused; published G12 is not reopened by that unused attempt. G13 remains post-v1 and NOT OPENED.
+Current publication boundary: **G12 / Graphium v1 CLOSED / CERTIFIED / PUBLISHED** at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`. The later MO-only canonical sync advanced repository HEAD without changing product bytes. G13 is **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED** on product version `0.0.13`: exact Candidate local 336/336 PASS, Structural Continuity PASS, and focused automated T480 True-GTK recovery proof 4/4 PASS with no manual tests. Candidate R1 consumes attempt 1/2; 1/2 remains historical if publication succeeds. G13 becomes **CLOSED / CERTIFIED / PUBLISHED** only when the fail-closed publication finalizer verifies the exact canonical parent, exact publication tree, preserved Candidate product/test/user-help bytes, commit/push/fetch synchronization, and a clean worktree.
 G12 publication parent was published G11 commit `10be01b7909c3efe6f76b4c80ea46d1586aea65c` / tree `82619dfb95df46a33ca6d0e08ade282be44ff2c1`; the authoritative G12 publication identity is the commit/tree above even if a later document-only canonical-sync commit advances repository HEAD.
 
 ## 1. Product identity
@@ -1618,3 +1618,48 @@ receipt persistence and balanced measured order. Stable post-visible RSS is a se
 All 293 permanent local tests pass and Structural Continuity is net-reductive versus the rejected
 common-FIRST_EDITABLE tree. Graphium runtime bytes are unchanged.
 
+## 23. G13 Crash Recovery Cache — frozen safety boundary
+
+G13 recovery is restart-persistent **private application state**, never user-document Save. Its root is
+`XDG_STATE_HOME/graphium/recovery`, created lazily only when storage is required. One active document
+generation owns one random canonical UUID and therefore one current `<uuid>.recovery` artifact plus an
+advisory `<uuid>.lock`; Graphium's `NON_UNIQUE` process topology forbids a single global recovery file.
+A live process holds the advisory lock and process death releases ownership automatically; no session
+database or clean-shutdown marker is introduced.
+
+The recovery artifact is self-validating and versioned. The body is always normalized in-memory text
+encoded as strict UTF-8. Current and saved encoding/BOM/EOL profiles are metadata only, along with the
+capture time, generation/state token and, for named documents, a descriptive copy of accepted logical/
+canonical path, device/inode when known and accepted SHA-256 fingerprint. Recovery metadata never
+becomes `DocumentFileState`, a savepoint or accepted identity. Untitled recovery carries no invented file
+identity. Corrupt, truncated, wrong-version or digest-invalid bytes fail closed.
+
+`RecoveryArtifactStore` is a deliberately separate writer for this private UUID-derived state and has no
+arbitrary destination-path API. It must not import or reuse `GuardedFileWriter`/normal Save authority.
+`GuardedFileWriter` remains the sole physical writer authority for accepted user documents. Recovery
+persistence uses a private unique temp file, complete write, file `fsync`, local length/digest readback,
+atomic `os.replace`, then recovery-directory `fsync`; artifact/lock files are 0600 and the recovery root
+is 0700. Failure cannot mutate the user target or Saved/Modified authority.
+
+### 23.1 G13 implementation slices
+
+- **S1 — storage core:** record/codec, XDG root, UUID artifact, advisory lock, atomic durability and
+  headless hostile tests only. No GTK, scheduling, worker, lifecycle integration or restore UI.
+- **S2 — lifecycle/state machine:** fixed 30-second one-shot scheduling/coalescing, stable buffer capture,
+  one dedicated recovery worker, generation race protection and exact Save/Open/Reload/Close invalidation.
+- **S3 — startup recovery:** lazy orphan discovery, live-lock exclusion, one claimed-and-reread orphan
+  per launch, explicit-open association, Recover/Discard/Start Without Recovering presentation, strong
+  target revalidation, exact-match named restore or fail-closed unbound restore, and empty post-crash
+  Undo/Redo; no session browser/preferences. No-recovery startup creates neither recovery directory nor
+  executor/thread.
+- **S4 — consolidated exact-byte qualification:** permanent authorities and post-implementation mature
+  audit; platform/T480 only if a real remaining claim is source-unprovable. Candidate requires separate
+  authorization.
+
+S1, S2 and S3 are complete as NON-CANDIDATE source work. S4 is also complete: the exact S3 tree passed 173 Behavioral + 150 Integration + 13 Packaging/Release = 336/336 local authorities, Structural Continuity, post-implementation mature-source falsification, and the indispensable fresh-process T480 True-GTK recovery probe 4/4 with identical pre/post source tree. The pre-Candidate consolidation advances the unpublished product identity to `0.0.13`; all recovery implementation bytes remain identical to the S4-proven tree. G13 Candidate R1 was explicitly authorized, declared and certified on the frozen 0.0.13 source. Candidate certification adopts the S4 True-GTK 4/4 platform proof because the only product-byte delta after that proof is the serial version literal in `graphium/product.py`; every recovery/lifecycle/GTK-recovery byte is unchanged. The exact Candidate re-passes 173 Behavioral + 150 Integration + 13 Packaging/Release = 336/336 and Structural Continuity. Attempt accounting is 1/2 used, 1/2 remaining; publication requires separate explicit authorization.
+
+
+
+### 23.2 G13 Candidate R1 publication authorization
+
+The user explicitly authorized continuation with G13 after Candidate R1 certification. Publication is a separate fail-closed Git transaction. The certified Candidate product subtree `033ae482b19cf81a4852cf4e22773b2740387443`, tests subtree `b1911fdee492d9fea5655182913d9e63eb8c37ed`, launchers and `docs/user/` are frozen publication inputs. Publication may change only the three canonical authority documents, additive `evidence/G13_DESKTOP_CERTIFICATION_RECEIPT_20260825.txt`, and regenerated `evidence/SHA256SUMS.txt` relative to the certified Candidate. The finalizer must start from canonical HEAD `f32beeeca58fdc4d68b7d9253ec98d2b76b38018` / tree `23c6dde1b69f36b71dcaa6eb0deb4b19f2370075`, apply the exact G13 Candidate delta, prove the frozen publication target tree, re-run 336/336 permanent local authorities and Structural Continuity, commit with subject `G13: add crash recovery cache`, push, verify `HEAD=origin/main=remote main`, and leave the worktree CLEAN. No new T480 functional or manual test is required by publication; the binding S4 True-GTK 4/4 evidence remains the platform proof.

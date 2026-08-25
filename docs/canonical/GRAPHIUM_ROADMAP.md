@@ -292,14 +292,24 @@ Do not make Graphium-vs-comparator FIRST_EDITABLE claims: the G12 common externa
 **G12 / Graphium v1 publication closure + post-publication canonical convergence — 2026-08-25.** The authorized fail-closed finalizer published commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, with product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`. It proved 293/293 local tests PASS, rebaselined competitive authority PASS, Structural Continuity PASS, `HEAD=origin/main=remote main`, and worktree CLEAN. The subsequent read-only audit found no product/test/platform blocker and only a pre-finalizer canonical-state drift; this revision is the authorized document/evidence-only convergence that records the completed release without changing `graphium/`, `bin/`, `tests/` or `docs/user/`. The historical pre-publication certification receipt remains unchanged; additive `evidence/G12_PUBLICATION_FINAL_RECEIPT_20260825.txt` records the final publication facts. G12 and Graphium v1 are therefore CLOSED / CERTIFIED / PUBLISHED. G13 remains POST-V1 HIGH-PRIORITY BACKLOG / NOT OPENED and requires a separate authorization after a final read-only sync audit.
 
 ### G13 — Crash Recovery Cache
-Status: **POST-V1 HIGH-PRIORITY BACKLOG**
+Status: **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED**
 
-Evaluate a local recovery cache separate from the user's file: never confused with Save, never silently mutates the target, deleted after accepted Save/Discard, used only for crash/termination recovery. This precedes optional spellcheck because recovery is more directly relevant to the target-user evidence.
+G13 is part of completing Graphium Core as a safety/recovery capability, not an ordinary feature expansion. The frozen design uses a private `XDG_STATE_HOME/graphium/recovery` artifact that is never the accepted user target and never gains Save authority. S1 completed the self-validating record/codec, UUID-private storage, atomic durability, corruption rejection and advisory ownership lock. S2 completed fixed 30-second one-shot coalescing, main-context capture, one dedicated lazy recovery worker, generation fencing and exact lifecycle invalidation. S3 completed lazy orphan discovery, lock-claim/reread exclusion, one-artifact startup presentation, strong target revalidation, exact-match named restore versus fail-closed unbound restore, and empty post-crash Undo/Redo. S4 has now closed on the exact S3 bytes: 336/336 local permanent authorities PASS, Structural Continuity PASS, post-implementation mature-source/source-confinement audit PASS, and a focused automated fresh-process T480 True-GTK proof 4/4 PASS for clean startup, Start Without Recovering, Discard Recovery and Recover Untitled, with source tree identical before/after. No manual test was required. Pre-Candidate consolidation advances the next unpublished product version from published `0.0.12` to `0.0.13` without changing any recovery implementation byte. Candidate R1 is declared and certified; attempt accounting is 1/2 used and 1/2 remaining. Publication is explicitly authorized and now requires the separate fail-closed finalizer.
 
-### G14 — Offline Spellcheck
-Status: **POST-V1 OPTIONAL BACKLOG**
+### G14 — External Spellcheck
+Status: **CORE / NOT OPENED**
 
-Evaluate bounded offline spellcheck only after v1/recovery fundamentals. It must initialize lazily and must not damage startup or idle budgets.
+After G13, complete Graphium Core with a bounded optional/on-demand external spell check. Preferred boundary is an external Hunspell subprocess created only for explicit **Check Spelling…** use: no live/background scanning, daemon, startup dictionary load or mandatory Python Hunspell binding. Absence/failure of Hunspell or dictionaries must fail as an optional capability and must not affect editor startup or document safety.
+
+### Product editions after Core completion
+
+The product line is cumulative unless a later explicit decision changes it:
+
+- **Graphium Core:** the lightweight editor plus G13 Crash Recovery Cache and G14 External Spellcheck.
+- **Graphium Plus:** Core plus a compact native icon toolbar and a Writing Workspace adapted from Calamus. The toolbar is only another projection of existing actions; the Workspace must remain bounded/on-demand and must not create a second document lifecycle.
+- **Graphium Ultra:** Plus plus a Markdown viewer/editor.
+
+Plus and Ultra are roadmap definitions only and are **NOT OPENED**. Their capability modules must not contaminate Core startup/runtime or duplicate Save/document authorities.
 
 ## Permanent routing rules
 
@@ -484,3 +494,9 @@ The rebaseline preserves the G09 product behavior while replacing historical Gxx
 validation with four permanent concern-oriented authorities and passing the binding net-reductive
 structural gate. After cutover, **G10 is unfrozen with candidate attempts 0/2** and resumes from this
 simplified qualification architecture. No retired Gxx harness or compatibility layer may be restored.
+
+
+**G13 Candidate R1 certification — 2026-08-25.** The user explicitly authorized Candidate R1 from the exact Candidate-ready line. Candidate R1 is declared and certified on the frozen `0.0.13` source after exact local requalification: 173/173 Behavioral, 150/150 Integration and 13/13 Packaging/Release = 336/336 PASS, G13 focused 43/43 PASS and Structural Continuity PASS. The already completed S4 fresh-process T480 True-GTK recovery proof 4/4 is adopted: after that platform proof the only product-byte change is the source-proven version literal in `graphium/product.py`; recovery, lifecycle, GTK recovery, tests, launcher and user documentation remain unchanged. No new T480 or manual test is required. Candidate accounting is 1/2 used and 1/2 remaining. Publication remains separately unauthorized.
+
+
+**G13 publication authorization — 2026-08-25.** After Candidate R1 certification, the user explicitly authorized continuation with G13. Publication must start from canonical post-G12-sync HEAD `f32beeeca58fdc4d68b7d9253ec98d2b76b38018` / tree `23c6dde1b69f36b71dcaa6eb0deb4b19f2370075`, preserve the certified Candidate product subtree `033ae482b19cf81a4852cf4e22773b2740387443`, tests subtree `b1911fdee492d9fea5655182913d9e63eb8c37ed`, launchers and user documentation byte-for-byte, and allow only the three canonical documents plus additive G13 certification evidence and regenerated evidence manifest to differ from Candidate R1. The finalizer must requalify 336/336 local authorities, prove Structural Continuity, commit/push/fetch, verify `HEAD=origin/main=remote main`, and leave the worktree CLEAN. No new T480/manual test is required; S4 True-GTK 4/4 remains binding. G14 remains Core / NOT OPENED.

@@ -5,8 +5,8 @@ Graphium is a fast, simple and safety-focused plain-text editor for Linux. It ke
 single-document quick-edit model with Search and View controls, a bounded Recent list,
 non-binding copy commands, read-only Properties/Check Now, explicit Reload from Disk,
 strong low-noise live external-file monitoring, explicit Encoding/Line Endings choices and on-demand Statistics. Graphium does not use
-tabs, projects, syntax modes, plugins, cloud services, session restoration or hidden document
-databases.
+tabs, projects, syntax modes, plugins, cloud services, general session restoration or hidden document
+databases. Crash recovery is a narrow safety mechanism, not a session manager.
 
 1. THE BASIC MODEL
 ------------------
@@ -366,3 +366,35 @@ You can drag a local file onto Graphium to open it through the same guarded Open
 File -> Open. If the active document is Modified, the normal Save/Discard/Cancel prompt still owns
 the decision. Dropped plain text remains normal text editing. Remote URIs and directories are not
 opened as documents.
+
+21. CRASH RECOVERY
+------------------
+Graphium keeps one private crash-recovery artifact for a Modified document. Recovery state is stored
+under the user's XDG state area; it never autosaves or overwrites the document being edited. The
+recovery write is delayed and coalesced, and no recovery thread or directory is created merely by
+starting Graphium with nothing to recover.
+
+After an interrupted Graphium process, the next launch may show **Recovered unsaved content**. One
+launch offers at most one recovery artifact. You can:
+
+  Recover Unsaved Content
+    Opens the recovered text as Modified. If the original named file still matches the exact accepted
+    baseline from before the interruption, Graphium safely re-establishes that fresh disk baseline and
+    keeps the recovered text above it as Modified. Undo/Redo starts empty.
+
+  Discard Recovery
+    Explicitly deletes that recovery artifact.
+
+  Start Without Recovering
+    Continues startup and leaves the recovery artifact untouched for a later launch.
+
+When Graphium was launched for a specific file, only recovery associated with that logical path may be
+offered. If the original file is missing, replaced, changed, or a symlink now points somewhere else,
+Graphium does not silently bind recovered text to it. The recovered content opens as an unbound
+Modified document; the original path is shown only as provenance and any later write requires the
+normal Save As choice. Untitled recovery likewise remains unbound.
+
+Recovery keeps the selected Encoding/BOM/Line Endings as unsaved representation state. It does not
+restore pre-crash Undo/Redo history, does not keep historical recovery versions, does not add a session
+browser, and does not create a recovery preference or menu.
+

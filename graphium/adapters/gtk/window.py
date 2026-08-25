@@ -18,6 +18,7 @@ from graphium.application.view_settings import (
     MAX_WINDOW_HEIGHT, MAX_WINDOW_WIDTH, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH,
 )
 from graphium.application.text_statistics import count_text_statistics
+from graphium.application.recovery_startup import RecoveryStartupCoordinator, RecoveryStartupResult, RecoveryStartupStatus
 from graphium.application.text_transform import build_transformation_plan
 from graphium.application.print_model import build_print_snapshot
 from graphium.domain.document_serialization import (
@@ -40,6 +41,7 @@ from .dialogs import (
 from .editor_buffer import GtkTextBufferPort
 from .editor_view import GraphiumTextView
 from .external_monitor import StrongExternalFileMonitor
+from .recovery_runtime import GLibRecoveryScheduler
 
 
 class GraphiumWindow(Gtk.ApplicationWindow):
@@ -49,6 +51,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
 
         self._closing_accepted = False
         self._startup_open_pending = False
+        self._startup_recovery_checked = False
         self._mapped = False
         self._benchmark_ready_emitted = False
         self._implicit_delete_group = False
@@ -112,7 +115,19 @@ class GraphiumWindow(Gtk.ApplicationWindow):
 
         ui = GtkLifecycleUI(self)
         self._ui = ui
-        self.core = build_core(buffer=self.buffer_port, ui=ui)
+        self.core = build_core(
+            buffer=self.buffer_port,
+            ui=ui,
+            recovery_scheduler=GLibRecoveryScheduler(),
+        )
+        if self.core.recovery is None:
+            raise RuntimeError("Graphium recovery controller was not composed")
+        self._startup_recovery = RecoveryStartupCoordinator(
+            store=self.core.recovery.store,
+            editor=self.core.editor,
+            recovery=self.core.recovery,
+            ui=ui,
+        )
         self._external_file_monitor = StrongExternalFileMonitor(
             session=self.core.session, on_result=self._on_external_observation_result
         )
@@ -140,6 +155,8 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _on_destroy_appearance(self, *_args) -> None:
         self._cancel_external_monitor_bind()
         self._external_file_monitor.close()
+        if self.core.recovery is not None:
+            self.core.recovery.close()
         if self._appearance_renderer is not None:
             self._appearance_renderer.close()
 
@@ -1340,10 +1357,12 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         if target is None:
             return
         try:
-            self.core.session.select_representation_encoding(*target)
+            changed = self.core.session.select_representation_encoding(*target)
         except Exception as exc:
             self._ui.show_warning("Encoding was not changed", str(exc))
             return
+        if changed and self.core.recovery is not None:
+            self.core.recovery.document_state_changed()
         self._set_string_action(action, value)
         self._refresh_projection()
         self.text_view.grab_focus()
@@ -1356,10 +1375,12 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         if target is None:
             return
         try:
-            self.core.session.select_representation_line_ending(target)
+            changed = self.core.session.select_representation_line_ending(target)
         except Exception as exc:
             self._ui.show_warning("Line endings were not changed", str(exc))
             return
+        if changed and self.core.recovery is not None:
+            self.core.recovery.document_state_changed()
         self._set_string_action(action, value)
         self._refresh_projection()
         self.text_view.grab_focus()
@@ -1406,6 +1427,19 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._persist_normal_window_size_after_accepted_close()
         self._closing_accepted = True
         return False
+
+    def offer_startup_recovery(self, explicit_path: str | None = None) -> RecoveryStartupResult:
+        if self._startup_recovery_checked:
+            return RecoveryStartupResult(RecoveryStartupStatus.NONE)
+        self._startup_recovery_checked = True
+        self._suspend_external_monitor()
+        result = self._startup_recovery.run(explicit_path)
+        if result.recovered:
+            self._clear_external_file_alert()
+            self._refresh_projection()
+            self.text_view.grab_focus()
+        self._schedule_external_monitor_bind()
+        return result
 
     def begin_startup_open(self) -> None:
         self._startup_open_pending = True

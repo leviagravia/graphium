@@ -182,6 +182,57 @@ class DocumentSession:
         if self.snapshot() != before:
             self._revision += 1
 
+    def establish_recovered_named(
+        self,
+        result: DocumentLoadResult,
+        state: HistoryState,
+        *,
+        saved_state_id: int,
+        current_profile: DocumentSerializationProfile,
+    ) -> None:
+        """Install recovered text over a freshly revalidated named Saved baseline."""
+        if not isinstance(result, DocumentLoadResult):
+            raise TypeError("result must be DocumentLoadResult")
+        if not isinstance(state, HistoryState) or state.state_id <= 0:
+            raise TypeError("state must be an assigned HistoryState")
+        saved_state_id = self._state_id(saved_state_id)
+        if saved_state_id == state.state_id:
+            raise ValueError("recovered current state must differ from the Saved baseline")
+        if not isinstance(current_profile, DocumentSerializationProfile):
+            raise TypeError("current_profile must be DocumentSerializationProfile")
+        before = self.snapshot()
+        self._text = state.text
+        self._logical_path = result.file_state.binding.logical_path
+        self._file_state = result.file_state
+        self._current_editor_state_id = state.state_id
+        self._saved_editor_state_id = saved_state_id
+        self._text_editor_state_id = state.state_id
+        self._current_representation_profile = current_profile
+        self._saved_representation_profile = profile_for_document(result.file_state)
+        if self.snapshot() != before:
+            self._revision += 1
+
+    def establish_recovered_unbound(
+        self,
+        state: HistoryState,
+        *,
+        current_profile: DocumentSerializationProfile,
+    ) -> None:
+        """Install recovered content as an unbound Modified document."""
+        if not isinstance(state, HistoryState) or state.state_id <= 0:
+            raise TypeError("state must be an assigned HistoryState")
+        if not isinstance(current_profile, DocumentSerializationProfile):
+            raise TypeError("current_profile must be DocumentSerializationProfile")
+        before = self.snapshot()
+        self._text, self._logical_path, self._file_state = state.text, None, None
+        self._current_editor_state_id = state.state_id
+        self._saved_editor_state_id = None
+        self._text_editor_state_id = state.state_id
+        self._current_representation_profile = current_profile
+        self._saved_representation_profile = current_profile
+        if self.snapshot() != before:
+            self._revision += 1
+
     def observe_uncommitted_text(self, text: str) -> bool:
         """Compatibility path for the headless session protocol."""
         if not isinstance(text, str):

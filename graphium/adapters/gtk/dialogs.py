@@ -10,6 +10,8 @@ gi.require_version("Pango", "1.0")
 from gi.repository import Gdk, Gtk, Pango
 
 from graphium.application.file_lifecycle import ReloadDecision, UnsavedDecision
+from graphium.application.recovery_startup import RecoveryStartupDecision
+from graphium.domain.recovery_artifact import RecoveryDocumentKind, RecoveryRecord
 
 
 class GtkLifecycleUI:
@@ -90,6 +92,48 @@ class GtkLifecycleUI:
         if response == Gtk.ResponseType.REJECT:
             return ReloadDecision.DISCARD_AND_RELOAD
         return ReloadDecision.CANCEL
+
+    def choose_startup_recovery(self, record: RecoveryRecord) -> RecoveryStartupDecision:
+        if not isinstance(record, RecoveryRecord):
+            raise TypeError("record must be RecoveryRecord")
+        dialog = Gtk.MessageDialog(
+            transient_for=self.parent,
+            modal=True,
+            message_type=Gtk.MessageType.QUESTION,
+            buttons=Gtk.ButtonsType.NONE,
+            text="Recovered unsaved content",
+        )
+        if record.document_kind is RecoveryDocumentKind.NAMED and record.named_baseline is not None:
+            detail = (
+                "Graphium found unsaved content from an interrupted session for:\n"
+                f"{record.named_baseline.logical_path}\n\n"
+                "Recover it, discard this recovery, or continue without recovering it now."
+            )
+        else:
+            detail = (
+                "Graphium found unsaved content from an interrupted Untitled document.\n\n"
+                "Recover it, discard this recovery, or continue without recovering it now."
+            )
+        dialog.format_secondary_text(detail)
+        dialog.add_button("Start Without Recovering", Gtk.ResponseType.CANCEL)
+        dialog.add_button("Discard Recovery", Gtk.ResponseType.REJECT)
+        dialog.add_button("Recover Unsaved Content", Gtk.ResponseType.ACCEPT)
+        dialog.set_default_response(Gtk.ResponseType.ACCEPT)
+        try:
+            response = dialog.run()
+        finally:
+            dialog.destroy()
+        if response == Gtk.ResponseType.ACCEPT:
+            return RecoveryStartupDecision.RECOVER
+        if response == Gtk.ResponseType.REJECT:
+            return RecoveryStartupDecision.DISCARD
+        return RecoveryStartupDecision.START_WITHOUT
+
+    def show_recovered_unbound(self, provenance_path: str, reason: str) -> None:
+        self.show_warning(
+            "Recovered unsaved content",
+            f"{reason}\n\nThe recovered content is open as an unsaved document and is not bound to the original file.\nOriginal location: {provenance_path}",
+        )
 
     def confirm_overwrite(self, path: str) -> bool:
         dialog = Gtk.MessageDialog(

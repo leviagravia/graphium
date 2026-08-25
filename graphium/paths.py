@@ -38,3 +38,8 @@ def resolve_xdg_paths(env: Mapping[str, str] | None = None) -> XdgPaths:
         cache=cache_home / "graphium",
         state=state_home / "graphium",
     )
+
+def resolve_recovery_root(env: Mapping[str, str] | None = None) -> Path:
+    """Return the private Graphium crash-recovery root without creating it."""
+    return resolve_xdg_paths(env).state / "recovery"
+

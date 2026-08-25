@@ -50,6 +50,11 @@ class EditorLifecyclePort(Protocol):
     def initialize_open(self, result: DocumentLoadResult): ...
 
 
+class RecoveryLifecyclePort(Protocol):
+    def document_state_changed(self) -> None: ...
+    def invalidate(self) -> None: ...
+
+
 @dataclass(frozen=True)
 class LifecycleResult:
     completed: bool
@@ -59,7 +64,7 @@ class LifecycleResult:
 
 
 class FileLifecycleController:
-    __slots__ = ("session", "editor", "save_service", "loader", "ui", "recent_files")
+    __slots__ = ("session", "editor", "save_service", "loader", "ui", "recent_files", "recovery")
 
     def __init__(
         self,
@@ -70,6 +75,7 @@ class FileLifecycleController:
         loader: Callable[[str], DocumentLoadResult],
         ui: LifecycleUI,
         recent_files: RecentFilesController | None = None,
+        recovery: RecoveryLifecyclePort | None = None,
     ) -> None:
         if not isinstance(session, DocumentSession):
             raise TypeError("session must be DocumentSession")
@@ -90,6 +96,7 @@ class FileLifecycleController:
         self.loader = loader
         self.ui = ui
         self.recent_files = recent_files
+        self.recovery = recovery
 
 
     def _touch_recent_nonfatal(self, path: str) -> None:
@@ -139,6 +146,8 @@ class FileLifecycleController:
             self.ui.show_error("Could not save file", str(exc))
             return LifecycleResult(False)
         self._show_save_warnings(result)
+        if self.recovery is not None:
+            self.recovery.document_state_changed()
         return LifecycleResult(True, saved=True)
 
     def save_as(self, path: str | None = None, *, _prepared: bool = False) -> LifecycleResult:
@@ -172,6 +181,8 @@ class FileLifecycleController:
             self.ui.show_error("Could not save file", str(exc))
             return LifecycleResult(False)
         self._show_save_warnings(result)
+        if self.recovery is not None:
+            self.recovery.document_state_changed()
         if self.session.logical_path is not None and self.session.logical_path != previous_logical_path:
             self._touch_recent_nonfatal(self.session.logical_path)
         return LifecycleResult(True, saved=True)
@@ -271,4 +282,6 @@ class FileLifecycleController:
     def request_close(self) -> LifecycleResult:
         if not self._resolve_modified_before_replace("quit Graphium"):
             return LifecycleResult(False, cancelled=True)
+        if self.recovery is not None:
+            self.recovery.invalidate()
         return LifecycleResult(True)

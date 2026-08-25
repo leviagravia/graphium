@@ -4,7 +4,7 @@ from tests.release._common import ROOT,parse,call_name
 class AuthorityTopologyTests(unittest.TestCase):
     def test_single_physical_writer(self):
         writers=[]; risky=[]
-        allowed={'graphium/infrastructure/guarded_file_writer.py','graphium/infrastructure/view_settings_store.py','graphium/infrastructure/recent_files_store.py','graphium/adapters/gtk/printing.py'}
+        allowed={'graphium/infrastructure/guarded_file_writer.py','graphium/infrastructure/view_settings_store.py','graphium/infrastructure/recent_files_store.py','graphium/adapters/gtk/printing.py','graphium/infrastructure/recovery_store.py'}
         for p in (ROOT/'graphium').rglob('*.py'):
             rel=p.relative_to(ROOT).as_posix(); t=parse(rel)
             for n in ast.walk(t):
