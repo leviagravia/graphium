@@ -297,7 +297,7 @@ Status: **CLOSED / CERTIFIED / PUBLISHED**
 G13 is part of completing Graphium Core as a safety/recovery capability, not an ordinary feature expansion. The frozen design uses a private `XDG_STATE_HOME/graphium/recovery` artifact that is never the accepted user target and never gains Save authority. S1 completed the self-validating record/codec, UUID-private storage, atomic durability, corruption rejection and advisory ownership lock. S2 completed fixed 30-second one-shot coalescing, main-context capture, one dedicated lazy recovery worker, generation fencing and exact lifecycle invalidation. S3 completed lazy orphan discovery, lock-claim/reread exclusion, one-artifact startup presentation, strong target revalidation, exact-match named restore versus fail-closed unbound restore, and empty post-crash Undo/Redo. S4 has now closed on the exact S3 bytes: 336/336 local permanent authorities PASS, Structural Continuity PASS, post-implementation mature-source/source-confinement audit PASS, and a focused automated fresh-process T480 True-GTK proof 4/4 PASS for clean startup, Start Without Recovering, Discard Recovery and Recover Untitled, with source tree identical before/after. No manual test was required. Pre-Candidate consolidation advances the next unpublished product version from published `0.0.12` to `0.0.13` without changing any recovery implementation byte. Candidate R1 was declared and certified; attempt accounting is 1/2 used and 1/2 remaining. The authorized fail-closed finalizer subsequently published G13 as commit `053bcde3f5bcb4f51ce9edd8a89538a7630949ae`, tree `eb6925d3b779fa8ae12d1d0947a31fe460fbee0e`, product subtree `033ae482b19cf81a4852cf4e22773b2740387443`. Publication requalified 336/336 local authorities, G13 focused 43/43 and Structural Continuity, adopted S4 True-GTK 4/4, and ended `HEAD=origin/main=remote main` with a CLEAN worktree. The post-publication audit found only canonical pre-finalizer wording drift; this document/evidence-only convergence records the final state without changing product/test/user-help bytes.
 
 ### G14 — External Spellcheck
-Status: **OPEN / S1 COMPLETE / NON-CANDIDATE**
+Status: **CLOSED / CERTIFIED / PUBLISHED**
 
 After G13, complete Graphium Core with a bounded optional/on-demand external spell check. Preferred boundary is an external Hunspell subprocess created only for explicit **Check Spelling…** use: no live/background scanning, daemon, startup dictionary load or mandatory Python Hunspell binding. Absence/failure of Hunspell or dictionaries must fail as an optional capability and must not affect editor startup or document safety.
 
@@ -576,3 +576,31 @@ certification evidence and regenerated evidence manifest to differ from Candidat
 G14 remains **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED** until the finalizer
 actually succeeds and remote synchronization is proved. A post-publication read-only audit remains mandatory
 before Core closure is considered canonically converged or any Plus work is opened.
+
+
+### G14 / Graphium Core publication closure + post-publication canonical convergence — 2026-08-25
+
+The authorized G14 finalizer published commit `51fc8f329be730a237f28e195fb1617de07a93d8`, tree `b0469a014a2451cfd2fa92a942583eeab02d25e1`, product subtree
+`396be05aaa0cc32e18341889e5494163151f4606`, version `0.0.14`, with subject `G14: add external spellcheck`. Publication preserved
+the certified Candidate product/tests/launchers/user-documentation bytes, requalified 373/373 permanent
+local authorities and G14 focused 37/37, proved Structural Continuity and Lightweight static, adopted the
+S4 True-GTK 4/4 plus clean-startup no-spell-thread/child runtime proof, synchronized
+`HEAD=origin/main=remote main`, and finished with a CLEAN worktree. No new T480 functional or manual test
+was required. Candidate attempt accounting remains 1/2 used and 1/2 unused historically.
+
+The mandatory post-publication read-only audit found no product/test/platform/Lightweight Budget failure and
+only canonical pre-finalizer state drift. This authorized five-path document/evidence-only convergence records
+the final publication commit/tree/status, preserves all historical pre-publication evidence, adds an immutable
+final G14 publication receipt and leaves `graphium/`, `bin/`, `tests/` and `docs/user/` byte-identical to
+the published product. **G14 is CLOSED / CERTIFIED / PUBLISHED. Graphium Core is FEATURE-COMPLETE / CLOSED /
+CERTIFIED / PUBLISHED.**
+
+**Graphium Plus:** **DEFINED / AUTHORIZATION-READY AFTER FINAL POST-SYNC READ-ONLY AUDIT / NOT OPENED**.
+Plus remains Core + compact native icon toolbar + Writing Workspace adapted from Calamus. No Plus source,
+entrypoint, toolbar or Workspace implementation is authorized by this convergence.
+
+**Graphium Ultra:** **DEFINED / NOT OPENED**. Ultra remains Plus + Markdown viewer/editor and requires a later
+separate authorization after Plus governance.
+
+**Next step:** final post-G14-sync read-only audit. Only after that PASS may Graphium Plus be formally opened
+by a separate explicit user authorization.

@@ -2,7 +2,7 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **G13 CLOSED / CERTIFIED / PUBLISHED** at commit `053bcde3f5bcb4f51ce9edd8a89538a7630949ae`, tree `eb6925d3b779fa8ae12d1d0947a31fe460fbee0e`, product subtree `033ae482b19cf81a4852cf4e22773b2740387443`, product version `0.0.13`. The authorized fail-closed publication finalizer requalified 336/336 permanent local authorities, G13 focused 43/43, Structural Continuity PASS, adopted the binding S4 fresh-process True-GTK recovery proof 4/4, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G13 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G13 product publication commit/tree above. G14 External Spellcheck is now **CANDIDATE R1 DECLARED / CERTIFIED / PUBLICATION AUTHORIZATION READY** on frozen unpublished version `0.0.14`: exact Candidate local authorities 373/373 PASS, G14 focused 37/37 PASS, Structural Continuity PASS, Lightweight static PASS, with adoption of the S4 fresh-process True-GTK 4/4 proof and clean-startup no-spell-thread/child runtime proof. Candidate R1 consumes attempt 1/2; 1/2 remains. Publication is NOT authorized.
+Current publication boundary: **G14 / Graphium Core CLOSED / CERTIFIED / PUBLISHED** at commit `51fc8f329be730a237f28e195fb1617de07a93d8`, tree `b0469a014a2451cfd2fa92a942583eeab02d25e1`, product subtree `396be05aaa0cc32e18341889e5494163151f4606`, product version `0.0.14`. The authorized fail-closed publication finalizer requalified 373/373 permanent local authorities, G14 focused 37/37, Structural Continuity PASS and Lightweight static PASS, adopted the binding S4 fresh-process True-GTK spellcheck proof 4/4 plus clean-startup no-spell-thread/child runtime proof, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G14 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G14/Core product publication commit/tree above. Graphium Plus is **DEFINED / AUTHORIZATION-READY AFTER FINAL POST-SYNC READ-ONLY AUDIT / NOT OPENED**; Graphium Ultra is **DEFINED / NOT OPENED**.
 G12 / Graphium v1 remains CLOSED / CERTIFIED / PUBLISHED at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`; later governance-only commits do not replace that product publication identity.
 
 ## 1. Product identity
@@ -1787,3 +1787,27 @@ The binding S4 True-GTK 4/4 and `PASS_NO_STARTUP_SPELL_THREAD_OR_CHILD` evidence
 Lightweight Runtime proof. Publication must not repeat T480/manual validation because no Candidate product
 byte changes in the publication-only delta. Candidate accounting remains 1/2 used and 1/2 unused.
 Graphium Plus and Graphium Ultra remain defined but unopened.
+
+
+### 24.4 G14 / Graphium Core publication closure and canonical convergence
+
+The authorized fail-closed G14 publication finalizer succeeded on the canonical repository and published
+commit `51fc8f329be730a237f28e195fb1617de07a93d8`, tree `b0469a014a2451cfd2fa92a942583eeab02d25e1`, product subtree `396be05aaa0cc32e18341889e5494163151f4606`,
+version `0.0.14`, with subject `G14: add external spellcheck`. The transaction requalified 190/190
+Behavioral, 167/167 Integration and 16/16 Packaging/Release = 373/373 PASS, G14 focused 37/37 PASS,
+Structural Continuity PASS and Lightweight static PASS; it adopted the binding S4 fresh-process True-GTK
+4/4 and `PASS_NO_STARTUP_SPELL_THREAD_OR_CHILD` evidence, performed no new T480 functional or manual
+test, proved `HEAD=origin/main=remote main`, and left the worktree CLEAN. Candidate accounting remains
+1/2 used and 1/2 unused historically.
+
+The mandatory read-only post-publication audit found no product, test, platform or Lightweight Budget
+failure. Its only blocker was pre-finalizer canonical wording that could not know the final commit hash.
+This separately authorized convergence therefore changes only the three canonical documents, adds
+`evidence/G14_PUBLICATION_FINAL_RECEIPT_20260825.txt`, and regenerates `evidence/SHA256SUMS.txt`.
+`graphium/`, `bin/`, `tests/` and `docs/user/` remain byte-identical to the published G14 product. The
+historical `G14_DESKTOP_CERTIFICATION_RECEIPT_20260825.txt` remains immutable pre-publication evidence.
+
+G14 and Graphium Core are **CLOSED / CERTIFIED / PUBLISHED / FEATURE-COMPLETE**. No G14 Candidate is
+reopened and no remaining attempt is consumed. Graphium Plus and Graphium Ultra remain separate cumulative
+product-line definitions; neither is opened by this convergence. Graphium Plus may become authorization-ready
+only after the required final post-sync read-only audit confirms the converged repository.

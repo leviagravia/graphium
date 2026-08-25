@@ -7553,3 +7553,77 @@ GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
 GIT_MUTATION_THIS_PREPARATION=NO
 NEXT_STEP=RUN_FAIL_CLOSED_G14_PUBLICATION_FINALIZER
 FINAL_PHASE=G14_CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_PENDING
+
+
+================================================================================
+ENTRY — G14 / GRAPHIUM CORE PUBLICATION CLOSURE / POST-PUBLICATION CANONICAL CONVERGENCE
+Date: 2026-08-25
+State: BINDING / G14 CLOSED / CERTIFIED / PUBLISHED / CORE FEATURE-COMPLETE
+================================================================================
+
+PUBLICATION FACTS
+-----------------
+The user-provided fail-closed publication finalizer result is authoritative for the completed G14 product
+publication transaction:
+  G14_PUBLICATION_COMMIT=51fc8f329be730a237f28e195fb1617de07a93d8
+  G14_PUBLICATION_TREE=b0469a014a2451cfd2fa92a942583eeab02d25e1
+  G14_PRODUCT_SUBTREE=396be05aaa0cc32e18341889e5494163151f4606
+  G14_PRODUCT_VERSION=0.0.14
+  COMMIT_SUBJECT=G14: add external spellcheck
+  LOCAL_AUTOMATED=373/373_PASS
+  G14_FOCUSED=37/37_PASS
+  STRUCTURAL_CONTINUITY=PASS
+  LIGHTWEIGHT_STATIC=PASS
+  S4_TRUE_GTK_ADOPTED=4/4_PASS
+  G14_LIGHTWEIGHT_RUNTIME_ADOPTED=PASS_NO_STARTUP_SPELL_THREAD_OR_CHILD
+  T480_FUNCTIONAL_TESTS_THIS_PUBLICATION=0
+  MANUAL_TESTS=0
+  CANDIDATE_ATTEMPTS_USED=1/2
+  HEAD=ORIGIN_MAIN=REMOTE_MAIN=51fc8f329be730a237f28e195fb1617de07a93d8
+  WORKTREE=CLEAN
+  FINAL_PHASE=G14_PUBLICATION_PASS
+
+POST-PUBLICATION READ-ONLY AUDIT
+--------------------------------
+The mandatory audit found no product, test, platform or Lightweight Budget failure. The only blocker was
+DOCUMENT_AUTHORITY_POST_TRANSACTION_STATE_DRIFT: the publication target was precomputed before the final
+commit hash existed, so the immediately preceding canonical entry necessarily remained pre-finalizer history.
+That history is preserved unchanged. It is superseded for current-state authority by this appended binding
+entry. The historical `evidence/G14_DESKTOP_CERTIFICATION_RECEIPT_20260825.txt`, including its historical key
+spelling, is not rewritten.
+
+AUTHORIZED CONVERGENCE
+----------------------
+The user explicitly authorized the next step after the post-G14 publication read-only audit. This convergence
+is document/evidence-only and uses published commit `51fc8f329be730a237f28e195fb1617de07a93d8` / tree `b0469a014a2451cfd2fa92a942583eeab02d25e1` as exact parent.
+Only the following five paths may change:
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_ROADMAP.md
+  evidence/G14_PUBLICATION_FINAL_RECEIPT_20260825.txt
+  evidence/SHA256SUMS.txt
+
+`graphium/`, `bin/`, `tests/` and `docs/user/` remain byte-identical to the published G14 product. No Candidate
+is reopened, no attempt is consumed, and no T480/manual test is required. The sync finalizer must verify the
+exact published parent, real remote main, clean worktree, protected bytes, full local authorities, exact five-path
+staged tree, commit/push/fetch synchronization and final CLEAN worktree.
+
+CURRENT BINDING STATE
+---------------------
+G14_STATUS=CLOSED/CERTIFIED/PUBLISHED
+G14_PUBLICATION_COMMIT=51fc8f329be730a237f28e195fb1617de07a93d8
+G14_PUBLICATION_TREE=b0469a014a2451cfd2fa92a942583eeab02d25e1
+G14_PRODUCT_SUBTREE=396be05aaa0cc32e18341889e5494163151f4606
+G14_PRODUCT_VERSION=0.0.14
+G14_CANDIDATE_ATTEMPTS_USED=1/2
+G14_CANDIDATE_ATTEMPTS_REMAINING=1/2_HISTORICAL_ONLY
+GRAPHIUM_CORE_STATUS=FEATURE_COMPLETE/CLOSED/CERTIFIED/PUBLISHED
+POST_G14_PUBLICATION_CANONICAL_SYNC=COMPLETE_BY_THIS_REVISION
+GRAPHIUM_PLUS_STATUS=DEFINED_AUTHORIZATION_READY_AFTER_FINAL_POST_SYNC_AUDIT_NOT_OPENED
+GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
+GIT_MUTATION_THIS_PREPARATION=NO
+T480_FUNCTIONAL_TESTS_THIS_SYNC=0
+MANUAL_TESTS_THIS_SYNC=0
+CANDIDATE_ATTEMPTS_CONSUMED_THIS_SYNC=0
+NEXT_STEP=FINAL_POST_G14_SYNC_READONLY_AUDIT_BEFORE_ANY_GRAPHIUM_PLUS_OPENING
+FINAL_PHASE=G14_POST_PUBLICATION_CANONICAL_CONVERGENCE_TARGET_FROZEN
