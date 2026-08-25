@@ -6478,3 +6478,110 @@ TEST_MUTATION_THIS_SYNC=NO
 
 NEXT_STEP=FINAL_POST_SYNC_READONLY_AUDIT_BEFORE_ANY_G13_AUTHORIZATION
 FINAL_PHASE=G12_V1_POST_PUBLICATION_CANONICAL_CONVERGENCE_COMPLETE_BY_THIS_REVISION
+
+
+================================================================================
+ENTRY — FINAL POST-SYNC READ-ONLY AUDIT / G13 AUTHORIZATION GATE
+Date: 2026-08-25
+State: BINDING / FINAL POST-SYNC AUDIT PASS / G13 AUTHORIZATION-READY / NOT OPENED
+================================================================================
+
+AUDITED PRE-TRANSACTION CANONICAL BASELINE
+------------------------------------------
+The final post-sync audit is defined against the exact canonical state produced by the completed
+G12/v1 publication-authority convergence:
+
+  PRE_AUDIT_HEAD=5637b3bfe9d750caa2552282c6975e5f3bb0ae75
+  PRE_AUDIT_TREE=54b0c5f2735cb754bac690bb0a478294c1aab189
+  PRE_AUDIT_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+  PRE_AUDIT_BRANCH=main
+  PRE_AUDIT_REMOTE=https://github.com/leviagravia/graphium.git
+  PRE_AUDIT_EXPECTED_WORKTREE=CLEAN
+
+The audit is complete only when the fail-closed finalizer has proved, before any repository mutation:
+  - canonical repository path `/home/luciano/Projects/graphium-work`;
+  - branch `main`;
+  - exact HEAD, tree and `HEAD:graphium` identities above;
+  - exact origin URL above;
+  - clean index/worktree;
+  - real remote `refs/heads/main` equal to the exact pre-audit HEAD via `git ls-remote`;
+  - current canonical MO byte identity equal to the post-publication-sync baseline;
+  - current evidence SHA-256 manifest integrity;
+  - push authorization/connectivity by dry-run without changing the remote.
+
+OFFLINE PREDELIVERY REQUALIFICATION
+-----------------------------------
+The exact bundled post-sync source used to build this one-file governance transaction was independently
+requalified before delivery:
+
+  SOURCE_TREE=54b0c5f2735cb754bac690bb0a478294c1aab189 PASS
+  PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6 PASS
+  HANDOVER_INTEGRITY=PASS
+  Behavioral=154/154 PASS
+  Integration=126/126 PASS
+  Packaging/Release=13/13 PASS
+  LOCAL_AUTOMATED_TOTAL=293/293 PASS
+
+No T480 functional run, True-GTK rerun, manual test, Candidate attempt or product repair is required or
+permitted for this governance closure. The product/platform bytes are already certified and the finalizer
+must preserve them exactly.
+
+FINAL POST-SYNC AUDIT RESULT
+----------------------------
+If and only if the runtime preflight above succeeds, this appended entry becomes canonical and records:
+
+  FINAL_POST_SYNC_READONLY_AUDIT=PASS
+  G12_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  GRAPHIUM_V1_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  G12_PUBLICATION_COMMIT=cb71d9575f7c347fd10334cd7ddb54e5c921ea34
+  G12_PUBLICATION_TREE=4e4651b9323c080716bfb28340fa274bd48c0017
+  G12_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+  G13_STATUS=AUTHORIZATION_READY_NOT_OPENED
+  G13_IMPLEMENTATION_AUTHORIZED=NO
+  G13_CANDIDATE_ATTEMPTS=NOT_OPENED
+
+The audit closes only the mandatory post-G12/v1 verification gate. It does NOT itself open G13 and does
+NOT authorize G13 implementation. Opening G13 still requires a separate explicit user authorization.
+
+MO-ONLY CANONICALIZATION CONTRACT
+---------------------------------
+This transaction exists solely to persist the audit result in the append-only Memoria Operativa. The
+only permitted repository content change relative to the audited pre-transaction baseline is:
+
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+
+Everything else must remain byte-identical, including:
+  graphium/
+  bin/
+  tests/
+  docs/user/
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_ROADMAP.md
+  evidence/
+
+The staged tree must retain exactly:
+  PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+
+The finalizer must create one commit with subject:
+  G12: record final post-sync audit
+
+The new commit hash cannot be embedded in the canonical MO that creates that commit. The finalizer must
+therefore record the resulting commit/tree/remote-main identity in an external fail-visible receipt in
+`/home/luciano/Downloads/` and prove after push that local HEAD and real remote main are the same new
+commit and that the worktree is CLEAN.
+
+TRANSACTION ACCOUNTING
+----------------------
+PRODUCT_MUTATION_THIS_TRANSACTION=NO
+TEST_MUTATION_THIS_TRANSACTION=NO
+USER_GUIDE_MUTATION_THIS_TRANSACTION=NO
+ARCHITECTURE_CONTRACT_MUTATION_THIS_TRANSACTION=NO
+ROADMAP_MUTATION_THIS_TRANSACTION=NO
+EVIDENCE_MUTATION_THIS_TRANSACTION=NO
+CANONICAL_MO_MUTATION_THIS_TRANSACTION=YES_APPEND_ONLY
+T480_FUNCTIONAL_TESTS_THIS_TRANSACTION=0
+MANUAL_TESTS_THIS_TRANSACTION=0
+CANDIDATE_ATTEMPTS_CONSUMED_THIS_TRANSACTION=0
+
+NEXT_STEP=AWAIT_EXPLICIT_G13_OPEN_AUTHORIZATION
+FINAL_PHASE=FINAL_POST_SYNC_READONLY_AUDIT_PASS_G13_AUTHORIZATION_READY_NOT_OPENED
