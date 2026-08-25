@@ -43,12 +43,13 @@ accelerators. Their persistent state is changed from the View menu rather than
 duplicated in Preferences.
 
 Document
+  F2              Check Spelling…
   Encoding, Line Endings and Statistics… have no dedicated accelerators.
 
 Commands without dedicated accelerators
 --------------------------------------------
 Open Recent, Clear Recent, Save a Copy…, Save Version Copy…, Properties…, Page Setup…, Encoding,
-Line Endings and Statistics… are intentionally menu-driven. Reload from Disk uses F5; Ctrl+Shift+P
+Line Endings and Statistics… are intentionally menu-driven. Check Spelling uses F2; Reload from Disk uses F5; Ctrl+Shift+P
 remains Print Preview and Ctrl+P remains Print.
 
 Help commands intentionally have no global accelerator.

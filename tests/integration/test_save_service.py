@@ -12,9 +12,7 @@ from graphium.domain.document_serialization import DocumentSerializationError, M
 from graphium.domain.history import TextHistory
 from graphium.infrastructure.document_loader import load_document
 from graphium.infrastructure.guarded_file_writer import GuardedFileWriter
-
 class SaveServiceTests(unittest.TestCase):
-
     def _open_session(self, path: Path):
         history = TextHistory()
         session = DocumentSession()
@@ -22,12 +20,10 @@ class SaveServiceTests(unittest.TestCase):
         state = history.reset(loaded.text)
         session.establish_open(loaded, state)
         return (history, session)
-
     def _edit(self, history: TextHistory, session: DocumentSession, text: str):
         history.commit(text)
         session.commit_history_state(history.current)
         return history.current
-
     def test_ordinary_save_marks_exact_current_state_clean_and_refreshes_baseline(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / 'doc.txt'
@@ -41,14 +37,12 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(result.disposition, SaveDisposition.COMMITTED_CONFIRMED)
             self.assertFalse(session.modified)
             self.assertEqual(session.file_state.content_fingerprint, result.committed_fingerprint)
-
     def test_newer_edit_during_save_remains_dirty_after_older_state_commits(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / 'doc.txt'
             path.write_bytes(b'A\n')
             history, session = self._open_session(path)
             ab = self._edit(history, session, 'AB\n')
-
             def hook(phase, _ctx):
                 if phase == 'before_namespace_commit':
                     self._edit(history, session, 'ABC\n')
@@ -58,7 +52,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(session.saved_editor_state_id, ab.state_id)
             self.assertNotEqual(session.current_editor_state_id, ab.state_id)
             self.assertTrue(session.modified)
-
     def test_save_as_new_binds_only_after_commit(self):
         with tempfile.TemporaryDirectory() as td:
             old = Path(td) / 'old.txt'
@@ -74,7 +67,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(new.read_bytes(), b'AB\n')
             self.assertEqual(session.file_path, os.path.abspath(str(new)))
             self.assertFalse(session.modified)
-
     def test_failed_save_as_keeps_old_binding_and_saved_relation(self):
         with tempfile.TemporaryDirectory() as td:
             old = Path(td) / 'old.txt'
@@ -83,7 +75,6 @@ class SaveServiceTests(unittest.TestCase):
             history, session = self._open_session(old)
             self._edit(history, session, 'AB\n')
             prior_saved = session.saved_editor_state_id
-
             def hook(phase, _ctx):
                 if phase == 'before_late_revalidation':
                     new.write_bytes(b'competitor')
@@ -95,7 +86,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(session.saved_editor_state_id, prior_saved)
             self.assertTrue(session.modified)
             self.assertEqual(new.read_bytes(), b'competitor')
-
     def test_save_as_overwrite_uses_source_representation_not_destination_representation(self):
         with tempfile.TemporaryDirectory() as td:
             source = Path(td) / 'source.txt'
@@ -111,7 +101,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertTrue(target.read_bytes().startswith(codecs.BOM_UTF16_LE))
             self.assertEqual(load_document(str(target)).text, 'AB\n')
             self.assertEqual(session.file_path, os.path.abspath(str(target)))
-
     def test_mixed_eol_requires_consent_before_any_target_mutation(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / 'mixed.txt'
@@ -124,7 +113,6 @@ class SaveServiceTests(unittest.TestCase):
                 service.save()
             self.assertEqual(path.read_bytes(), original)
             self.assertTrue(session.modified)
-
     def test_mixed_eol_consent_normalizes_to_dominant_style(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / 'mixed.txt'
@@ -134,7 +122,6 @@ class SaveServiceTests(unittest.TestCase):
             DocumentSaveService(session=session, writer=GuardedFileWriter()).save(allow_mixed_eol_normalization=True)
             self.assertEqual(path.read_bytes(), b'A\r\nB2\r\nC\r\n')
             self.assertFalse(session.modified)
-
     def test_untitled_save_as_uses_utf8_no_bom_lf(self):
         with tempfile.TemporaryDirectory() as td:
             target = Path(td) / 'new.txt'
@@ -148,7 +135,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(result.file_state.load.encoding, 'utf-8')
             self.assertEqual(result.file_state.load.bom.value, 'none')
             self.assertFalse(session.modified)
-
     def test_explicit_representation_change_is_written_and_becomes_clean(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "doc.txt"; path.write_bytes(b"A\nB\n")
@@ -159,7 +145,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(path.read_bytes(), codecs.BOM_UTF16_LE + "A\r\nB\r\n".encode("utf-16-le"))
             self.assertFalse(session.modified)
             self.assertEqual(session.current_representation_profile, session.saved_representation_profile)
-
     def test_explicit_line_ending_selection_on_mixed_source_needs_no_second_consent(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "mixed.txt"; path.write_bytes(b"A\r\nB\nC\r\n")
@@ -167,7 +152,6 @@ class SaveServiceTests(unittest.TestCase):
             session.select_representation_line_ending(LineEnding.LF)
             DocumentSaveService(session=session, writer=GuardedFileWriter()).save()
             self.assertEqual(path.read_bytes(), b"A\nB\nC\n"); self.assertFalse(session.modified)
-
     def test_late_save_of_older_representation_does_not_clean_newer_choice(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "doc.txt"; path.write_bytes(b"A\n")
@@ -180,7 +164,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(session.saved_representation_profile.line_ending, LineEnding.CRLF)
             self.assertEqual(session.current_representation_profile.line_ending, LineEnding.CR)
             self.assertTrue(session.modified)
-
     def test_postcommit_observation_wins_when_eol_choice_has_no_physical_evidence(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "one-line.txt"; path.write_bytes(b"A")
@@ -191,7 +174,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(session.current_representation_profile.line_ending, LineEnding.LF)
             self.assertEqual(session.current_representation_profile, session.saved_representation_profile)
             self.assertFalse(session.modified)
-
     @unittest.skipUnless(hasattr(os, 'symlink'), 'symlinks required')
     def test_save_as_alias_of_active_file_routes_ordinary_save_without_rebind(self):
         with tempfile.TemporaryDirectory() as td:
@@ -206,7 +188,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(result.operation, SaveOperation.SAVE)
             self.assertEqual(source.read_bytes(), b'AB\n')
             self.assertEqual(session.file_path, os.path.abspath(str(source)))
-
     def test_unstable_pending_session_state_rejects_save(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / 'doc.txt'
@@ -216,14 +197,12 @@ class SaveServiceTests(unittest.TestCase):
             with self.assertRaises(SaveBindingError):
                 DocumentSaveService(session=session, writer=GuardedFileWriter()).save()
             self.assertEqual(path.read_bytes(), b'A\n')
-
     def test_committed_baseline_unavailable_keeps_named_binding_but_blocks_next_save(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / 'doc.txt'
             path.write_bytes(b'A\n')
             history, session = self._open_session(path)
             self._edit(history, session, 'AB\n')
-
             def hook(phase, _ctx):
                 if phase == 'before_postcommit_load':
                     raise RuntimeError('injected')
@@ -235,7 +214,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertFalse(session.modified)
             with self.assertRaises(SaveBindingError):
                 DocumentSaveService(session=session, writer=GuardedFileWriter()).save()
-
     def test_stale_ordinary_save_never_moves_savepoint(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / 'doc.txt'
@@ -249,7 +227,6 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(session.saved_editor_state_id, prior_saved)
             self.assertTrue(session.modified)
             self.assertEqual(path.read_bytes(), b'external\n')
-
     def test_nul_text_fails_serialization_before_disk_mutation(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / 'doc.txt'
@@ -260,7 +237,6 @@ class SaveServiceTests(unittest.TestCase):
                 DocumentSaveService(session=session, writer=GuardedFileWriter()).save()
             self.assertEqual(path.read_bytes(), b'A\n')
             self.assertTrue(session.modified)
-
     def test_save_as_existing_target_change_after_observation_fails_without_rebind(self):
         with tempfile.TemporaryDirectory() as td:
             source = Path(td) / 'source.txt'

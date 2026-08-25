@@ -23,6 +23,8 @@ class CommandSpec:
 
 TOP_LEVEL_MENUS = ("File", "Edit", "Search", "View", "Document", "Help")
 
+CHECK_SPELLING_COMMAND = CommandSpec("check-spelling", "Check Spelling…", "F2", "Document")
+
 ENCODING_CHOICES = {
     "utf-8": ("UTF-8", "utf-8", BomKind.NONE), "utf-8-bom": ("UTF-8 BOM", "utf-8", BomKind.UTF8),
     "utf-16-le-bom": ("UTF-16 LE BOM", "utf-16-le", BomKind.UTF16_LE), "utf-16-be-bom": ("UTF-16 BE BOM", "utf-16-be", BomKind.UTF16_BE),
@@ -94,6 +96,7 @@ COMMANDS = (
         "line-endings", "Line Endings", None, "Document", False, None,
         tuple((label, value) for value, (label, _line_ending) in LINE_ENDING_CHOICES.items()),
     ),
+    CHECK_SPELLING_COMMAND,
     CommandSpec("statistics", "Statistics…", None, "Document"),
     CommandSpec("user-guide", "User Guide", None, "Help"),
     CommandSpec("keyboard-shortcuts", "Keyboard Shortcuts", None, "Help"),

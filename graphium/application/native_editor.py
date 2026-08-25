@@ -80,6 +80,20 @@ class NativeEditorController:
     def can_redo(self) -> bool:
         return self.history.can_redo
 
+    @property
+    def current_state_id(self) -> int:
+        return self.history.current_state_id
+
+    def capture_programmatic_source(self) -> HistoryState:
+        """Capture exact text/view under the current editor state identity."""
+        if self.history.group_active:
+            raise RuntimeError("cannot capture a programmatic source during an active native group")
+        current = self.history.current_state_id
+        if self.session.current_editor_state_id != current:
+            raise RuntimeError("native history/session state identity mismatch before programmatic capture")
+        captured = self.buffer.capture_full()
+        return self._assigned_state(captured.text, current, self.buffer.capture_view())
+
     def _assigned_state(self, text: str, state_id: int, view: ViewState) -> HistoryState:
         return HistoryState(
             text,

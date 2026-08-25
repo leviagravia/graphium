@@ -15,7 +15,6 @@ class RecoverySpy:
     def __init__(self): self.changed=0; self.invalidated=0
     def document_state_changed(self): self.changed+=1
     def invalidate(self): self.invalidated+=1
-
 class FakeUI:
     def __init__(self):
         self.open_path=None; self.save_path=None; self.unsaved=UnsavedDecision.CANCEL; self.reload_decision=ReloadDecision.CANCEL; self.overwrite=False; self.mixed=False
@@ -28,9 +27,7 @@ class FakeUI:
     def confirm_mixed_eol_normalization(self): return self.mixed
     def show_error(self,title,message): self.errors.append((title,message))
     def show_warning(self,title,message): self.warnings.append((title,message))
-
 class FileLifecycleTests(unittest.TestCase):
-
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
@@ -43,38 +40,30 @@ class FileLifecycleTests(unittest.TestCase):
         self.save_service = DocumentSaveService(session=self.session, writer=self.writer)
         self.ui = FakeUI()
         self.lifecycle = FileLifecycleController(session=self.session, editor=self.editor, save_service=self.save_service, loader=load_document, ui=self.ui)
-
     def tearDown(self) -> None:
         self.temp.cleanup()
-
     def edit(self, text: str) -> None:
         old = self.buffer.text
         self.assertTrue(text.startswith(old), 'test helper supports append edits')
         self.buffer.user_insert(self.editor, len(old), text[len(old):])
-
     def file_bytes(self,name,raw):
         path=self.root/name; path.write_bytes(raw); return path
     def open_bytes(self,name,raw):
         path=self.file_bytes(name,raw); self.assertTrue(self.lifecycle.open_document(str(path)).completed); return path
     def state_triplet(self): return self.session.snapshot(),self.history.checkpoint(),self.buffer.text
     def assert_state_triplet(self,before): self.assertEqual((self.session.snapshot(),self.history.checkpoint(),self.buffer.text),before)
-
     def bind_recovery_spy(self):
         r=RecoverySpy(); self.lifecycle.recovery=r; self.editor.set_document_state_listener(r.document_state_changed); return r
-
     def test_recovery_failed_open_after_discard_preserves_generation(self):
         self.edit('draft'); r=self.bind_recovery_spy(); self.ui.unsaved=UnsavedDecision.DISCARD
         self.assertFalse(self.lifecycle.open_document(str(self.root/'missing.txt')).completed); self.assertEqual((r.changed,r.invalidated),(0,0))
-
     def test_recovery_successful_replace_notifies_only_after_install(self):
         self.edit('draft'); r=self.bind_recovery_spy(); self.ui.unsaved=UnsavedDecision.DISCARD
         self.assertTrue(self.lifecycle.new_document().completed); self.assertEqual((r.changed,r.invalidated),(1,0))
-
     def test_recovery_close_cancel_preserves_but_discard_invalidates(self):
         self.edit('draft'); r=self.bind_recovery_spy(); self.ui.unsaved=UnsavedDecision.CANCEL
         self.assertFalse(self.lifecycle.request_close().completed); self.assertEqual(r.invalidated,0)
         self.ui.unsaved=UnsavedDecision.DISCARD; self.assertTrue(self.lifecycle.request_close().completed); self.assertEqual(r.invalidated,1)
-
     def test_unsaved_prompt_does_not_copy_full_buffer(self):
         self.edit('draft')
         self.buffer.full_captures = 0
@@ -82,7 +71,6 @@ class FileLifecycleTests(unittest.TestCase):
         result = self.lifecycle.new_document()
         self.assertFalse(result.completed)
         self.assertEqual(self.buffer.full_captures, 0)
-
     def test_new_document_cancel_preserves_modified_document(self):
         self.edit('draft')
         before = self.session.snapshot()
@@ -92,7 +80,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertTrue(result.cancelled)
         self.assertEqual(self.session.snapshot(), before)
         self.assertEqual(self.buffer.text, 'draft')
-
     def test_new_document_discard_replaces_and_is_clean(self):
         self.edit('draft')
         self.ui.unsaved = UnsavedDecision.DISCARD
@@ -102,7 +89,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertIsNone(self.session.logical_path)
         self.assertFalse(self.session.modified)
         self.assertFalse(self.editor.can_undo)
-
     def test_failed_open_preserves_current_document(self):
         self.edit('keep me')
         self.ui.unsaved = UnsavedDecision.DISCARD
@@ -112,7 +98,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertEqual(self.session.snapshot(), before)
         self.assertEqual(self.buffer.text, 'keep me')
         self.assertTrue(self.ui.errors)
-
     def test_open_loads_before_replacing_and_is_clean(self):
         source = self.file_bytes('source.txt',b'hello\r\nworld\r\n')
         result = self.lifecycle.open_document(str(source))
@@ -121,7 +106,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertEqual(self.session.logical_path, str(source))
         self.assertFalse(self.session.modified)
         self.assertFalse(self.editor.can_undo)
-
     def test_pathological_huge_line_open_is_rejected_before_buffer_install(self):
         from graphium.application.renderability import MAX_INTERACTIVE_LINE_CHARS
         self.edit('keep current')
@@ -138,7 +122,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertEqual(after_history, before_history)
         self.assertTrue(self.ui.errors)
         self.assertIn('line too long', self.ui.errors[-1][0].lower())
-
     def test_huge_line_open_does_not_truncate_or_mutate_source_bytes(self):
         from graphium.application.renderability import MAX_INTERACTIVE_LINE_CHARS
         source = self.root / 'huge-line.txt'
@@ -147,7 +130,6 @@ class FileLifecycleTests(unittest.TestCase):
         result = self.lifecycle.open_document(str(source))
         self.assertFalse(result.completed)
         self.assertEqual(source.read_bytes(), raw)
-
     def test_save_untitled_syncs_once_then_save_as_rebinds_after_commit(self):
         self.edit('hello')
         target = self.root / 'new.txt'
@@ -159,7 +141,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertEqual(target.read_bytes(), b'hello')
         self.assertEqual(self.session.logical_path, str(target))
         self.assertFalse(self.session.modified)
-
     def test_save_as_existing_requires_explicit_overwrite_consent(self):
         self.edit('new bytes')
         target = self.root / 'existing.txt'
@@ -170,7 +151,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertTrue(result.cancelled)
         self.assertEqual(target.read_bytes(), b'old bytes')
         self.assertIsNone(self.session.logical_path)
-
     def test_save_as_existing_rebinds_only_after_successful_commit(self):
         self.edit('new bytes')
         target = self.root / 'existing.txt'
@@ -182,7 +162,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertEqual(target.read_bytes(), b'new bytes')
         self.assertEqual(self.session.logical_path, str(target))
         self.assertFalse(self.session.modified)
-
     def test_mixed_eol_save_requires_explicit_normalization_consent(self):
         source = self.open_bytes('mixed.txt',b'a\r\nb\nc\r')
         self.buffer.user_insert(self.editor, len(self.buffer.text), 'd')
@@ -195,7 +174,6 @@ class FileLifecycleTests(unittest.TestCase):
         accepted = self.lifecycle.save()
         self.assertTrue(accepted.completed)
         self.assertFalse(self.session.modified)
-
     def test_stale_external_mutation_blocks_ordinary_save(self):
         source = self.open_bytes('doc.txt',b'one')
         self.buffer.user_insert(self.editor, len(self.buffer.text), ' mine')
@@ -205,7 +183,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertEqual(source.read_bytes(), b'theirs')
         self.assertTrue(self.session.modified)
         self.assertTrue(self.ui.errors)
-
     def test_reload_clean_accepts_fresh_disk_bytes_without_touching_recent(self):
         source = self.open_bytes('reload.txt',b'first')
         class RecentSpy:
@@ -221,7 +198,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertFalse(self.session.modified)
         self.assertFalse(self.editor.can_undo)
         self.assertEqual(recent.touches, [])
-
     def test_reload_modified_cancel_preserves_buffer_session_and_history(self):
         source = self.open_bytes('reload-cancel.txt',b'disk')
         self.buffer.user_insert(self.editor, len(self.buffer.text), ' mine')
@@ -234,7 +210,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertEqual(source.read_bytes(),b'external')
         self.assertEqual(self.ui.reload_prompts, 1)
         self.assertEqual(self.ui.unsaved_prompts, [])
-
     def test_reload_modified_discard_accepts_current_disk_object(self):
         source = self.open_bytes('reload-discard.txt',b'alpha')
         self.buffer.user_insert(self.editor, len(self.buffer.text), ' mine')
@@ -258,7 +233,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertFalse(self.session.modified)
         self.assertEqual(self.ui.reload_prompts, 1)
         self.assertEqual(self.ui.unsaved_prompts, [])
-
     def test_reload_modified_uses_dedicated_decision_and_never_generic_save_prompt(self):
         source = self.open_bytes('reload-dedicated.txt',b'alpha')
         self.buffer.user_insert(self.editor, len(self.buffer.text), ' mine')
@@ -274,7 +248,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertEqual(self.buffer.text, before_text)
         self.assertEqual(source.read_bytes(), b'external')
         self.assertTrue(self.session.modified)
-
     def test_reload_failure_preserves_current_document(self):
         source = self.open_bytes('reload-missing.txt',b'keep')
         before=self.state_triplet()
@@ -283,7 +256,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertFalse(result.completed)
         self.assert_state_triplet(before)
         self.assertTrue(self.ui.errors)
-
     def test_reload_pathological_line_is_rejected_before_buffer_install(self):
         from graphium.application.renderability import MAX_INTERACTIVE_LINE_CHARS
         source = self.open_bytes('reload-huge.txt',b'safe')
@@ -294,14 +266,12 @@ class FileLifecycleTests(unittest.TestCase):
         self.assert_state_triplet(before)
         self.assertTrue(self.ui.errors)
         self.assertIn('line too long', self.ui.errors[-1][0].lower())
-
     def test_reload_untitled_is_inert(self):
         before=self.session.snapshot(); before_history=self.history.checkpoint()
         result=self.lifecycle.reload_document()
         self.assertFalse(result.completed)
         self.assertEqual(self.session.snapshot(),before)
         self.assertEqual(self.history.checkpoint(),before_history)
-
     def test_close_save_cancelled_keeps_window_open_semantics(self):
         self.edit('draft')
         self.ui.unsaved = UnsavedDecision.SAVE
@@ -310,7 +280,6 @@ class FileLifecycleTests(unittest.TestCase):
         self.assertFalse(result.completed)
         self.assertTrue(result.cancelled)
         self.assertTrue(self.session.modified)
-
     def test_close_discard_completes_without_mutating_document(self):
         self.edit('draft')
         self.ui.unsaved = UnsavedDecision.DISCARD

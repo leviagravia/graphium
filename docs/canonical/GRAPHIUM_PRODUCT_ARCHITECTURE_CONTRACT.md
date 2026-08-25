@@ -2,7 +2,7 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **G13 CLOSED / CERTIFIED / PUBLISHED** at commit `053bcde3f5bcb4f51ce9edd8a89538a7630949ae`, tree `eb6925d3b779fa8ae12d1d0947a31fe460fbee0e`, product subtree `033ae482b19cf81a4852cf4e22773b2740387443`, product version `0.0.13`. The authorized fail-closed publication finalizer requalified 336/336 permanent local authorities, G13 focused 43/43, Structural Continuity PASS, adopted the binding S4 fresh-process True-GTK recovery proof 4/4, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G13 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G13 product publication commit/tree above.
+Current publication boundary: **G13 CLOSED / CERTIFIED / PUBLISHED** at commit `053bcde3f5bcb4f51ce9edd8a89538a7630949ae`, tree `eb6925d3b779fa8ae12d1d0947a31fe460fbee0e`, product subtree `033ae482b19cf81a4852cf4e22773b2740387443`, product version `0.0.13`. The authorized fail-closed publication finalizer requalified 336/336 permanent local authorities, G13 focused 43/43, Structural Continuity PASS, adopted the binding S4 fresh-process True-GTK recovery proof 4/4, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G13 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G13 product publication commit/tree above. G14 External Spellcheck is now **CANDIDATE R1 DECLARED / CERTIFIED / PUBLICATION AUTHORIZATION READY** on frozen unpublished version `0.0.14`: exact Candidate local authorities 373/373 PASS, G14 focused 37/37 PASS, Structural Continuity PASS, Lightweight static PASS, with adoption of the S4 fresh-process True-GTK 4/4 proof and clean-startup no-spell-thread/child runtime proof. Candidate R1 consumes attempt 1/2; 1/2 remains. Publication is NOT authorized.
 G12 / Graphium v1 remains CLOSED / CERTIFIED / PUBLISHED at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`; later governance-only commits do not replace that product publication identity.
 
 ## 1. Product identity
@@ -1686,3 +1686,104 @@ G13 is therefore **CLOSED / CERTIFIED / PUBLISHED**. G14 External Spellcheck is 
 but remains **NOT OPENED**. It may be opened only after the final post-sync read-only audit passes and
 the user gives separate explicit authorization.
 
+### 24. G14 External Spellcheck Core boundary — S1
+
+G14 is OPEN as NON-CANDIDATE work after explicit authorization. Its permanent capability boundary is optional and user-triggered: no spell process, dictionary discovery, worker or spell I/O belongs to startup/idle. S1 adds `graphium.domain.spellcheck` as the pure code-point span authority and `graphium.infrastructure.hunspell_session` as the only Hunspell subprocess authority. The latter accepts only an absolute resolved executable path, spawns an argv list with `shell=False`, uses `hunspell -a -i UTF-8 --check-apostrophe`, prefixes every checked token with `^`, never accepts a document pathname, bounds token/protocol/suggestion sizes, uses strict UTF-8 parsing, and owns terminate/kill/wait on timeout, cancellation, protocol fault or close.
+
+Graphium owns document span mapping and Hunspell owns dictionary/morphology/suggestion semantics. Unicode letters and combining marks form lexical material; internal ASCII/U+2019 apostrophes and simple hyphens may remain inside spans; overlong spans are skipped. Arbitrary raw document lines are not a protocol unit. S1 has no GTK, menu/dialog, `DocumentSession`, edit/history or Save authority and does not create a generic external-tool framework. Later S2 must consume this boundary through the existing Graphium programmatic-edit authority rather than mutate `Gtk.TextBuffer` or the user target directly.
+
+
+### 24.1 G14-S2 spell-session and edit-authority boundary
+
+S2 adds a GTK-free `SpellCheckController` as a per-explicit-dialog state machine, not as a persistent
+service. One session snapshots current editor text plus positive state identity, advances a code-point
+cursor in document order, owns only exact-session Ignore/Ignore-All state, emits one immutable token request
+at a time, and accepts only its matching result. Any editor state-id change while a request or issue is
+outstanding makes the session stale and prevents mutation; external failure never authorizes an edit.
+
+Spell replacement is planned from an exact `WordSpan` and is committed only through
+`NativeEditorController.apply_prevalidated_programmatic_group()`. The native controller exposes a generic
+`capture_programmatic_source()` + current-state-id fence but owns no Hunspell semantics. Changed replacement
+is one normal Undo/Redo group; identical replacement is a no-op; custom or empty replacement remains an
+explicit ordinary edit; final renderability, rollback, savepoint transition and notification are inherited
+from the pre-existing programmatic edit authority. Spell checking does not change representation profile and
+does not write the user target.
+
+The command identity is frozen centrally as `CHECK_SPELLING_COMMAND = CommandSpec("check-spelling",
+"Check Spelling…", "F2", "Document")` but is intentionally not yet projected in `COMMANDS`. S3 alone may
+project that same identity into menu/action/accelerator/help and add the thin GTK dialog. No S2 runtime
+path imports GTK or creates/spawns a spell worker/process.
+
+S2 qualification is 190 Behavioral + 167 Integration + 14 Packaging/Release = 371/371 PASS, with G14
+focused unique 35/35 PASS and Structural Continuity PASS (`validation_loc=4764`, `harness_loc=1198`) without
+rebaseline. G14 remains NON-CANDIDATE; S3 requires separate explicit authorization.
+
+### G14 external spellcheck — S3 GTK projection boundary (2026-08-25)
+
+G14 S1/S2/S3 is implemented NON-CANDIDATE. The product command is exactly **Document → Check Spelling…**
+with **F2**. The GTK adapter is lazy-imported only by that explicit action; normal startup/composition must
+not import the adapter, resolve Hunspell, create a spell worker/thread, spawn a child, or scan dictionaries.
+
+The dialog is deliberately thin: **System default** dictionary, one Unknown word, bounded suggestions or a
+custom replacement, **Replace / Ignore / Ignore All / Close**. One dialog owns one `SpellCheckController`,
+one `HunspellPipeSession`, and at most one single-worker executor created only at the first real token
+request. Hunspell pipe I/O is off the GTK main thread and results are delivered by `GLib.idle_add`; dialog
+close/fault cancels/reaps the child and shuts down the worker. The adapter never receives a document path
+for Hunspell and owns no file writer, Save authority, alternate Gtk.TextBuffer mutation path or persistent
+spell state.
+
+Replace remains exclusively the S2 programmatic-edit authority and ordinary Undo/Redo semantics. Missing
+Hunspell/dictionary/process/protocol failure must be user-visible and non-mutating. Live underline,
+continuous scanning, daemon/service, automatic language detection, persistent language selection,
+personal-dictionary management, Correct All, autocorrect and grammar checking remain outside G14 Core.
+
+S3 does not itself establish desktop certification. Consolidated exact-byte qualification and any narrowly
+necessary True-GTK proof belong to S4 before any Candidate declaration.
+
+
+### 24.2 G14-S4 consolidated qualification and Candidate-readiness boundary
+
+S4 closes the pre-Candidate qualification of the G14 Core spellcheck boundary. The exact S3 product bytes
+passed the full permanent local authorities (190 Behavioral + 167 Integration + 16 Packaging/Release =
+373/373), G14 focused unique 37/37 and Structural Continuity. A narrowly scoped fresh-process T480 probe on
+exact source tree `3c31e2072666b11e81b731fdb8532e950a37d12c` passed 4/4 True-GTK scenarios: clean startup,
+optional capability absent, Replace + ordinary Undo, and Ignore All. It also proved no spell worker/thread
+or Hunspell child exists on clean startup. No manual test is required.
+
+Candidate readiness may not reuse the published G13 version identity. The only allowed product change after
+that platform proof is the serial identity literal in `graphium/product.py`, `0.0.13` -> `0.0.14`; the three
+canonical documents may record the new governance state. Every spellcheck protocol/session/controller/GTK
+byte, every other product byte, tests, launchers and user documentation must remain identical to the
+S4-proven source. Because this delta cannot alter spellcheck/GTK behavior, the S4 4/4 platform evidence and
+Lightweight Runtime PASS remain binding without a redundant T480 run.
+
+G14 Candidate R1 was explicitly authorized, declared and certified on the frozen `0.0.14` source. Candidate
+certification preserves the Candidate-ready product bytes and adopts the S4 True-GTK 4/4 plus Lightweight
+Runtime proof because the only product-byte delta after that proof is the serial version literal in
+`graphium/product.py`; every spellcheck protocol/session/controller/GTK byte is unchanged. The exact Candidate
+re-passes 190 Behavioral + 167 Integration + 16 Packaging/Release = 373/373, G14 focused 37/37, Structural
+Continuity and Lightweight static. Attempt accounting is 1/2 used, 1/2 remaining. Publication requires
+separate explicit authorization.
+
+
+### 24.3 G14 Candidate R1 publication authorization
+
+The user explicitly authorized publication after G14 Candidate R1 certification. Publication is a separate
+fail-closed Git transaction from canonical parent `8a847a793b9d84f76161c41cce261dd82b3deb17` / tree
+`65318ce6847304ccbcce31767311857fb42798f3`. The certified Candidate source tree is
+`0d629e31762836e3fe7574e8f1fd16e0166b336e`; product subtree
+`396be05aaa0cc32e18341889e5494163151f4606`, tests subtree
+`38463612ab04f1c213055d31bc1a971d55646e67`, and `docs/user/` subtree
+`c470b92dbd0fc8db27143dea0306e8440e6b7521` are frozen publication inputs.
+
+Relative to Candidate R1, publication may alter only the three canonical authority documents, additive
+`evidence/G14_DESKTOP_CERTIFICATION_RECEIPT_20260825.txt`, and regenerated `evidence/SHA256SUMS.txt`.
+`graphium/`, `bin/`, `tests/`, and `docs/user/` must remain byte-identical. The finalizer must re-run the
+373/373 permanent local authorities, G14 focused 37/37, Structural Continuity and Lightweight static,
+then prove the exact staged target, commit with subject `G14: add external spellcheck`, push/fetch, prove
+`HEAD=origin/main=remote main`, and finish CLEAN.
+
+The binding S4 True-GTK 4/4 and `PASS_NO_STARTUP_SPELL_THREAD_OR_CHILD` evidence remain the desktop/
+Lightweight Runtime proof. Publication must not repeat T480/manual validation because no Candidate product
+byte changes in the publication-only delta. Candidate accounting remains 1/2 used and 1/2 unused.
+Graphium Plus and Graphium Ultra remain defined but unopened.

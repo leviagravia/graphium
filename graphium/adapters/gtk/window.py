@@ -265,6 +265,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "full-screen": self._action_full_screen,
             "encoding": self._action_encoding,
             "line-endings": self._action_line_endings,
+            "check-spelling": self._action_check_spelling,
             "statistics": self._action_statistics,
             "user-guide": self._action_user_guide,
             "keyboard-shortcuts": self._action_keyboard_shortcuts,
@@ -1382,6 +1383,17 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         if changed and self.core.recovery is not None:
             self.core.recovery.document_state_changed()
         self._set_string_action(action, value)
+        self._refresh_projection()
+        self.text_view.grab_focus()
+
+    def _action_check_spelling(self, *_args) -> None:
+        from .spelling import run_spell_check_dialog
+
+        def changed() -> None:
+            self._refresh_projection()
+            self.text_view.scroll_to_mark(self.buffer.get_insert(), 0.08, False, 0.0, 0.0)
+
+        run_spell_check_dialog(self, editor=self.core.editor, on_changed=changed)
         self._refresh_projection()
         self.text_view.grab_focus()
 

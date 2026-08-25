@@ -183,7 +183,7 @@ Toolbar
   second button surface would duplicate a small conventional menu/shortcut command set
   without enough quick-edit value.
 
-9. DOCUMENT REPRESENTATION AND STATISTICS
+9. DOCUMENT REPRESENTATION, SPELLING AND STATISTICS
 ----------------------------------------
 Encoding
   Selects the representation Graphium will use on the next Save: UTF-8, UTF-8 BOM, UTF-16 LE/BE
@@ -198,6 +198,15 @@ Line Endings
 
 The Compact Status always projects the current selected representation, including an unsaved
 Encoding/Line Endings choice, together with Saved/Modified.
+
+Check Spelling… (F2)
+  Runs an explicit, on-demand spelling pass with the system Hunspell installation and its default
+  dictionary. Graphium starts no spell process, thread or dictionary scan at normal startup or while
+  you type. Unknown words are presented one at a time with bounded suggestions and Replace, Ignore
+  and Ignore All. Replace is a normal Graphium edit and therefore a normal Undo step; the file on disk
+  changes only after the ordinary Save command. Ignore All lasts only for the current spelling dialog.
+  If Hunspell or a suitable dictionary is unavailable, Graphium reports that condition without changing
+  the document. There is no live underline, autocorrect, grammar checker or personal-dictionary manager.
 
 Statistics…
   Captures the current live buffer only when you request it and shows Lines, Words and Characters

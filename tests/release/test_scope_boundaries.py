@@ -33,4 +33,15 @@ class ScopeBoundaryTests(unittest.TestCase):
         self.assertIn('dialog.set_default_response(Gtk.ResponseType.CANCEL)', reload_dialog)
         self.assertIn('Discard Changes and Reload', reload_dialog)
         self.assertNotIn('add_button("Save"', reload_dialog)
+    def test_external_spellcheck_is_one_optional_confined_subprocess_boundary(self):
+        owners=[]
+        for p in (ROOT/'graphium').rglob('*.py'):
+            if 'subprocess.Popen' in p.read_text(encoding='utf-8'): owners.append(p.relative_to(ROOT).as_posix())
+        self.assertEqual(sorted(owners),['graphium/adapters/gtk/application.py','graphium/infrastructure/hunspell_session.py'])
+        text=(ROOT/'graphium/infrastructure/hunspell_session.py').read_text(encoding='utf-8')
+        for token in ('"-a"','"-i"','"UTF-8"','"--check-apostrophe"','shell=False','b"^"'): self.assertIn(token,text)
+        self.assertNotIn('document_path',text); self.assertNotIn('Gtk',text)
+        app=(ROOT/'graphium/application/spellcheck.py').read_text(encoding='utf-8')
+        self.assertIn('apply_prevalidated_programmatic_group',app); self.assertNotIn('subprocess',app); self.assertNotIn('pathlib',app); self.assertNotIn('import os',app); self.assertNotIn('Gtk',app)
+        commands=(ROOT/'graphium/application/commands.py').read_text(encoding='utf-8'); self.assertIn('CHECK_SPELLING_COMMAND = CommandSpec("check-spelling", "Check Spelling…", "F2", "Document")',commands)
 

@@ -4,18 +4,14 @@ from graphium.application.document_session import DocumentSession
 from graphium.application.editor_transaction import EditorRollbackError, EditorTransactionController
 from graphium.domain.document_identity import BomKind, ContentFingerprint, DiskObservation, DocumentFileBinding, DocumentFileState, DocumentLoadMetadata, DocumentLoadResult, FileObjectIdentity, LineEnding, LineEndingProfile
 from graphium.domain.history import HistoryState, TextHistory
-
 class MemoryBuffer:
-
     def __init__(self, text: str='', insert: int | None=None, bound: int | None=None):
         self.text = text
         self.insert = len(text) if insert is None else insert
         self.bound = self.insert if bound is None else bound
         self.fail_next_restore = False
-
     def capture(self) -> HistoryState:
         return HistoryState(self.text, self.insert, self.bound)
-
     def restore(self, state: HistoryState) -> None:
         if self.fail_next_restore:
             self.fail_next_restore = False
@@ -23,17 +19,13 @@ class MemoryBuffer:
         self.text = state.text
         self.insert = state.insert_offset
         self.bound = state.selection_bound_offset
-
     def set(self, text: str, insert: int | None=None, bound: int | None=None) -> None:
         self.text = text
         self.insert = len(text) if insert is None else insert
         self.bound = self.insert if bound is None else bound
-
 def file_state(path: str='/tmp/open.txt') -> DocumentFileState:
     return DocumentFileState(binding=DocumentFileBinding(path, path, FileObjectIdentity(1, 2)), load=DocumentLoadMetadata('utf-8', BomKind.NONE, LineEndingProfile(LineEnding.LF, False, False)), disk=DiskObservation(1, 10, 33188, False), content_fingerprint=ContentFingerprint('sha256', '11' * 32))
-
 class EditorTransactionTests(unittest.TestCase):
-
     def make_controller(self, text: str='', *, clean: bool=True):
         buffer = MemoryBuffer(text)
         history = TextHistory()
@@ -41,7 +33,6 @@ class EditorTransactionTests(unittest.TestCase):
         controller = EditorTransactionController(session=session, history=history, buffer=buffer)
         controller.initialize_new(clean=clean)
         return (buffer, history, session, controller)
-
     def test_saved_edit_undo_saved_redo_dirty(self):
         buffer, history, session, controller = self.make_controller('A')
         saved_id = session.saved_editor_state_id
@@ -57,7 +48,6 @@ class EditorTransactionTests(unittest.TestCase):
         controller.redo()
         self.assertEqual(buffer.text, 'AB')
         self.assertTrue(session.modified)
-
     def test_save_ab_undo_a_dirty_redo_ab_clean(self):
         buffer, history, session, controller = self.make_controller('A')
         buffer.set('AB')
@@ -72,7 +62,6 @@ class EditorTransactionTests(unittest.TestCase):
         self.assertEqual(buffer.text, 'AB')
         self.assertEqual(session.current_editor_state_id, saved_ab_id)
         self.assertFalse(session.modified)
-
     def test_type_then_backspace_before_group_commit_returns_clean(self):
         buffer, history, session, controller = self.make_controller('A')
         saved_id = session.saved_editor_state_id
@@ -85,7 +74,6 @@ class EditorTransactionTests(unittest.TestCase):
         self.assertFalse(session.modified)
         self.assertFalse(controller.commit_native_group())
         self.assertFalse(session.modified)
-
     def test_branch_after_undo_with_same_saved_text_remains_dirty_by_identity(self):
         buffer, history, session, controller = self.make_controller('A')
         buffer.set('AB')
@@ -101,7 +89,6 @@ class EditorTransactionTests(unittest.TestCase):
         self.assertNotEqual(session.current_editor_state_id, saved_old_branch)
         self.assertTrue(session.modified)
         self.assertFalse(history.can_redo)
-
     def test_caret_selection_only_sync_preserves_state_and_cleanliness(self):
         buffer, history, session, controller = self.make_controller('abcdef')
         saved_id = session.saved_editor_state_id
@@ -111,10 +98,8 @@ class EditorTransactionTests(unittest.TestCase):
         self.assertEqual((history.current.insert_offset, history.current.selection_bound_offset), (5, 2))
         self.assertFalse(session.modified)
         self.assertFalse(history.can_undo)
-
     def test_programmatic_transaction_is_one_undo_step(self):
         buffer, history, session, controller = self.make_controller('A')
-
         def action():
             buffer.set('ABC', 3, 3)
         result = controller.execute('Expand', action)
@@ -122,13 +107,11 @@ class EditorTransactionTests(unittest.TestCase):
         self.assertEqual(len(history.undo_stack), 2)
         controller.undo()
         self.assertEqual(buffer.text, 'A')
-
     def test_failed_programmatic_transaction_rolls_back_buffer_history_and_session(self):
         buffer, history, session, controller = self.make_controller('A')
         hcp = history.checkpoint()
         scp = session.snapshot()
         before = buffer.capture()
-
         def action():
             buffer.set('BROKEN')
             raise ValueError('boom')
@@ -137,7 +120,6 @@ class EditorTransactionTests(unittest.TestCase):
         self.assertEqual(buffer.capture(), before)
         self.assertEqual(history.checkpoint(), hcp)
         self.assertEqual(session.snapshot(), scp)
-
     def test_failed_undo_restore_rolls_back_history_session_and_visible_buffer(self):
         buffer, history, session, controller = self.make_controller('A')
         buffer.set('AB')
@@ -152,12 +134,10 @@ class EditorTransactionTests(unittest.TestCase):
         self.assertEqual(buffer.capture(), before)
         self.assertEqual(history.checkpoint(), hcp)
         self.assertEqual(session.snapshot(), scp)
-
     def test_failed_programmatic_rollback_restores_authorities_even_if_buffer_restore_fails(self):
         buffer, history, session, controller = self.make_controller('A')
         hcp = history.checkpoint()
         scp = session.snapshot()
-
         def action():
             buffer.set('BROKEN')
             buffer.fail_next_restore = True
