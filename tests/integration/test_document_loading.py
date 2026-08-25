@@ -269,9 +269,13 @@ class PropertiesObserverTests(unittest.TestCase):
         controller = DocumentPropertiesController(session=session, observer=observe_document)
         props = controller.snapshot()
         self.assertIsNone(props.logical_path)
-        self.assertEqual(props.encoding, 'utf-8')
-        self.assertEqual(props.eol.value, 'lf')
+        self.assertEqual((props.encoding, props.bom, props.eol.value), ('utf-8', BomKind.NONE, 'lf'))
         self.assertFalse(props.modified)
+        session.select_representation_encoding('utf-16-be', BomKind.UTF16_BE)
+        session.select_representation_line_ending(LineEnding.CRLF)
+        props = controller.snapshot()
+        self.assertEqual((props.encoding, props.bom, props.eol), ('utf-16-be', BomKind.UTF16_BE, LineEnding.CRLF))
+        self.assertTrue(props.modified)
 
 class CurrentDocumentIntegrationTests(unittest.TestCase):
 

@@ -6,6 +6,8 @@ the view-settings authority, not by GTK widgets.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+from graphium.domain.document_identity import BomKind, LineEnding
+from graphium.domain.document_serialization import DocumentSerializationProfile
 
 
 @dataclass(frozen=True)
@@ -17,6 +19,25 @@ class CommandSpec:
     stateful: bool = False
     submenu: str | None = None
     choices: tuple[tuple[str, str], ...] = ()
+
+
+TOP_LEVEL_MENUS = ("File", "Edit", "Search", "View", "Document", "Help")
+
+ENCODING_CHOICES = {
+    "utf-8": ("UTF-8", "utf-8", BomKind.NONE), "utf-8-bom": ("UTF-8 BOM", "utf-8", BomKind.UTF8),
+    "utf-16-le-bom": ("UTF-16 LE BOM", "utf-16-le", BomKind.UTF16_LE), "utf-16-be-bom": ("UTF-16 BE BOM", "utf-16-be", BomKind.UTF16_BE),
+    "utf-32-le-bom": ("UTF-32 LE BOM", "utf-32-le", BomKind.UTF32_LE), "utf-32-be-bom": ("UTF-32 BE BOM", "utf-32-be", BomKind.UTF32_BE),
+}
+LINE_ENDING_CHOICES = {"lf": ("LF", LineEnding.LF), "crlf": ("CRLF", LineEnding.CRLF), "cr": ("CR", LineEnding.CR)}
+
+def encoding_choice_value(profile: DocumentSerializationProfile) -> str:
+    return next(value for value, (_, encoding, bom) in ENCODING_CHOICES.items() if (encoding, bom) == (profile.encoding, profile.bom))
+
+def encoding_choice_target(value: str):
+    item = ENCODING_CHOICES.get(value); return None if item is None else item[1:]
+
+def line_ending_choice_target(value: str):
+    item = LINE_ENDING_CHOICES.get(value); return None if item is None else item[1]
 
 
 COMMANDS = (
@@ -65,6 +86,14 @@ COMMANDS = (
     CommandSpec("zoom-out", "Zoom Out", "<Ctrl>minus", "View"),
     CommandSpec("zoom-reset", "Reset Zoom", "<Ctrl>0", "View"),
     CommandSpec("full-screen", "Full Screen", "F11", "View", True),
+    CommandSpec(
+        "encoding", "Encoding", None, "Document", False, None,
+        tuple((label, value) for value, (label, _encoding, _bom) in ENCODING_CHOICES.items()),
+    ),
+    CommandSpec(
+        "line-endings", "Line Endings", None, "Document", False, None,
+        tuple((label, value) for value, (label, _line_ending) in LINE_ENDING_CHOICES.items()),
+    ),
     CommandSpec("statistics", "Statistics…", None, "Document"),
     CommandSpec("user-guide", "User Guide", None, "Help"),
     CommandSpec("keyboard-shortcuts", "Keyboard Shortcuts", None, "Help"),

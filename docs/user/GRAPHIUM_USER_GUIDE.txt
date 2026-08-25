@@ -4,7 +4,7 @@ GRAPHIUM USER GUIDE
 Graphium is a fast, simple and safety-focused plain-text editor for Linux. It keeps a
 single-document quick-edit model with Search and View controls, a bounded Recent list,
 non-binding copy commands, read-only Properties/Check Now, explicit Reload from Disk,
-strong low-noise live external-file monitoring and on-demand Statistics. Graphium does not use
+strong low-noise live external-file monitoring, explicit Encoding/Line Endings choices and on-demand Statistics. Graphium does not use
 tabs, projects, syntax modes, plugins, cloud services, session restoration or hidden document
 databases.
 
@@ -19,9 +19,10 @@ The title reports the document name and exact savepoint relation:
   Untitled (Saved) — Graphium
   notes.txt (Modified) — Graphium
 
-Saved/Modified is derived from monotonic editor-state identities. Undoing or redoing to the
-exact saved state therefore restores Saved exactly; text equality on a different edit
-branch is not enough.
+Saved/Modified is the relation to one exact saved document state: both the monotonic text-state
+identity and the selected output representation must match. Undoing or redoing to the exact saved
+text state restores Saved only when Encoding and Line Endings also match the saved representation.
+Text equality on a different edit branch is not enough.
 
 2. FILE COMMANDS
 ----------------
@@ -59,8 +60,8 @@ Save Version Copy…
   automatic backup system or version database.
 
 Properties…
-  Shows accepted logical/resolved identity, size/time, encoding/BOM/EOL, Saved/Modified,
-  writable state and link count. Check Now performs a fresh strong read-only observation and
+  Shows accepted logical/resolved identity and size/time together with the current selected
+  Encoding/BOM/Line Endings, Saved/Modified, writable state and link count. Check Now performs a fresh strong read-only observation and
   reports whether the file is unchanged, content-changed, metadata-changed, replaced/retargeted,
   missing or unavailable/unstable. It never accepts a new baseline or reloads the document.
 
@@ -182,8 +183,22 @@ Toolbar
   second button surface would duplicate a small conventional menu/shortcut command set
   without enough quick-edit value.
 
-9. DOCUMENT STATISTICS
------------------------
+9. DOCUMENT REPRESENTATION AND STATISTICS
+----------------------------------------
+Encoding
+  Selects the representation Graphium will use on the next Save: UTF-8, UTF-8 BOM, UTF-16 LE/BE
+  with BOM, or UTF-32 LE/BE with BOM. The choice does not rewrite the file immediately, does not
+  alter the text, and is not an Undo edit. A changed choice makes the document Modified until it is
+  saved or changed back to the saved representation. Graphium does not guess legacy encodings.
+
+Line Endings
+  Selects LF, CRLF or CR for the next Save. A mixed-EOL file remains reported as Mixed until you
+  explicitly choose a concrete line ending; that explicit choice is the normalization consent.
+  Normal Save never silently selects a different line-ending style.
+
+The Compact Status always projects the current selected representation, including an unsaved
+Encoding/Line Endings choice, together with Saved/Modified.
+
 Statistics…
   Captures the current live buffer only when you request it and shows Lines, Words and Characters
   for the document and for a non-empty selection. Characters are Unicode code points; words are
@@ -293,15 +308,19 @@ bounded to ten paths; Statistics is O(n) only after explicit activation and has 
 Printing is likewise dormant at startup: its module/controller/Page Setup I/O are deferred until
 an explicit Page Setup/Preview/Print action.
 
-Performance remains measured separately as common FIRST_VISIBLE for Graphium and permanent
-comparators Leafpad/L3afpad/Mousepad/FeatherPad, plus Graphium's exact internal
-FIRST_EDITABLE handshake.
+Performance qualification keeps common FIRST_VISIBLE and Graphium's exact internal FIRST_EDITABLE
+handshake as separate evidence. Direct mature-source and T480 qualification showed that the compared
+editors do not expose one homogeneous external file-loaded/editable lifecycle, so Graphium does not
+turn AT-SPI focus, text projection or accessibility mutation into a cross-product readiness metric.
+Cross-product timing uses FIRST_VISIBLE only; exact Graphium FIRST_EDITABLE remains product-owned.
 
-17. KEYBOARD SHORTCUTS
-----------------------
-Choose Help > Keyboard Shortcuts for the current list. Accelerators are audited against the
-active Linux Mint/Cinnamon global bindings before release. Ctrl+Alt+L is reserved in the
-target environment and is not used by Graphium.
+17. HELP AND KEYBOARD SHORTCUTS
+-------------------------------
+Help contains exactly User Guide, Keyboard Shortcuts and About. About includes compact support
+information for the running Python, GTK and display backend; Graphium has no separate diagnostics
+menu. Choose Help > Keyboard Shortcuts for the current accelerator list. Accelerators are audited
+against the active Linux Mint/Cinnamon global bindings before release. Ctrl+Alt+L is reserved in
+the target environment and is not used by Graphium.
 
 18. WHAT GRAPHIUM DELIBERATELY DOES NOT ADD
 --------------------------------------

@@ -21,17 +21,6 @@ from .infrastructure.guarded_file_writer import GuardedFileWriter
 from .infrastructure.view_settings_store import JsonViewSettingsStore
 from .infrastructure.recent_files_store import JsonRecentFilesStore
 from .paths import resolve_xdg_paths
-from .product import PRODUCT_NAME, VERSION
-
-
-@dataclass(frozen=True)
-class CompositionDescriptor:
-    product_name: str
-    version: str
-    document_authority_count: int
-    physical_writer_authority_count: int
-    gtk_adapter_boundary: str
-    native_history_storage: str
 
 
 @dataclass
@@ -47,17 +36,6 @@ class GraphiumCore:
     recent_files: RecentFilesController
     document_copy: DocumentCopyService
     document_properties: DocumentPropertiesController
-
-
-def describe_composition() -> CompositionDescriptor:
-    return CompositionDescriptor(
-        product_name=PRODUCT_NAME,
-        version=VERSION,
-        document_authority_count=1,
-        physical_writer_authority_count=1,
-        gtk_adapter_boundary="graphium.adapters.gtk",
-        native_history_storage="delta",
-    )
 
 
 def build_core(

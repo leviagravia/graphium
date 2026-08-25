@@ -14,7 +14,7 @@ from graphium.domain.document_save import (
     SaveOperation,
     SaveTargetObservation,
 )
-from graphium.domain.document_serialization import profile_for_document, serialize_document
+from graphium.domain.document_serialization import serialize_document
 from graphium.infrastructure.guarded_file_writer import GuardedFileWriter
 
 
@@ -49,7 +49,7 @@ class DocumentSaveService:
                 raise SaveBindingError("ordinary Save requires an accepted active file baseline")
             if target.logical_target_path != snapshot.logical_path:
                 raise SaveBindingError("ordinary Save target differs from the active document")
-        profile = profile_for_document(snapshot.file_state)
+        profile = snapshot.current_representation_profile
         return DocumentSaveIntent(
             operation=operation,
             editor_state_id=state_id,
@@ -123,6 +123,7 @@ class DocumentSaveService:
             intent.editor_state_id,
             logical_path=outcome.logical_target_path,
             file_state=outcome.file_state,
+            representation_profile=intent.serialization,
         )
         return DocumentSaveResult(
             operation=intent.operation,

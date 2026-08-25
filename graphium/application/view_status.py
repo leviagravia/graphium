@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from graphium.domain.document_identity import BomKind, DocumentFileState, LineEnding
+from graphium.domain.document_identity import BomKind, LineEnding
+from graphium.domain.document_serialization import DocumentSerializationProfile
 
 
 @dataclass(frozen=True)
@@ -23,10 +24,7 @@ class CompactStatus:
         return f"{self.encoding} · {self.eol} · {self.saved_state}"
 
 
-def _encoding_label(file_state: DocumentFileState | None) -> str:
-    if file_state is None:
-        return "UTF-8"
-    raw = file_state.load.encoding.lower()
+def _encoding_label(profile: DocumentSerializationProfile) -> str:
     labels = {
         "utf-8": "UTF-8",
         "utf-16-le": "UTF-16 LE",
@@ -34,49 +32,34 @@ def _encoding_label(file_state: DocumentFileState | None) -> str:
         "utf-32-le": "UTF-32 LE",
         "utf-32-be": "UTF-32 BE",
     }
-    label = labels.get(raw, raw.upper())
-    if file_state.load.bom is BomKind.UTF8:
-        return f"{label} BOM"
-    return label
+    label = labels.get(profile.encoding.lower(), profile.encoding.upper())
+    return f"{label} BOM" if profile.bom is not BomKind.NONE else label
 
 
-def _eol_label(file_state: DocumentFileState | None) -> str:
-    if file_state is None:
-        return "LF"
-    eol = file_state.load.eol
-    if eol.mixed:
-        dominant = {
-            LineEnding.LF: "LF",
-            LineEnding.CRLF: "CRLF",
-            LineEnding.CR: "CR",
-            LineEnding.NONE: "LF",
-        }[eol.dominant]
-        return f"Mixed EOL ({dominant})"
-    return {
-        LineEnding.LF: "LF",
-        LineEnding.CRLF: "CRLF",
-        LineEnding.CR: "CR",
-        # A file with no separator will use the Graphium default if a separator is
-        # introduced later, so the compact persistence-facing projection is LF.
-        LineEnding.NONE: "LF",
-    }[eol.dominant]
+def _eol_label(profile: DocumentSerializationProfile) -> str:
+    label = {LineEnding.LF: "LF", LineEnding.CRLF: "CRLF", LineEnding.CR: "CR"}[
+        profile.line_ending
+    ]
+    return f"Mixed EOL ({label})" if profile.mixed_source else label
 
 
 def project_compact_status(
     *,
     line: int,
     column: int,
-    file_state: DocumentFileState | None,
+    representation_profile: DocumentSerializationProfile,
     modified: bool,
 ) -> CompactStatus:
     line = int(line)
     column = int(column)
     if line < 1 or column < 1:
         raise ValueError("line and column must be 1-based positive integers")
+    if not isinstance(representation_profile, DocumentSerializationProfile):
+        raise TypeError("representation_profile must be DocumentSerializationProfile")
     return CompactStatus(
         line=line,
         column=column,
-        encoding=_encoding_label(file_state),
-        eol=_eol_label(file_state),
+        encoding=_encoding_label(representation_profile),
+        eol=_eol_label(representation_profile),
         saved_state="Modified" if modified else "Saved",
     )

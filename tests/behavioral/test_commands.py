@@ -1,9 +1,9 @@
 from __future__ import annotations
 import unittest
-from graphium.application.commands import COMMANDS, accelerator_map
-from graphium.application.commands import COMMANDS, accelerator_map, command_availability
+from graphium.application.commands import COMMANDS, TOP_LEVEL_MENUS, accelerator_map, command_availability, encoding_choice_target, encoding_choice_value, line_ending_choice_target
+from graphium.domain.document_identity import BomKind, LineEnding
+from graphium.domain.document_serialization import DocumentSerializationProfile
 from graphium.domain.edit_history import EditKind, ReplayOperation
-from graphium.application.commands import COMMANDS
 
 class ContractArchitectureTests(unittest.TestCase):
 
@@ -51,12 +51,22 @@ class ArchitectureTests(unittest.TestCase):
 
 class CurrentCommandSurfaceTests(unittest.TestCase):
 
+    def test_top_level_menu_authority_is_exact(self):
+        self.assertEqual(TOP_LEVEL_MENUS, ("File", "Edit", "Search", "View", "Document", "Help"))
+        self.assertEqual({c.menu for c in COMMANDS if c.menu != "Recent"}, set(TOP_LEVEL_MENUS))
+
     def test_command_surface_is_classic_and_has_no_format_menu(self):
         actual = {(c.menu, c.action) for c in COMMANDS}
         for pair in {('File', 'new'), ('File', 'open'), ('File', 'save'), ('File', 'save-as'), ('File', 'reload'), ('File', 'quit'), ('Edit', 'undo'), ('Edit', 'redo'), ('Edit', 'cut'), ('Edit', 'copy'), ('Edit', 'paste'), ('Edit', 'delete'), ('Edit', 'select-all'), ('Help', 'user-guide'), ('Help', 'keyboard-shortcuts'), ('Help', 'about')}:
             self.assertIn(pair, actual)
         self.assertNotIn('Format', {c.menu for c in COMMANDS})
-        self.assertEqual([c.action for c in COMMANDS if c.menu == 'Document'], ['statistics'])
+        document = [c for c in COMMANDS if c.menu == 'Document']
+        self.assertEqual([c.action for c in document], ['encoding', 'line-endings', 'statistics'])
+        self.assertEqual(document[0].choices, (("UTF-8", "utf-8"), ("UTF-8 BOM", "utf-8-bom"), ("UTF-16 LE BOM", "utf-16-le-bom"), ("UTF-16 BE BOM", "utf-16-be-bom"), ("UTF-32 LE BOM", "utf-32-le-bom"), ("UTF-32 BE BOM", "utf-32-be-bom")))
+        self.assertEqual(document[1].choices, (("LF", "lf"), ("CRLF", "crlf"), ("CR", "cr")))
+        self.assertEqual(encoding_choice_target("utf-16-le-bom"), ("utf-16-le", BomKind.UTF16_LE))
+        self.assertEqual(encoding_choice_value(DocumentSerializationProfile("utf-16-le", BomKind.UTF16_LE, LineEnding.CRLF)), "utf-16-le-bom")
+        self.assertEqual(line_ending_choice_target("crlf"), LineEnding.CRLF); self.assertFalse(document[0].accelerator or document[1].accelerator)
 
 
 class PreferenceCommandSurfaceTests(unittest.TestCase):

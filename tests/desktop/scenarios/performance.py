@@ -1,6 +1,6 @@
 from __future__ import annotations
 import argparse, statistics, sys, time
-from tests.desktop.harness.runtime import drain, load_gtk3, text_of
+from tests.desktop.harness.runtime import drain, load_gtk3, text_of, drain_for
 from tests.desktop.harness.fixtures import realistic_text
 
 SAMPLES=5
@@ -8,11 +8,6 @@ PREF_LIMIT_MS=500.0
 APPEARANCE_LIMIT_MS=1000.0
 TAB_LIMIT_MS=1000.0
 TRANSFORM_LIMIT_S=3.0
-
-def drain_for(Gtk,seconds=0.005):
-    deadline=time.monotonic()+seconds
-    while time.monotonic()<deadline: drain(Gtk); time.sleep(0.002)
-    drain(Gtk)
 
 def median_ms(fn):
     fn()
@@ -32,12 +27,12 @@ def main():
     from graphium.adapters.gtk.dialogs import choose_preferences
     app=GraphiumApplication()
     if not app.register(None): return 1
-    app.activate(); drain_for(Gtk,0.08); w=app.window
+    app.activate(); drain_for(Gtk,0.08,0.002); w=app.window
     if w is None:return 1
     try:
         # Existing realistic 1 MiB transformation budget remains permanent.
         text=realistic_text(); w.core.editor.initialize_new_text(text,clean=True); w._refresh_projection(); b=w.buffer; a,z=b.get_bounds(); b.select_range(a,z)
-        t=time.monotonic(); w.lookup_action('uppercase').activate(None); drain_for(Gtk); elapsed=time.monotonic()-t
+        t=time.monotonic(); w.lookup_action('uppercase').activate(None); drain_for(Gtk,step=0.002); elapsed=time.monotonic()-t
         if elapsed>TRANSFORM_LIMIT_S or not w.core.session.modified:return 1
         w.lookup_action('undo').activate(None); drain_for(Gtk)
         if text_of(w.text_view)!=text or w.core.session.modified:return 1
@@ -75,5 +70,5 @@ def main():
         return 0
     except (AssertionError,OSError,RuntimeError,ValueError): return 1
     finally:
-        w.destroy(); drain_for(Gtk); app.quit()
+        w.destroy(); drain_for(Gtk,step=0.002); app.quit()
 if __name__=='__main__': raise SystemExit(main())

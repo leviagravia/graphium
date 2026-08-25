@@ -13,7 +13,7 @@ from graphium.domain.document_save import (
     StaleSaveTargetError,
     UnsafeSaveTargetError,
 )
-from graphium.domain.document_serialization import profile_for_document, serialize_document
+from graphium.domain.document_serialization import serialize_document
 from graphium.infrastructure.guarded_file_writer import GuardedFileWriter
 
 
@@ -89,7 +89,7 @@ class DocumentCopyService:
                 raise CopyBindingError("copy target is the active physical file")
         serialized = serialize_document(
             snapshot.text,
-            profile_for_document(snapshot.file_state),
+            snapshot.current_representation_profile,
             allow_mixed_eol_normalization=allow_mixed_eol_normalization,
         )
         # Deliberately do not call DocumentSession.accept_* after commit.

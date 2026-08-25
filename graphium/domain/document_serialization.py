@@ -35,6 +35,38 @@ class DocumentSerializationProfile:
             raise TypeError("line_ending must be LineEnding")
 
 
+_USER_ENCODING_PROFILES = frozenset({
+    ("utf-8", BomKind.NONE),
+    ("utf-8", BomKind.UTF8),
+    ("utf-16-le", BomKind.UTF16_LE),
+    ("utf-16-be", BomKind.UTF16_BE),
+    ("utf-32-le", BomKind.UTF32_LE),
+    ("utf-32-be", BomKind.UTF32_BE),
+})
+
+
+def representation_with_encoding(
+    profile: DocumentSerializationProfile, *, encoding: str, bom: BomKind
+) -> DocumentSerializationProfile:
+    """Return a user-selectable encoding profile without granting mixed-EOL consent."""
+    if not isinstance(profile, DocumentSerializationProfile):
+        raise TypeError("profile must be DocumentSerializationProfile")
+    if (encoding, bom) not in _USER_ENCODING_PROFILES:
+        raise ValueError("encoding/BOM profile is not a supported Graphium conversion target")
+    return DocumentSerializationProfile(encoding, bom, profile.line_ending, profile.mixed_source)
+
+
+def representation_with_line_ending(
+    profile: DocumentSerializationProfile, *, line_ending: LineEnding
+) -> DocumentSerializationProfile:
+    """Return a concrete EOL target; this explicitly resolves any mixed-source condition."""
+    if not isinstance(profile, DocumentSerializationProfile):
+        raise TypeError("profile must be DocumentSerializationProfile")
+    if line_ending not in (LineEnding.LF, LineEnding.CRLF, LineEnding.CR):
+        raise ValueError("line ending must be LF, CRLF or CR")
+    return DocumentSerializationProfile(profile.encoding, profile.bom, line_ending, False)
+
+
 @dataclass(frozen=True)
 class SerializedDocument:
     data: bytes

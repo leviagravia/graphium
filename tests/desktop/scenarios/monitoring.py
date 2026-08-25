@@ -4,21 +4,10 @@ import argparse
 import os
 import tempfile
 import threading
-import time
 from pathlib import Path
 
-from tests.desktop.harness.runtime import drain, load_gtk3, text_of
+from tests.desktop.harness.runtime import drain, load_gtk3, text_of, wait_until
 
-
-def wait_until(Gtk, predicate, timeout=5.0):
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        drain(Gtk)
-        if predicate():
-            return True
-        time.sleep(0.01)
-    drain(Gtk)
-    return bool(predicate())
 
 def monitor_settled(monitor, previous_started):
     return monitor.observations_started > previous_started and monitor._initial_source_id == 0 and monitor._debounce_source_id == 0 and monitor._inflight_generation is None and monitor._pending_generation is None

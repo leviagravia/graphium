@@ -1,7 +1,7 @@
 """Single-document savepoint-aware session authority for Graphium.
 
 State-ID based Saved/Modified semantics are authoritative. The native editor
-integration by allowing the live GTK buffer to advance state identity without copying the
+integration allows the live GTK buffer to advance state identity without copying the
 entire document into this session on every keystroke. Before a physical Save, the current
 buffer text must be explicitly synchronized to the exact current editor state ID.
 """
@@ -10,8 +10,14 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
 from typing import Iterator
-from graphium.domain.document_identity import DocumentFileState, DocumentLoadResult
+from graphium.domain.document_identity import BomKind, DocumentFileState, DocumentLoadResult, LineEnding
 from graphium.domain.history import HistoryState
+from graphium.domain.document_serialization import (
+    DocumentSerializationProfile,
+    profile_for_document,
+    representation_with_encoding,
+    representation_with_line_ending,
+)
 
 
 class DocumentSessionPhase(str, Enum):
@@ -30,6 +36,8 @@ class DocumentSessionSnapshot:
     current_editor_state_id: int | None
     saved_editor_state_id: int | None
     text_editor_state_id: int | None
+    current_representation_profile: DocumentSerializationProfile
+    saved_representation_profile: DocumentSerializationProfile
 
     @property
     def file_path(self) -> str | None:
@@ -41,6 +49,7 @@ class DocumentSessionSnapshot:
             self.current_editor_state_id is not None
             and self.saved_editor_state_id is not None
             and self.current_editor_state_id == self.saved_editor_state_id
+            and self.current_representation_profile == self.saved_representation_profile
         )
 
     @property
@@ -55,6 +64,7 @@ class DocumentSession:
     __slots__ = (
         "_text", "_logical_path", "_file_state", "_phase", "_phase_depth", "_revision",
         "_current_editor_state_id", "_saved_editor_state_id", "_text_editor_state_id",
+        "_current_representation_profile", "_saved_representation_profile",
     )
 
     def __init__(self) -> None:
@@ -67,6 +77,9 @@ class DocumentSession:
         self._current_editor_state_id = None
         self._saved_editor_state_id = None
         self._text_editor_state_id = None
+        default_profile = profile_for_document(None)
+        self._current_representation_profile = default_profile
+        self._saved_representation_profile = default_profile
 
     @staticmethod
     def _state_id(value: int) -> int:
@@ -96,6 +109,10 @@ class DocumentSession:
     @property
     def text_editor_state_id(self): return self._text_editor_state_id
     @property
+    def current_representation_profile(self): return self._current_representation_profile
+    @property
+    def saved_representation_profile(self): return self._saved_representation_profile
+    @property
     def text_is_current(self): return self.snapshot().text_is_current
     @property
     def modified(self): return self.snapshot().modified
@@ -110,6 +127,8 @@ class DocumentSession:
             self._current_editor_state_id,
             self._saved_editor_state_id,
             self._text_editor_state_id,
+            self._current_representation_profile,
+            self._saved_representation_profile,
         )
 
     @contextmanager
@@ -137,6 +156,9 @@ class DocumentSession:
         self._current_editor_state_id = state.state_id
         self._saved_editor_state_id = state.state_id if clean else None
         self._text_editor_state_id = state.state_id
+        profile = profile_for_document(None)
+        self._current_representation_profile = profile
+        self._saved_representation_profile = profile
         if self.snapshot() != before:
             self._revision += 1
 
@@ -154,6 +176,9 @@ class DocumentSession:
         self._current_editor_state_id = state.state_id
         self._saved_editor_state_id = state.state_id
         self._text_editor_state_id = state.state_id
+        profile = profile_for_document(result.file_state)
+        self._current_representation_profile = profile
+        self._saved_representation_profile = profile
         if self.snapshot() != before:
             self._revision += 1
 
@@ -221,15 +246,43 @@ class DocumentSession:
             self._revision += 1
         return current
 
+    def select_representation_encoding(self, encoding: str, bom: BomKind) -> bool:
+        """Select an explicit supported output encoding without writing or editing text."""
+        profile = representation_with_encoding(
+            self._current_representation_profile, encoding=encoding, bom=bom
+        )
+        before = self.snapshot()
+        self._current_representation_profile = profile
+        if self.snapshot() != before:
+            self._revision += 1
+            return True
+        return False
+
+    def select_representation_line_ending(self, line_ending: LineEnding) -> bool:
+        """Select a concrete output EOL; on mixed input this is explicit normalization consent."""
+        profile = representation_with_line_ending(
+            self._current_representation_profile, line_ending=line_ending
+        )
+        before = self.snapshot()
+        self._current_representation_profile = profile
+        if self.snapshot() != before:
+            self._revision += 1
+            return True
+        return False
+
     def accept_saved_state(self, state_id: int, *, file_state: DocumentFileState | None = None) -> None:
         state_id = self._state_id(state_id)
         before = self.snapshot()
         self._saved_editor_state_id = state_id
+        self._saved_representation_profile = self._current_representation_profile
         if file_state is not None:
             if not isinstance(file_state, DocumentFileState):
                 raise TypeError("file_state must be DocumentFileState or None")
             self._logical_path = file_state.binding.logical_path
             self._file_state = file_state
+            accepted_profile = profile_for_document(file_state)
+            self._current_representation_profile = accepted_profile
+            self._saved_representation_profile = accepted_profile
         if self.snapshot() != before:
             self._revision += 1
 
@@ -239,10 +292,13 @@ class DocumentSession:
         *,
         logical_path: str,
         file_state: DocumentFileState | None,
+        representation_profile: DocumentSerializationProfile,
     ) -> None:
         state_id = self._state_id(state_id)
         if not isinstance(logical_path, str) or not logical_path:
             raise ValueError("logical_path must be a non-empty string")
+        if not isinstance(representation_profile, DocumentSerializationProfile):
+            raise TypeError("representation_profile must be DocumentSerializationProfile")
         if file_state is not None:
             if not isinstance(file_state, DocumentFileState):
                 raise TypeError("file_state must be DocumentFileState or None")
@@ -252,6 +308,12 @@ class DocumentSession:
         self._logical_path = logical_path
         self._file_state = file_state
         self._saved_editor_state_id = state_id
+        accepted_profile = (
+            profile_for_document(file_state) if file_state is not None else representation_profile
+        )
+        if self._current_representation_profile == representation_profile:
+            self._current_representation_profile = accepted_profile
+        self._saved_representation_profile = accepted_profile
         if self.snapshot() != before:
             self._revision += 1
 
@@ -273,6 +335,6 @@ class DocumentSession:
         self._current_editor_state_id = snapshot.current_editor_state_id
         self._saved_editor_state_id = snapshot.saved_editor_state_id
         self._text_editor_state_id = snapshot.text_editor_state_id
+        self._current_representation_profile = snapshot.current_representation_profile
+        self._saved_representation_profile = snapshot.saved_representation_profile
 
-    def requires_save_confirmation(self) -> bool:
-        return self.modified

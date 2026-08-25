@@ -4959,3 +4959,1437 @@ Until finalizer PASS:
 PUBLICATION_TARGET_TREE=EXTERNAL_FINALIZER_QUALIFICATION_RECEIPT
 NEXT_STEP=RUN_FAIL_CLOSED_G11_PUBLICATION_FINALIZER
 FINAL_PHASE=G11_CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_PENDING
+
+================================================================================
+ENTRY — G12 OPENING / SOURCE-FIRST CLOSURE AUDIT / CONTRACT FREEZE
+Date: 2026-08-24
+State: BINDING / OPEN / NON-CANDIDATE / CONTRACT FROZEN / NO GIT
+================================================================================
+
+BASELINE AND AUTHORIZATION
+--------------------------
+The user explicitly authorized the next serial step after the successful G11 publication and
+post-publication read-only audit. G12 is therefore opened on the exact published G11 baseline:
+
+  G11_PUBLICATION_COMMIT=10be01b7909c3efe6f76b4c80ea46d1586aea65c
+  G11_PUBLICATION_TREE=82619dfb95df46a33ca6d0e08ade282be44ff2c1
+  G11_PRODUCT_SUBTREE=1f51f8c85c771e64d0095483e83da658f676728c
+  G11_STATUS=CLOSED/CERTIFIED/PUBLISHED
+
+The post-publication reconstruction/audit found 0 blockers and requalified the exact published
+target locally at Behavioral 149/149, Integration 120/120, Packaging/Release 11/11 and Structural
+Continuity PASS. No T480 or Git mutation was required by that audit.
+
+ROADMAP POSITION
+----------------
+G12 is the final v1 work item. G13 Crash Recovery Cache and G14 Offline Spellcheck are post-v1
+backlog and do not block v1 closure. G10 remains terminal FAILED / NOT PUBLISHED and is not reopened.
+The Roadmap's stale G09 and G11 status lines are synchronized by this source-only freeze:
+  G09=CLOSED/CERTIFIED/PUBLISHED
+  G11=CLOSED/CERTIFIED/PUBLISHED
+  G12=OPEN/CONTRACT_FROZEN/NONCANDIDATE
+
+OPENING SOURCE-FIRST CLOSURE FINDINGS
+-------------------------------------
+The published G11 product already has exactly six top-level menus and most final-v1 behavior. Five
+closure areas remained source-provable before implementation:
+
+  1. Document -> Encoding / Line Endings explicit conversion was frozen in Menu Architecture R3
+     but not implemented; Architecture section 7 still described bounded conversion as SHOULD.
+  2. Normal desktop install projection/desktop metadata did not yet exist.
+  3. Help target wording and implemented command labels differed textually.
+  4. No common external FIRST_EDITABLE oracle yet existed for the four comparators.
+  5. Roadmap status lines for G09/G11 were stale after their actual closures.
+
+MATURE-SOURCE FALSIFICATION / DISPOSITION
+------------------------------------------
+Direct supplied source was used; web was used only to verify current AT-SPI API facts.
+
+Mousepad 0.7.0:
+  - `MousepadFile` stores line-ending/BOM state next to saved-state facts; changing line-ending/BOM
+    is an unbuffered modification rather than text mutation.
+  - process-isolated comparator mode is `--disable-server`, which switches the application to
+    non-unique mode.
+  Decision: ADAPT representation-as-document-state and exact isolated comparator launch; REJECT
+  Mousepad's weaker modified-flag model and weaker file-truth model.
+
+gedit:
+  - Save As carries explicit chosen encoding and newline type separately from editor text.
+  Decision: ADOPT explicit representation choice at persistence boundary; ADAPT to Graphium's one
+  GuardedFileWriter and exact state-ID relation.
+
+Leafpad / L3afpad:
+  - editor text is normalized internally while charset/line-ending file state controls serialization.
+  Decision: ADOPT the small representation-state model; REJECT encoding guessing/fallback.
+
+FeatherPad:
+  - exact isolated comparator launch is `--standalone`; mature desktop source also demonstrates the
+  value of ordinary desktop integration without making those facilities editor-runtime authorities.
+  Decision: ADOPT comparator isolation and ordinary desktop launch metadata; REJECT its broader
+  tab/session/code-editor surface.
+
+AT-SPI 2.0 current API verification:
+  - Accessible exposes `get_process_id()` for exact process ownership.
+  - `generate_keyboard_event()` can synthesize keyboard input in the current UI context.
+  These two facts permit a common external first-input-acceptance oracle without clipboard or Save.
+
+REPRESENTATION CONTRACT FREEZE
+------------------------------
+G12 resolves the v1 SHOULD/MUST tension: bounded explicit representation conversion is now a v1 MUST
+because the six-menu architecture already freezes Encoding and Line Endings under Document.
+
+There is still exactly one document dirty authority. G12 extends the final relation from text-only
+state identity to one composite relation:
+
+  SAVED iff
+    current_editor_state_id == saved_editor_state_id != None
+    AND current_representation_profile == saved_representation_profile
+
+Any other relation is Modified. This is not a second dirty boolean.
+
+Frozen behavior:
+  - Open: current=saved profile from accepted disk load.
+  - New: current=saved UTF-8/no-BOM/LF.
+  - explicit representation command changes current profile only; no text mutation, no text Undo,
+    no writer call, no accepted-baseline mutation.
+  - changing back to the exact saved profile can naturally restore Saved if text is also at savepoint.
+  - Undo/Redo changes text history only and does not silently undo representation selection.
+  - Save/Save As capture text state + representation state and may accept only that exact pair.
+  - late save after newer text/representation change leaves Modified.
+  - Save a Copy / Save Version Copy use current representation but never advance active savepoint.
+  - fresh post-commit disk observation is truth; no fictitious representation survives when bytes
+    cannot encode it as an observable property.
+
+Frozen encoding choices:
+  UTF-8 (no BOM)
+  UTF-8 with BOM
+  UTF-16 LE with BOM
+  UTF-16 BE with BOM
+  UTF-32 LE with BOM
+  UTF-32 BE with BOM
+
+Forbidden:
+  legacy/locale codec guessing; UTF-16/32 without BOM; replacement-character fallback; implicit
+  Save conversion.
+
+Frozen line-ending choices:
+  LF
+  CRLF
+  CR
+
+Mixed EOL remains observation only. Selecting any concrete line-ending target on mixed input is
+explicit normalization consent and clears the pending mixed-source condition. Encoding change alone
+does not grant that consent.
+
+Menu presentation separates observation from action:
+  Encoding -> Current: <representation> [non-action] + explicit Convert to ... actions
+  Line Endings -> Current: <representation> [non-action] + explicit Convert to ... actions
+
+INSTALL / DESKTOP COMPLETENESS FREEZE
+-------------------------------------
+G12 will not add a generic packaging framework. One small standard-library installer in `bin/` will
+own prefix/staging install. Default prefix is `~/.local`; explicit `--prefix` and `--destdir` support
+system/package staging. Installed projection is product-only:
+
+  PREFIX/lib/graphium/graphium/**
+  PREFIX/lib/graphium/bin/graphium
+  PREFIX/lib/graphium/docs/user/**
+  PREFIX/bin/graphium -> private runtime launcher
+  PREFIX/share/applications/io.github.leviagravia.Graphium.desktop
+
+The desktop entry uses `Exec=graphium %F`, `MimeType=text/plain`, `Terminal=false`, Utility/TextEditor
+categories and the generic `accessories-text-editor` icon. Tests, evidence, canonical development
+documents, selftest and qualification laboratory are forbidden from installed payload.
+
+AppStream/metainfo is DEFERRED because no project-license authority is frozen; legal metadata will not
+be guessed merely to imitate mature projects. This does not block v1 launching/install behavior.
+
+HELP / COMMAND AUTHORITY FREEZE
+-------------------------------
+The lower-churn implemented wording wins after mature/minimalism review:
+  User Guide
+  Keyboard Shortcuts
+  About
+
+Earlier roadmap wording `Graphium Help` / `About Graphium` is superseded. The Help menu context and
+About dialog already identify the product, so repeating the product name adds no utility.
+
+COMMON EXTERNAL FIRST_EDITABLE FREEZE
+-------------------------------------
+The common oracle is qualification-only AT-SPI 2.0 first-input acceptance, not product runtime.
+For each 0 B / 5 KiB / 1 MiB / 10 MiB named disposable fixture:
+
+  - isolated HOME/XDG;
+  - exact spawned PID required;
+  - Graphium normal launch; Leafpad/L3afpad normal; Mousepad `--disable-server`;
+    FeatherPad `--standalone`;
+  - monotonic start immediately before spawn;
+  - discover exact-PID accessible Text + EditableText in editable/focused visible state;
+  - inject one short unique ASCII token via AT-SPI keyboard synthesis;
+  - stop only after the same accessible reports token acceptance using character-count/caret-local
+    evidence;
+  - no clipboard, no Save, no user configuration, no window from another PID;
+  - dispose the process and isolated state after each run.
+
+One priming run plus >=7 measured runs; report median and p90. Missing AT-SPI/comparator capability is
+COMPARATIVE_BLOCKED, never a Graphium product FAIL and never grounds oracle weakening.
+
+SOURCE-ONLY IMPLEMENTATION SLICES
+---------------------------------
+S1 — Representation state foundation.
+S2 — Document menu + status/properties/help synchronization.
+S3 — Minimal install projection + packaging/release authority.
+S4 — Common FIRST_EDITABLE AT-SPI qualification harness.
+S5 — Final source-only convergence / six-menu / anti-bloat / dead-code / canonical audit.
+
+T480 remains forbidden until S1-S5 have exhausted source-provable work and the exact source-only
+pre-candidate tree has no blocker. At that point at most one consolidated automated NON-CANDIDATE
+platform qualification may be requested if real GTK/AT-SPI/comparator behavior remains indispensable.
+Manual tests default to 0.
+
+CURRENT GOVERNANCE
+------------------
+  G12_STATUS=OPEN/CONTRACT_FROZEN/NONCANDIDATE
+  G12_CANDIDATE_ATTEMPTS=0/2
+  G12_CANDIDATE_R1=NOT_DECLARED
+  PRODUCT_MUTATION=NO
+  T480_TESTS=0
+  MANUAL_TESTS=0
+  GIT_MUTATION=NO
+  PUBLICATION_AUTHORIZED=NO
+
+NEXT_STEP=G12_S1_REPRESENTATION_STATE_FOUNDATION_SOURCE_ONLY
+FINAL_PHASE=G12_CONTRACT_FREEZE_COMPLETE_IMPLEMENTATION_NOT_STARTED
+
+================================================================================
+ENTRY — G12 CONTRACT FREEZE LOCAL QUALIFICATION CLOSURE
+Date: 2026-08-24
+State: BINDING / OPEN / CONTRACT FROZEN / NON-CANDIDATE / S1 READY
+================================================================================
+
+The G12 source-first contract freeze/design reconciliation completed as a canonical-document-only
+transaction. No runtime, test, user-help or launcher byte changed from published G11.
+
+Exact changed-path scope against published G11:
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_ROADMAP.md
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+  CHANGED_PATHS_COUNT=3
+
+Local permanent-authority qualification before this closure append:
+  Behavioral          149/149 PASS
+  Integration         120/120 PASS
+  Packaging/Release    11/11 PASS
+  TOTAL               280/280 PASS
+  Structural Continuity      PASS
+
+Structural metrics remained exactly at the published G11 authority baseline:
+  validation_files=51
+  validation_loc=4778
+  harness_files=20
+  harness_loc=1242
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=101
+  gxx_named=0
+  gxx_refs=0
+  historical=0
+  exact=0
+  compat=0
+  source_inspection=5
+  runtime_gxx=0
+  runtime_release=0
+
+Protected byte identity against published G11:
+  graphium/=IDENTICAL
+  tests/=IDENTICAL
+  docs/user/=IDENTICAL
+  bin/=IDENTICAL
+  PRODUCT_SUBTREE=1f51f8c85c771e64d0095483e83da658f676728c
+
+The exact final source-tree hash is recorded externally after this append, because the MO cannot
+contain the hash of the tree that contains itself. The final exact tree must pass the same 280 tests
+and Structural Continuity once more after this entry is closed.
+
+Current governance:
+  G12_STATUS=OPEN/CONTRACT_FROZEN/NONCANDIDATE
+  G12_CANDIDATE_ATTEMPTS=0/2
+  G12_CANDIDATE_R1=NOT_DECLARED
+  G12_S1_AUTHORIZED=NO_SEPARATE_USER_AUTHORIZATION_REQUIRED
+  PRODUCT_MUTATION=NO
+  T480_TESTS=0
+  MANUAL_TESTS=0
+  GIT_MUTATION=NO
+
+NEXT_STEP=AWAIT_EXPLICIT_G12_S1_REPRESENTATION_STATE_FOUNDATION_AUTHORIZATION
+FINAL_PHASE=G12_CONTRACT_FREEZE_LOCALLY_QUALIFIED
+
+
+================================================================================
+ENTRY — G12-S1 REPRESENTATION STATE FOUNDATION SOURCE-ONLY CLOSURE
+Date: 2026-08-24
+State: BINDING / OPEN / NON-CANDIDATE / S1 COMPLETE / S2 NOT AUTHORIZED
+================================================================================
+
+User explicitly authorized G12-S1 after the G12 contract freeze. Implementation was performed
+source-first with no T480 execution, no manual tests, no Candidate declaration and no Git mutation.
+
+S1 OWNERSHIP
+------------
+`DocumentSession` remains the single active document-state authority and now owns:
+  current_representation_profile;
+  saved_representation_profile.
+
+Saved/Modified is exactly the frozen composite relation:
+  stable current text state == saved text state
+  AND current representation profile == saved representation profile.
+There is no second modified boolean and no representation-specific writer.
+
+Open establishes both profiles from the accepted load; New establishes UTF-8/no-BOM/LF.
+Explicit encoding selection changes only the current profile and preserves mixed-EOL status.
+Explicit LF/CRLF/CR selection changes only the current profile and clears mixed_source because that
+choice itself is normalization consent. Unsupported legacy/locale codecs, BOM-less UTF-16/32 and
+selectable Mixed EOL remain forbidden.
+
+SAVE / COPY SEMANTICS
+---------------------
+DocumentSaveService now captures `snapshot.current_representation_profile` in the immutable save
+intent rather than reconstructing representation from the accepted file baseline at execution time.
+After commit, only the exact captured text state and representation profile advance the saved relation.
+A newer representation choice made while I/O is in flight remains Modified. A fresh post-commit load
+remains the accepted physical fact; where bytes contain no line separator, its observed/default profile
+rebases the unchanged current choice rather than retaining fictitious EOL evidence.
+
+Save a Copy / Save Version Copy serializes the current profile but deliberately does not advance the
+active saved relation or rebind the document. GuardedFileWriter remains the sole physical writer.
+
+PERMANENT S1 COVERAGE
+---------------------
+Added permanent coverage proves:
+  representation profile participates in Saved/Modified;
+  choosing the saved profile again naturally returns to Saved when text is at its savepoint;
+  text Undo does not discard a pending representation choice;
+  encoding change alone does not clear mixed_source;
+  concrete EOL selection clears mixed_source as explicit normalization consent;
+  unsupported encoding/BOM and Mixed/NONE output targets fail closed;
+  explicit UTF-16 + CRLF conversion writes exact bytes and becomes clean after accepted commit;
+  mixed input with explicit EOL choice needs no second normalization consent;
+  late older-profile Save cannot clean a newer profile choice;
+  post-commit observed disk representation wins where no physical separator exists;
+  non-binding copy uses the current representation and leaves the saved profile untouched.
+
+VALIDATION / STRUCTURAL CONTINUITY
+----------------------------------
+Behavioral:        153/153 PASS
+Integration:       125/125 PASS
+Packaging/Release:  11/11 PASS
+LOCAL_AUTOMATED:   289/289 PASS
+
+Permanent validation code was consolidated while retaining the behavioral scenarios; no new validation
+file, runner, authority node or harness was introduced. Structural result after S1 implementation:
+  validation_files=51
+  validation_loc=4711
+  harness_files=20
+  harness_loc=1242
+  authority_nodes=3
+  cross_edges=4
+  source_inspection=5
+  runtime_gxx=0
+  runtime_release=0
+  STRUCTURAL_CONTINUITY=PASS
+
+GOVERNANCE
+----------
+G12_STATUS=OPEN/S1_COMPLETE/NONCANDIDATE
+G12_CANDIDATE_ATTEMPTS=0/2
+G12_CANDIDATE_R1=NOT_DECLARED
+G12_S2_AUTHORIZED=NO_SEPARATE_USER_AUTHORIZATION_REQUIRED
+T480_TESTS=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+
+NEXT_STEP=AWAIT_EXPLICIT_G12_S2_DOCUMENT_MENU_PROJECTION_HELP_SYNC_AUTHORIZATION
+FINAL_PHASE=G12_S1_REPRESENTATION_STATE_FOUNDATION_SOURCE_ONLY_PASS
+
+================================================================================
+ENTRY — G12-S2 DOCUMENT MENU / REPRESENTATION PROJECTION / HELP SYNC SOURCE-ONLY CLOSURE
+Date: 2026-08-24
+State: BINDING / OPEN / NON-CANDIDATE / S2 COMPLETE / S3 NOT AUTHORIZED
+================================================================================
+
+User explicitly authorized G12-S2 after S1 completed. Work remained source-only: no T480 execution,
+manual test, Candidate declaration or Git mutation.
+
+VISIBLE DOCUMENT AUTHORITY
+--------------------------
+The existing product-owned `COMMANDS` catalog remains the sole menu/accelerator/Help command authority.
+Document is now exactly:
+  Encoding -> UTF-8 / UTF-8 BOM / UTF-16 LE BOM / UTF-16 BE BOM / UTF-32 LE BOM / UTF-32 BE BOM
+  Line Endings -> LF / CRLF / CR
+  Statistics…
+No Format/Tools/Language menu and no dedicated accelerator were added.
+
+The Encoding and Line Endings actions are stateful GTK projections only. They call the S1
+`DocumentSession` representation selectors; they do not write the filesystem, mutate text, create an
+Undo record, touch Recent or create another dirty-state authority. `_refresh_projection()` reprojects
+the action state after New/Open/Reload/Save so accepted on-disk facts and current unsaved choices stay
+synchronized with the menu.
+
+REPRESENTATION STATUS / PROPERTIES PROJECTION
+---------------------------------------------
+Compact Status no longer derives representation from the originally accepted `DocumentFileState`.
+It projects `session.current_representation_profile`, so an explicit unsaved conversion is visible
+immediately. Properties keeps accepted path/size/time/access facts but projects Encoding/BOM/EOL from
+the same current representation profile. Mixed EOL remains an observation until the user explicitly
+chooses LF/CRLF/CR. BOM is shown explicitly for every BOM-bearing profile, including UTF-16/UTF-32.
+Saved/Modified continues to come only from the composite S1 session relation.
+
+HELP / SHORTCUT SYNCHRONIZATION
+-------------------------------
+The offline User Guide now documents explicit Encoding and Line Endings behavior, no-immediate-write,
+no-text-Undo semantics, mixed-EOL normalization consent and composite Saved/Modified. Keyboard
+Shortcuts documents both Document commands as intentionally menu-driven. Help command wording remains
+frozen as User Guide / Keyboard Shortcuts / About. No new Help subsystem was added.
+
+LOCAL QUALIFICATION
+-------------------
+Behavioral:        153/153 PASS
+Integration:       126/126 PASS
+Packaging/Release:  11/11 PASS
+LOCAL_AUTOMATED:   290/290 PASS
+
+Structural Continuity:
+  validation_files=51
+  validation_loc=4715
+  harness_files=20
+  harness_loc=1242
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=104
+  source_inspection=5
+  runtime_gxx=0
+  runtime_release=0
+  STRUCTURAL_CONTINUITY=PASS
+
+No validation file, harness file, authority node or generic framework was introduced. S2 adds one
+integration scenario proving that Compact Status projects a pending conversion profile before Save.
+The GTK wiring itself remains scheduled for consolidated real-platform qualification only after
+source-only S1-S5 are exhausted; no T480 probe is justified at S2.
+
+GOVERNANCE
+----------
+G12_STATUS=OPEN/S1_S2_COMPLETE/NONCANDIDATE
+G12_CANDIDATE_ATTEMPTS=0/2
+G12_CANDIDATE_R1=NOT_DECLARED
+G12_S3_AUTHORIZED=NO_SEPARATE_USER_AUTHORIZATION_REQUIRED
+T480_TESTS=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+
+NEXT_STEP=AWAIT_EXPLICIT_G12_S3_MINIMAL_PRODUCT_ONLY_INSTALL_PROJECTION_AUTHORIZATION
+FINAL_PHASE=G12_S2_DOCUMENT_MENU_REPRESENTATION_PROJECTION_HELP_SYNC_SOURCE_ONLY_PASS
+
+
+
+================================================================================
+ENTRY — G12-S3 MINIMAL PRODUCT-ONLY INSTALL PROJECTION SOURCE-ONLY CLOSURE
+Date: 2026-08-24
+State: BINDING / OPEN / NON-CANDIDATE / S3 COMPLETE / S4 NOT AUTHORIZED
+================================================================================
+
+User explicitly authorized G12-S3 after S2 completed. Work remained source-only: no T480 execution,
+manual test, Candidate declaration or Git mutation.
+
+S2 BASELINE CLARIFICATION
+-------------------------
+The exact final S2 qualification receipt records `validation_loc=4719`. The earlier S2 MO narrative
+line `validation_loc=4715` is a superseded intermediate measurement/transcription only; S3 uses the
+exact S2 final source tree `2ce198060d28524a7640b1a53bc8cb5fc5fa90f6` and 4719-line final metric as
+its baseline. No historical test result is reinterpreted.
+
+INSTALL AUTHORITY
+-----------------
+One new source entrypoint, `bin/graphium-install`, owns installation. It uses only the Python standard
+library and derives the source root from its own `__file__`; it does not depend on caller CWD, a build
+system, setup.py, Meson, pip, a package database or a second runtime launcher implementation.
+
+Frozen invocation semantics are implemented exactly:
+  default prefix = ~/.local;
+  `--prefix` selects the logical install prefix;
+  `--destdir` prepends a package-staging root without changing the logical prefix layout.
+
+Installed projection is exactly:
+  PREFIX/lib/graphium/graphium/**
+  PREFIX/lib/graphium/bin/graphium
+  PREFIX/lib/graphium/docs/user/**
+  PREFIX/bin/graphium -> ../lib/graphium/bin/graphium
+  PREFIX/share/applications/io.github.leviagravia.Graphium.desktop
+
+The public launcher is a relative symlink so the same staged tree remains valid after package-root
+relocation. The private launcher is the existing Graphium launcher byte-for-byte; its existing
+repo-relative resource rule also resolves correctly inside `PREFIX/lib/graphium`. The installer
+explicitly excludes Python bytecode/cache artifacts when copying the runtime package.
+
+DESKTOP ENTRY
+-------------
+The static desktop entry uses:
+  Type=Application
+  Name=Graphium
+  GenericName=Text Editor
+  Exec=graphium %F
+  Icon=accessories-text-editor
+  Terminal=false
+  MimeType=text/plain;
+  Categories=GTK;Utility;TextEditor;
+  StartupNotify=true
+
+This follows the conventional desktop integration shape found directly in Mousepad, Leafpad, L3afpad
+and FeatherPad while intentionally rejecting their broader packaging/resource surface where Graphium
+does not need it. No bespoke icon is introduced. AppStream/metainfo remains DEFERRED because the
+project still has no frozen project-license authority from which to derive legally meaningful metadata.
+
+PRODUCT-ONLY SEPARATION
+-----------------------
+Permanent Packaging/Release coverage builds a staged `/usr` installation under a disposable DESTDIR,
+including a path containing spaces, and compares its complete file/symlink inventory against the
+frozen product projection. It proves:
+  private runtime package present;
+  private launcher present and executable source retained;
+  offline User Guide/Keyboard Shortcuts present;
+  public launcher is the exact relative symlink;
+  desktop-entry frozen markers present;
+  installed private root is importable from the resolved public launcher context;
+  tests absent;
+  evidence absent;
+  canonical development documents absent;
+  graphium-selftest absent;
+  graphium-install absent;
+  default HOME -> ~/.local install path works.
+
+No `graphium/` runtime source, existing `bin/graphium`, offline Help content, GTK code, writer, monitor,
+session, command authority or user-visible editor behavior changed in S3.
+
+MATURE-SOURCE DISPOSITION
+-------------------------
+ADOPT:
+  standard freedesktop desktop entry;
+  normal executable + application metadata install projection;
+  Utility/TextEditor classification and text/plain association.
+ADAPT:
+  mature prefix/install layouts to Graphium's private pure-Python runtime root and relative symlink;
+  `%F` to Graphium's existing one-process/one-window multi-file fan-out behavior.
+REJECT:
+  general packaging/build framework;
+  plugin/schema/resource platforms;
+  bespoke icon work merely for closure;
+  installation of tests/evidence/certification infrastructure.
+DEFER:
+  AppStream/metainfo until an explicit project-license authority exists.
+
+LOCAL QUALIFICATION
+-------------------
+Behavioral:        153/153 PASS
+Integration:       126/126 PASS
+Packaging/Release:  12/12 PASS
+LOCAL_AUTOMATED:   291/291 PASS
+
+Structural Continuity after implementation:
+  validation_files=51
+  validation_loc=4735
+  harness_files=20
+  harness_loc=1242
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=104
+  source_inspection=5
+  runtime_gxx=0
+  runtime_release=0
+  STRUCTURAL_CONTINUITY=PASS
+
+No validation file, harness file, authority node or generic framework was added. The existing Release
+entrypoint authority gained one staged-install scenario. No structural gate was rebaselined.
+
+GOVERNANCE
+----------
+G12_STATUS=OPEN/S1_S2_S3_COMPLETE/NONCANDIDATE
+G12_CANDIDATE_ATTEMPTS=0/2
+G12_CANDIDATE_R1=NOT_DECLARED
+G12_S4_AUTHORIZED=NO_SEPARATE_USER_AUTHORIZATION_REQUIRED
+T480_TESTS=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+
+NEXT_STEP=AWAIT_EXPLICIT_G12_S4_COMMON_EXTERNAL_FIRST_EDITABLE_ORACLE_AUTHORIZATION
+FINAL_PHASE=G12_S3_MINIMAL_PRODUCT_ONLY_INSTALL_PROJECTION_SOURCE_ONLY_PASS
+
+================================================================================
+ENTRY — G12-S4 COMMON EXTERNAL FIRST_EDITABLE ORACLE SOURCE-ONLY CLOSURE
+Date: 2026-08-24
+State: BINDING / OPEN / NON-CANDIDATE / S4 COMPLETE / S5 NOT AUTHORIZED
+================================================================================
+
+User explicitly authorized G12-S4 after S3 completed. Work remained source-only: no T480 execution,
+manual test, Candidate declaration or Git mutation.
+
+PURPOSE / AUTHORITY BOUNDARY
+----------------------------
+S4 implements the qualification-only common external FIRST_EDITABLE oracle frozen by G12. It does
+not change Graphium runtime, startup, UI, writer, session, monitor, command surface or installation.
+No Graphium runtime module imports AT-SPI. The oracle lives only under the permanent desktop
+qualification harness and imports GI/Atspi lazily when a real measurement is requested.
+
+COMMON PROTOCOL IMPLEMENTED
+---------------------------
+Applications:
+  graphium
+  leafpad
+  l3afpad
+  mousepad --disable-server
+  featherpad --standalone
+
+Workloads:
+  empty = named 0-byte fixture
+  5KiB  = 5,120-byte fixture
+  1MiB  = 1,048,576-byte fixture
+  10MiB = 10,485,760-byte fixture
+
+Each run:
+  1. creates a disposable HOME plus XDG_CONFIG/DATA/CACHE/STATE roots;
+  2. creates the named fixture inside that disposable root;
+  3. resolves and spawns the exact comparator process;
+  4. starts the monotonic clock immediately before subprocess spawn;
+  5. discovers only the AT-SPI application root whose reported process ID equals the spawned PID;
+  6. searches only that application's descendants for Text + EditableText with
+     EDITABLE + FOCUSED + VISIBLE + SHOWING state;
+  7. requires no active text selection;
+  8. injects one short unique ASCII token through AT-SPI KEY_STRING keyboard synthesis;
+  9. accepts readiness only when the same Text interface reports exact character-count growth,
+     caret advance and the token in a small caret-local text range;
+ 10. terminates the disposable process and discards the isolated environment.
+
+The oracle never uses the clipboard, never invokes Save, never writes user configuration, never
+accepts an accessible from a different PID and never relaxes process isolation to make a comparator
+pass. A missing executable, unavailable AT-SPI boundary, early process exit or failure to expose an
+exact-PID editable text object produces comparative BLOCKED evidence, not Graphium PRODUCT_FAIL.
+
+Measurement series:
+  one priming run;
+  >=7 measured runs;
+  median and p90 reported.
+
+CURRENT AT-SPI API VERIFICATION
+-------------------------------
+Current AT-SPI 2.0 documentation was checked during S4 source design. It confirms:
+  Accessible.get_process_id() returns the process id associated with an accessible;
+  Accessible exposes Text and EditableText interface accessors;
+  StateSet.contains() owns exact state membership;
+  Text exposes character-count, caret-offset and bounded get_text operations;
+  generate_keyboard_event() supports composed string input via KEY_STRING.
+These facts support the frozen exact-PID/disposable-input protocol. Web/API verification does not
+replace the later real T480 platform boundary.
+
+MATURE-SOURCE DISPOSITION
+-------------------------
+Direct supplied FeatherPad source re-confirms that `--standalone` must be the first option and owns a
+separate process. Direct supplied Leafpad/L3afpad source re-confirms ordinary filename invocation.
+The previously completed direct Mousepad audit remains authoritative for `--disable-server`; S4 does
+not reopen that mature-source decision without contradictory evidence.
+
+ADOPT:
+  exact spawned-process ownership;
+  disposable local fixture and configuration roots;
+  real externally accepted input as the common readiness event;
+  one common metric definition for all five applications.
+ADAPT:
+  AT-SPI Text/EditableText/state/process APIs to Graphium's qualification harness;
+  comparator-specific process-isolation switches without relaxing exact-PID ownership.
+REJECT:
+  FIRST_VISIBLE relabelled as FIRST_EDITABLE;
+  clipboard round-trip;
+  Save as a readiness side effect;
+  xdotool or application-specific scripted editing;
+  accepting another process's accessible;
+  user HOME/XDG mutation;
+  generic benchmark framework;
+  AT-SPI runtime dependency in Graphium.
+DEFER:
+  actual comparative numbers and platform capability verdict until the single consolidated T480
+  qualification permitted only after S5 source-only convergence.
+
+STRUCTURAL CONSOLIDATION
+------------------------
+The first S4 prototype exceeded the permanent validation-LOC ceiling and was rejected before freeze.
+No structural gate was rebaselined. The accepted implementation instead:
+  removes the unused `tests/desktop/harness/measurements.py` module;
+  removes unused runtime descendants/run_owned helpers;
+  removes unused fixture write_text/visible_verdict helpers;
+  consolidates repeated drain_for/wait_until ownership in the common desktop runtime harness;
+  adds S4 protocol coverage to the existing Release entrypoint authority rather than creating a
+  separate permanent authority universe.
+
+LOCAL QUALIFICATION
+-------------------
+Behavioral:        153/153 PASS
+Integration:       126/126 PASS
+Packaging/Release:  13/13 PASS
+LOCAL_AUTOMATED:   292/292 PASS
+
+Structural Continuity:
+  validation_files=51
+  validation_loc=4761
+  harness_files=20
+  harness_loc=1252
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=104
+  source_inspection=5
+  runtime_gxx=0
+  runtime_release=0
+  STRUCTURAL_CONTINUITY=PASS
+
+The product subtree is byte-identical to S3. No source-only evidence justifies a T480 run before S5.
+
+GOVERNANCE
+----------
+G12_STATUS=OPEN/S1_S2_S3_S4_COMPLETE/NONCANDIDATE
+G12_CANDIDATE_ATTEMPTS=0/2
+G12_CANDIDATE_R1=NOT_DECLARED
+G12_S5_AUTHORIZED=NO_SEPARATE_USER_AUTHORIZATION_REQUIRED
+T480_TESTS=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+
+NEXT_STEP=AWAIT_EXPLICIT_G12_S5_FINAL_SOURCE_ONLY_CONVERGENCE_AUTHORIZATION
+FINAL_PHASE=G12_S4_COMMON_EXTERNAL_FIRST_EDITABLE_ORACLE_SOURCE_ONLY_PASS
+
+================================================================================
+ENTRY — G12-S5 FINAL SOURCE-ONLY CONVERGENCE
+Date: 2026-08-24
+State: BINDING / OPEN / NON-CANDIDATE / S1-S5 COMPLETE / PLATFORM QUALIFICATION PENDING
+================================================================================
+
+User explicitly authorized G12-S5 after S4 completed. Work remained source-first: no T480 execution,
+manual test, Candidate declaration, publication or Git mutation.
+
+FINAL COMMAND / MENU AUTHORITY
+------------------------------
+The six-menu order is now owned once by `graphium.application.commands.TOP_LEVEL_MENUS`:
+  File / Edit / Search / View / Document / Help.
+The GTK window consumes that authority directly. The previous duplicate hardcoded six-name tuple in
+`window.py` is removed. No Tools/Window/Format/Language/Session/Plugins top-level menu exists.
+
+Help converges to exactly:
+  User Guide
+  Keyboard Shortcuts
+  About
+About now includes compact support facts for the running Python, GTK and display backend. This closes
+the frozen System Information requirement without adding a diagnostics command, page or subsystem.
+Keyboard-shortcut documentation was checked against every command-owned accelerator and no mismatch
+was found. User Guide documents the same Help surface and the G12 common FIRST_EDITABLE distinction.
+
+Preferences remains exactly two settings:
+  Tab width
+  Insert spaces instead of tabs
+Persistent Status Bar / Line Numbers / Word Wrap / Appearance / Font remain direct View ownership and
+are not duplicated in Preferences. Check Now remains inside Properties and is not a command-catalog
+entry.
+
+DEAD-CODE / ANTI-BLOAT AUDIT
+----------------------------
+Static reachability across runtime + permanent tests identified the following definition-only source
+with no framework contract and no document/test/runtime reference, and S5 removes it:
+  CompositionDescriptor + describe_composition;
+  NativeEditorCheckpoint;
+  NativeEditorController.abort_native_group wrapper;
+  DocumentSession.requires_save_confirmation alias;
+  GraphiumPrintController.page_setup copy property;
+  GraphiumWindow._string_action_value helper.
+After removal, the only definition-only runtime methods are GraphiumApplication.do_activate and
+GraphiumApplication.do_open. They are GTK/GApplication virtual overrides and are explicitly retained.
+No writer, identity authority, savepoint state, monitor ownership or lifecycle safety code is removed.
+
+MATURE-SOURCE CHECK ON ABOUT SCOPE
+----------------------------------
+Direct supplied Leafpad and FeatherPad About implementations confirm a compact application-information
+surface rather than a new top-level diagnostics workflow. Gedit/GTK-family Help patterns likewise keep
+About under Help. Graphium ADAPTs this narrowly by adding only support-relevant runtime facts already
+available inside the GTK adapter. A diagnostics platform, log collector or new menu command is REJECTED.
+
+RELEASE IDENTITY
+----------------
+Canonical G11 is version 0.0.11. G12 contains real post-G11 product changes, so S5 adopts the next
+serial unpublished version:
+  G12_PRODUCT_VERSION=0.0.12_UNPUBLISHED
+No claim of semantic version 1.0.0 is made; no such versioning policy has been authorized.
+
+CANONICAL CONVERGENCE
+---------------------
+Roadmap G09 remains CLOSED / CERTIFIED / PUBLISHED.
+Roadmap G11 is synchronized from its pre-publication narrative to the actual published commit/tree:
+  commit=10be01b7909c3efe6f76b4c80ea46d1586aea65c
+  tree=82619dfb95df46a33ca6d0e08ade282be44ff2c1
+Roadmap G12 now records S1-S5 complete and platform qualification pending.
+Architecture Contract records the same S5 ownership and About/support-info boundary. Its earlier
+S1 wording that described a separate non-action `Current:` row plus `Convert to …` items is superseded
+by the already implemented S2 stateful-radio projection: active choice = current representation, a
+different choice = explicit conversion, exact-current choice = no-op. Historical MO freeze text is
+left intact under append-only policy.
+Canonical document cap remains exactly 3.
+
+GOVERNANCE
+----------
+G12_STATUS=OPEN/S1_S2_S3_S4_S5_COMPLETE/NONCANDIDATE/PLATFORM_QUALIFICATION_PENDING
+G12_CANDIDATE_ATTEMPTS=0/2
+G12_CANDIDATE_R1=NOT_DECLARED
+T480_TESTS=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+
+Source-only S1-S5 are now exhausted. The next permissible step, only after explicit user authorization,
+is one consolidated automated NON-CANDIDATE T480 qualification of the exact S5 tree. It must cover
+permanent True-GTK regression plus the real AT-SPI/comparator FIRST_EDITABLE boundary and final
+performance evidence. No exploratory/diagnostic rerun and no manual test is authorized.
+
+NEXT_STEP=AWAIT_EXPLICIT_G12_CONSOLIDATED_T480_NONCANDIDATE_QUALIFICATION_AUTHORIZATION
+FINAL_PHASE=G12_S5_FINAL_SOURCE_ONLY_CONVERGENCE_PASS_PENDING_EXACT_TREE_QUALIFICATION
+
+================================================================================
+ENTRY — G12-S5 FINAL LOCAL QUALIFICATION / SOURCE-ONLY EXHAUSTED
+Date: 2026-08-24
+State: BINDING / NON-CANDIDATE / LOCAL PASS / PLATFORM QUALIFICATION PENDING
+================================================================================
+
+The complete permanent local authorities passed after the S5 implementation and canonical
+convergence. The source tree hash is intentionally recorded only in the external qualification
+receipt because this append-only canonical document is itself part of that tree.
+
+LOCAL QUALIFICATION
+-------------------
+Behavioral:        154/154 PASS
+Integration:       126/126 PASS
+Packaging/Release:  13/13 PASS
+LOCAL_AUTOMATED:   293/293 PASS
+
+Structural Continuity:
+  validation_files=51
+  validation_loc=4765
+  harness_files=20
+  harness_loc=1252
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=104
+  source_inspection=5
+  runtime_gxx=0
+  runtime_release=0
+  STRUCTURAL_CONTINUITY=PASS
+
+Runtime source size is net-reductive versus S4:
+  graphium LOC 8937 -> 8903 (-34)
+No validation or harness file was added. One Behavioral scenario was added inside the existing
+command authority; the permanent four-authority topology is unchanged.
+
+Final G12 product subtree after S5 runtime changes:
+  98208c853a161914d9821480a982b0192764bd2a
+Product version:
+  0.0.12_UNPUBLISHED
+
+SOURCE-ONLY EXHAUSTION VERDICT
+------------------------------
+G12_S1=PASS
+G12_S2=PASS
+G12_S3=PASS
+G12_S4=PASS
+G12_S5=PASS
+SOURCE_PROVABLE_BLOCKERS_REMAINING=0
+CANDIDATE_READY=NO_PENDING_REAL_PLATFORM_QUALIFICATION
+G12_CANDIDATE_ATTEMPTS=0/2
+G12_CANDIDATE_R1=NOT_DECLARED
+T480_TESTS_S5=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+
+NEXT_STEP=ONE_CONSOLIDATED_AUTOMATED_NONCANDIDATE_T480_PLATFORM_QUALIFICATION_AFTER_EXPLICIT_AUTHORIZATION
+FINAL_PHASE=G12_S5_FINAL_SOURCE_ONLY_CONVERGENCE_LOCAL_PASS_PLATFORM_PENDING
+
+================================================================================
+ENTRY — G12 FIRST CONSOLIDATED PLATFORM STOP / DEEP MATURE+CALAMUS ORACLE REBUILD
+Date: 2026-08-25
+State: BINDING / OPEN / NON-CANDIDATE / SOURCE-FIRST REBUILD LOCAL PASS / PLATFORM REQUALIFICATION PENDING
+================================================================================
+
+PLATFORM STOP PRESERVED
+-----------------------
+The first authorized consolidated G12 NON-CANDIDATE T480 qualification executed the exact S5 tree.
+Lanes 1-14 passed, including 154 Behavioral, 126 Integration, 13 Packaging/Release, Structural
+Continuity and all 10 permanent True-GTK sections. Lane 15 (`G12 GTK CLOSURE`) then failed before any
+Lane-15 semantic checkpoint was emitted. Lanes 16-18 were not reached. No Candidate was declared or
+consumed and no Git mutation occurred.
+
+Failure-specific source-first comparison was then expanded beyond the immediate Lane-15 stop to direct
+mature-source evidence from Leafpad, L3afpad, Mousepad 0.7.0, FeatherPad, GNOME Text Editor and gedit,
+plus the preserved Calamus W116 completion-oracle lesson. The immediate failure was source-proven as a
+qualification ownership defect: the new helper queried `Gtk.Application.get_menubar()` although
+Graphium intentionally creates and owns the concrete visible `Gtk.MenuBar` inside `GraphiumWindow`.
+No product menu-owner failure was established.
+
+BROADER ORACLE CLASS DEFECT
+---------------------------
+The deeper audit proved that the initial S4 completion rule was also invalid before lanes 16-18 were
+ever executed. Leafpad, L3afpad and FeatherPad can expose their editor before requested command-line
+Open completes; Graphium's own `do_open()` also presents the window before `open_path()` finishes.
+Therefore focused/visible `EditableText` plus accepted synthetic input does not prove that the named
+5 KiB / 1 MiB / 10 MiB workload has loaded. The original S4 `empty` case had also drifted into a named
+0-byte file rather than true no-file startup.
+
+Additional source-proven qualification defects found before another T480 run:
+  - comparator BLOCKED could be misreported as overall PASS;
+  - FIRST_VISIBLE timestamping was retrodated and X11 probing polluted the FIRST_EDITABLE loop;
+  - G07 input-contamination ownership was missing from the new AT-SPI series;
+  - RSS sampled at readiness/fixed delay was incorrectly called idle RSS;
+  - priming/session-first, raw runs and workload hashes were not retained in a complete receipt;
+  - comparator execution order was not balanced;
+  - installed-product platform smoke did not exercise real file Open + installed User Guide action.
+
+The common causal rule is the Calamus W116 / Graphium G04-G07 rule already learned earlier:
+  EVENT / ACTION / FOCUS / ELAPSED TIME != SEMANTIC COMPLETION.
+No runtime product repair is permitted merely to satisfy such an oracle.
+
+SOURCE-ONLY REBUILD
+-------------------
+The complete Lane-15..18 qualification design was rebuilt before any retry.
+
+Permanent common FIRST_EDITABLE protocol now owns only reusable evidence primitives:
+  - `empty` command has no pathname;
+  - non-empty fixtures have exact byte/character size and workload-specific BEGIN/END sentinels;
+  - exact-PID AT-SPI Text+EditableText discovery remains required;
+  - requested workload count + sentinels must be externally present before synthetic input;
+  - exact PID/focus/workload is revalidated immediately before KEY_STRING synthesis;
+  - acceptance remains local count/caret/token evidence with no clipboard and no Save;
+  - the old platform-running CLI/`one_run()` authority is removed from the permanent module.
+
+Rebuilt external G12 platform authorities are deliberately outside product/runtime and permanent test
+universes. Their source-only verifier proves:
+  - Lane 15 inspects the concrete window-owned Gtk.MenuBar and emits semantic failure markers;
+  - representation transitions use synchronous DocumentSession/action/status postconditions;
+  - About and installed User Guide use responders armed before modal-capable activation;
+  - FIRST_VISIBLE and FIRST_EDITABLE are separate series;
+  - X11 probing is absent from the FIRST_EDITABLE loop;
+  - a key/button contamination tripwire invalidates the complete execution before controlled input;
+  - comparator BLOCKED => comparative receipt BLOCKED/INCOMPLETE, never PASS;
+  - receipt retains versions, workload SHA-256, priming/session-first, raw runs, deterministic balanced
+    run order, median/p90, reasons and target verdicts;
+  - semantic idle RSS requires a stable five-sample window and is distinct from RSS_AT_FIRST_EDITABLE;
+  - installed smoke opens a real disposable 5 KiB file through the installed launcher and exercises
+    the real installed User Guide action.
+
+REPRESENTATION MAPPING CONSOLIDATION
+------------------------------------
+The mature-source audit also exposed a smaller ownership-drift risk: Encoding/EOL choice semantics
+were named in the command catalog but independently mapped again in `window.py`. The rebuild keeps
+DocumentSession as the only representation-state authority while moving choice value ->
+encoding/BOM/line-ending mapping into the existing application command authority. GTK now consumes
+that mapping. GuardedFileWriter, DocumentSession Saved/Modified semantics, save service, strong monitor
+and filesystem safety are otherwise unchanged. Runtime `graphium/` is net -4 text LOC versus S5.
+
+CANONICAL S4 AMENDMENT
+----------------------
+Architecture Contract section 22.5 is amended: non-empty common FIRST_EDITABLE requires exact workload
+load completion before input; empty is true no-file startup; FIRST_VISIBLE is measured separately;
+input contamination invalidates evidence; BLOCKED is incomplete rather than PASS; the receipt retains
+all required raw/hash/version/order evidence; RSS_AT_FIRST_EDITABLE and semantic IDLE_RSS are distinct.
+Roadmap records the first platform stop and this source-first rebuild. Historical MO entries remain
+unchanged under append-only policy.
+
+FINAL LOCAL QUALIFICATION OF THIS EXACT CANONICAL CONTENT
+---------------------------------------------------------
+Behavioral:          154/154 PASS
+Integration:         126/126 PASS
+Packaging/Release:    13/13 PASS
+LOCAL_AUTOMATED:     293/293 PASS
+
+Structural Continuity:
+  validation_files=51
+  validation_loc=4769
+  harness_files=20
+  harness_loc=1252
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=106
+  source_inspection=5
+  runtime_gxx=0
+  runtime_release=0
+  STRUCTURAL_CONTINUITY=PASS
+
+External rebuilt-authority source verifier:
+  REBUILT_EXTERNAL_AUTHORITIES=PASS
+
+No T480 execution, manual test, Candidate declaration or Git mutation occurred during this rebuild.
+
+CURRENT GOVERNANCE
+------------------
+G12_STATUS=OPEN/S1_S5_COMPLETE/ORACLE_REBUILD_LOCAL_PASS/NONCANDIDATE/PLATFORM_REQUALIFICATION_PENDING
+G12_CANDIDATE_ATTEMPTS=0/2
+G12_CANDIDATE_R1=NOT_DECLARED
+PRODUCT_CORE_FAIL=NOT_PROVEN
+HARNESS_ORACLE_FAIL=SOURCE_PROVEN_AND_REBUILT
+SOURCE_PROVABLE_BLOCKERS_REMAINING=0
+T480_TESTS_REBUILD=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+
+The successful Lane-1..14 evidence from the stopped run is retained, but lanes 15-18 are not treated as
+proved. One future consolidated automated NON-CANDIDATE T480 requalification is permissible only after
+explicit user authorization because real GTK modal ownership, installed-layout GTK behavior,
+AT-SPI/XInput2 and comparator execution cannot be established headlessly. No diagnostic rerun is
+permitted.
+
+NEXT_STEP=AWAIT_EXPLICIT_G12_REBUILT_CONSOLIDATED_T480_REQUALIFICATION_AUTHORIZATION
+FINAL_PHASE=G12_ORACLE_CONTRACT_SOURCE_ONLY_REBUILD_LOCAL_PASS
+\n\n================================================================================\nENTRY — G12 REBUILT PLATFORM LANE-18 STOP / DIRECT EDITABLETEXT ORACLE REPAIR\nDate: 2026-08-25\nState: BINDING / NON-CANDIDATE / SOURCE-FIRST REPAIR LOCAL QUALIFICATION PENDING\n================================================================================\n\nPLATFORM EVIDENCE PRESERVED\n---------------------------\nThe authorized rebuilt consolidated G12 NON-CANDIDATE T480 requalification on exact source tree\n`52587dcfe43b15a445ca34d33b95fc09c53f48ae` passed lanes 1-17. This includes 154 Behavioral,\n126 Integration, 13 Packaging/Release, Structural Continuity, all 10 permanent True-GTK sections,\nrebuilt G12 GTK closure, installed product file-open/User Guide smoke, and internal G12-vs-G11\nFIRST_EDITABLE/RSS self-regression. Lane 18 then STOPPED with:\n\n  reason=input_contamination\n  detail=unexpected_text_mutation_during_input_acceptance\n\nNo Candidate was declared or consumed and no Git mutation occurred. The user explicitly reports that\nthere was NO human or other external input during that test execution. This user observation is valid\ncontext for classification; the source audit independently proves that the Lane-18 classifier could\nproduce this STOP without external input.\n\nSOURCE-FIRST CLASSIFICATION\n---------------------------\nThe competitive oracle requested the four-character token through AT-SPI `KEY_STRING`, then treated\nany observed character count other than exactly N or N+4 as external contamination. AT-SPI does not\nmake document mutation atomic at this abstraction boundary; mature GTK/Qt editors consume ordinary\nediting through event/buffer transitions, so N+1/N+2/N+3 can be legitimate transient observations.\nThe actual XInput2 RawKeyPress/RawButtonPress tripwire was also stopped before KEY_STRING synthesis,\nso the acceptance interval was not actually owned by the external-input observer.\n\nClassification:\n  PRODUCT_FAIL=NOT_PROVEN\n  COMPARATOR_FAIL=NOT_PROVEN\n  ACTUAL_EXTERNAL_INPUT=NO_BY_USER_OBSERVATION\n  KEY_STRING_ATOMICITY_ASSUMPTION=INVALID\n  TEXT_COUNT_AS_CONTAMINATION_IDENTITY=INVALID\n  XINPUT_ACCEPTANCE_INTERVAL_OWNERSHIP=INCOMPLETE\n  HARNESS_ORACLE_FAIL=SOURCE_PROVEN\n\nSOURCE-ONLY REPAIR CONTRACT\n---------------------------\nThe common FIRST_EDITABLE qualification oracle now uses the exact AT-SPI `EditableText` interface of\nthe exact-PID focused/load-witnessed editor object for the controlled mutation:\n\n  1. keep the real XInput2 RawKeyPress/RawButtonPress tripwire active for the complete measured run;\n  2. externally prove exact workload load completion;\n  3. revalidate exact PID/focus/workload and absence of selection;\n  4. call `EditableText.insert_text()` at the current caret position with the unique ASCII token;\n  5. permit legitimate asynchronous accessibility/buffer transition states;\n  6. stop only when exact count + exact token-at-insertion-position is externally visible;\n  7. any real XInput2 key/button event during the interval invalidates the whole execution as STOP;\n  8. timeout/rejection is comparator-boundary BLOCKED/INCOMPLETE, never inferred product failure.\n\nGlobal AT-SPI `generate_keyboard_event(KEY_STRING)` is rejected for this oracle. Clipboard and Save\nremain forbidden. Direct EditableText insertion is qualification-only and does not enter Graphium\nruntime. Graphium DocumentSession, GuardedFileWriter, representation state, strong monitor, history,\nlifecycle and filesystem safety remain unchanged.\n\nCURRENT GOVERNANCE BEFORE LOCAL REQUALIFICATION\n------------------------------------------------\nG12_CANDIDATE_ATTEMPTS=0/2\nG12_CANDIDATE_R1=NOT_DECLARED\nPUBLICATION_AUTHORIZED=NO\nGIT_MUTATION=NO\nT480_RERUN=FORBIDDEN_UNTIL_LOCAL_REQUALIFICATION_AND_POST_REPAIR_SOURCE_AUDIT_PASS\nMANUAL_TESTS=0\n\nNEXT_STEP=LOCAL_293_TEST_STRUCTURAL_EXTERNAL_AUTHORITY_REQUALIFICATION_AND_POST_REPAIR_AUDIT\n\n\n================================================================================\nENTRY — G12 LANE-18 DIRECT EDITABLETEXT ORACLE REPAIR / FINAL LOCAL PASS\nDate: 2026-08-25\nState: BINDING / NON-CANDIDATE / SOURCE-ONLY REPAIR QUALIFIED / PLATFORM REQUALIFICATION PENDING\n================================================================================\n\nThe exact source-only repair described in the preceding entry has now completed all local permanent\nauthorities and the rebuilt external-authority source verifier. No T480 execution, manual test,\nCandidate declaration or Git mutation occurred during this repair phase.\n\nFINAL LOCAL QUALIFICATION\n-------------------------\nBehavioral:          154/154 PASS\nIntegration:         126/126 PASS\nPackaging/Release:    13/13 PASS\nLOCAL_AUTOMATED:     293/293 PASS\n\nStructural Continuity:\n  validation_files=51\n  validation_loc=4768\n  harness_files=20\n  harness_loc=1251\n  authority_nodes=3\n  cross_edges=4\n  product_import_edges=106\n  source_inspection=5\n  runtime_gxx=0\n  runtime_release=0\n  STRUCTURAL_CONTINUITY=PASS\n\nRebuilt external-authority verifier:\n  REBUILT_EXTERNAL_AUTHORITIES=PASS\n  direct_editable_text_input=PASS\n  input_contamination_owned=PASS\n  blocked_not_pass=PASS\n  receipt_complete=PASS\n\nThe repair is net-reductive versus the previous oracle-rebuild source: validation LOC 4769 -> 4768\nand harness LOC 1252 -> 1251. Graphium product runtime is byte-identical to the previously tested G12\nproduct subtree; only qualification authority/tests and canonical oracle documentation changed.\n\nCURRENT GOVERNANCE\n------------------\nG12_STATUS=OPEN/LANE18_ORACLE_REPAIR_LOCAL_PASS/NONCANDIDATE/PLATFORM_REQUALIFICATION_PENDING\nG12_CANDIDATE_ATTEMPTS=0/2\nG12_CANDIDATE_R1=NOT_DECLARED\nPRODUCT_CORE_FAIL=NOT_PROVEN\nHARNESS_ORACLE_FAIL=SOURCE_PROVEN_AND_REPAIRED\nACTUAL_EXTERNAL_INPUT_PREVIOUS_RUN=NO_BY_USER_OBSERVATION\nSOURCE_PROVABLE_BLOCKERS_REMAINING=0\nT480_TESTS_REPAIR=0\nMANUAL_TESTS=0\nGIT_MUTATION=NO\nPUBLICATION_AUTHORIZED=NO\n\nA future T480 rerun is not a diagnostic retry: it is permissible only as one consolidated\nNON-CANDIDATE requalification of the corrected Lane-18 platform boundary, after explicit user\nauthorization. The successful prior Lane-1..17 evidence remains historical support but does not\nsubstitute for executing the corrected Lane-18 oracle.\n\nNEXT_STEP=AWAIT_EXPLICIT_G12_LANE18_REPAIRED_PLATFORM_REQUALIFICATION_AUTHORIZATION\nFINAL_PHASE=G12_LANE18_DIRECT_EDITABLETEXT_ORACLE_REPAIR_LOCAL_PASS\n
+
+================================================================================
+ENTRY — G12 FOCUSED LANE-18 BLOCKED / COMMON-FIRST-EDITABLE RETIREMENT / FIRST_VISIBLE-RSS REBASELINE
+Date: 2026-08-25
+State: BINDING / NON-CANDIDATE / SOURCE-FIRST REBASELINE LOCAL PASS / PLATFORM REQUALIFICATION PENDING
+================================================================================
+
+FOCUSED PLATFORM EVIDENCE
+-------------------------
+The explicitly authorized focused Lane-18 NON-CANDIDATE T480 requalification on source tree
+`cda7d34a54a57e40a140ab0e8ddc70312fa06df3` and product subtree
+`1eb5c018574d330907d7f0cab0353074e7b37fe6` ended correctly as:
+
+  G12_COMPETITIVE_RECEIPT=BLOCKED_INCOMPLETE
+  G12_COMPARATOR_BLOCKED_COUNT=33
+  EXIT=83
+  ERR=COMMON_ORACLE_BLOCKED_INCOMPLETE
+
+The 33 blocks were distributed across all five products rather than Graphium alone:
+  first_visible exact-PID timeouts            13
+  empty direct-edit acceptance timeouts        5
+  non-empty workload-witness timeouts         15
+
+The run still produced valid process-level RSS evidence for Graphium and Mousepad and did not prove a
+Graphium or comparator product failure. Candidate R1 remained undeclared and no Candidate attempt or
+Git mutation occurred.
+
+DEEP MATURE-SOURCE / HISTORICAL CLASSIFICATION
+----------------------------------------------
+Direct re-audit against Leafpad, L3afpad, Mousepad, FeatherPad, gedit, GNOME Text Editor, historical
+Graphium G04/G07 and Calamus W116 proves that the common external FIRST_EDITABLE model itself was
+invalid for v1, not merely another implementation bug:
+
+  - G07's mandatory post-exit X11 quiescence rule had been dropped;
+  - FIRST_VISIBLE required pre-snapshot XID novelty in addition to exact PID even though exact PID is
+    the semantic owner;
+  - the generic AT-SPI predicate collapsed accessibility exposure, VISIBLE/SHOWING, EDITABLE, FOCUSED,
+    file-load completion and sentinel propagation into one ambiguous timeout;
+  - focus is desktop/window-manager state, not document-load completion;
+  - AT-SPI Text is an accessibility projection, not a universal file-loader transaction receipt;
+  - `EditableText.insert_text()` is direct accessibility mutation, not a universal proof that the
+    application's real user-keyboard pipeline is ready;
+  - blocked diagnostics regressed below G07's already-frozen command/PID/rc/window/output capture.
+
+Mature products correctly own completion differently: Leafpad/L3afpad have synchronous file-open
+completion; gedit and GNOME Text Editor expose explicit loading state; FeatherPad owns asynchronous
+loading/completion; Graphium owns `_startup_open_pending` and its exact inherited-pipe READY record.
+Calamus W116 already established the general rule that an observable proxy/action is not the lifecycle
+completion authority unless the product/toolkit actually owns that postcondition.
+
+BINDING REBASELINE
+------------------
+The G12 common external FIRST_EDITABLE experiment is RETIRED. It must not be repaired repeatedly until
+it happens to pass.
+
+Final v1 performance model:
+
+  1. FIRST_VISIBLE is the sole homogeneous cross-product latency metric for Graphium, Leafpad,
+     L3afpad, Mousepad and FeatherPad.
+  2. Graphium FIRST_EDITABLE remains exact Graphium-only evidence transported by the inherited READY
+     pipe after requested Open completion + mapping + focus. The already valid Lane-17 G12-vs-G11
+     self-regression remains the relevant final Graphium editable-readiness evidence.
+  3. The previous G12 1.5x/1.75x Mousepad FIRST_EDITABLE targets are WITHDRAWN AS INVALID. They are not
+     silently relabelled or transplanted onto FIRST_VISIBLE.
+  4. Existing G04 FIRST_VISIBLE hard admissions remain binding: empty <=2.0x Mousepad or <=750 ms;
+     5 KiB <=2.0x Mousepad or <=900 ms. 1 MiB/10 MiB comparator gaps are reported without inventing
+     new ratio thresholds.
+  5. The independent G12 memory target remains: Graphium stable post-visible RSS <=150 MiB and <=2.5x
+     Mousepad. This is a process-level stable-memory observation, not a claim of universal internal
+     application-idle lifecycle knowledge.
+
+PERMANENT SOURCE REDUCTION
+--------------------------
+The rejected `tests/desktop/harness/first_editable.py` authority is removed. It is replaced by
+`tests/desktop/harness/comparators.py`, which owns only genuinely common comparator primitives:
+
+  - exact app set;
+  - isolated command construction;
+  - Mousepad `--disable-server`;
+  - FeatherPad `--standalone`;
+  - true no-file empty workload;
+  - exact-size 5 KiB / 1 MiB / 10 MiB fixture bytes;
+  - disposable HOME/XDG environment.
+
+There is no AT-SPI, Accessible Text/EditableText, focus, sentinel-as-lifecycle, keyboard synthesis or
+direct accessibility mutation in the permanent cross-product protocol.
+
+FIRST_VISIBLE / RSS AUTHORITY
+-----------------------------
+The rebaselined qualification-only external authority freezes the G04/G07 mature model:
+
+  - start monotonic clock immediately before process spawn;
+  - detect the first CURRENT X11 top-level whose `_NET_WM_PID` equals the exact spawned PID;
+  - do not require XID novelty relative to a pre-spawn set;
+  - after every sample, terminate/kill if needed and wait boundedly until no X11 top-level remains
+    owned by the exited PID before starting another fresh sample;
+  - non-quiescence, no-window, process forwarding/exit or missing comparator is BLOCKED_INCOMPLETE,
+    never Graphium product FAIL and never PASS;
+  - blocked evidence preserves command, exact PID, process rc, exact-PID window snapshots and bounded
+    stdout/stderr;
+  - persist the receipt incrementally after every priming/measured run;
+  - retain one priming/session-first observation plus seven measured runs;
+  - measured order is deterministic and alternates forward/reverse to reduce drift;
+  - any real RawKeyPress/RawButtonPress during the measured interval invalidates the execution; the
+    benchmark generates no input itself.
+
+Stable post-visible RSS is measured only for Graphium and Mousepad using true no-file startup. After
+exact-PID FIRST_VISIBLE, five consecutive process-RSS samples must span at least 0.4 s and have <=1.0
+MiB spread before the median is accepted. A fixed delay is not called idle.
+
+FINAL LOCAL QUALIFICATION
+-------------------------
+Behavioral:          154/154 PASS
+Integration:         126/126 PASS
+Packaging/Release:    13/13 PASS
+LOCAL_AUTOMATED:     293/293 PASS
+
+Rebaselined competitive-authority verifier:
+  common_module_renamed=PASS
+  no_atspi_common_authority=PASS
+  exact_pid_x11_owner=PASS
+  no_xid_novelty_gate=PASS
+  post_exit_x11_quiescence=PASS
+  blocked_diagnostics=PASS
+  incremental_receipt=PASS
+  balanced_order=PASS
+  blocked_not_pass=PASS
+  first_visible_only=PASS
+  stable_post_visible_rss=PASS
+  withdraw_invalid_ratios=PASS
+  contract_rejects_common_first_editable=PASS
+  release_protocol_no_atspi=PASS
+  REBASELINED_COMPETITIVE_AUTHORITY=PASS
+
+Structural Continuity is net-reductive versus the rejected common-FIRST_EDITABLE source:
+  validation_files=51
+  validation_loc=4708          (was 4768)
+  harness_files=20
+  harness_loc=1198             (was 1251)
+  authority_nodes=3
+  cross_edges=4
+  product_import_edges=106
+  source_inspection=5
+  runtime_gxx=0
+  runtime_release=0
+  STRUCTURAL_CONTINUITY=PASS
+
+Graphium runtime `graphium/` is byte-identical to the source already tested successfully through
+Lane 17. No DocumentSession, GuardedFileWriter, save, monitor, lifecycle, history, representation or
+filesystem-safety byte changes in this rebaseline.
+
+CURRENT GOVERNANCE
+------------------
+G12_STATUS=OPEN/COMMON_FIRST_EDITABLE_RETIRED/FIRST_VISIBLE_RSS_REBASELINE_LOCAL_PASS/NONCANDIDATE
+G12_CANDIDATE_ATTEMPTS=0/2
+G12_CANDIDATE_R1=NOT_DECLARED
+PRODUCT_CORE_FAIL=NOT_PROVEN
+COMPARATOR_PRODUCT_FAIL=NOT_PROVEN
+COMMON_EXTERNAL_FIRST_EDITABLE=RETIRED
+INVALID_G12_EDITABLE_RATIO_TARGETS=WITHDRAWN_NOT_TRANSPLANTED
+COMMON_CROSS_PRODUCT_LATENCY_METRIC=FIRST_VISIBLE_ONLY
+GRAPHIUM_FIRST_EDITABLE=INTERNAL_READY_PIPE_ONLY
+T480_TESTS_THIS_REBASELINE=0
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+
+NEXT_STEP=POST_REBASELINE_EXACT_TREE_LOCAL_REQUALIFICATION_AND_SOURCE_AUDIT_THEN_EXPLICIT_AUTHORIZATION_FOR_FOCUSED_FIRST_VISIBLE_RSS_T480_PROOF
+FINAL_PHASE=G12_COMMON_FIRST_EDITABLE_RETIREMENT_FIRST_VISIBLE_RSS_REBASELINE_LOCAL_PASS
+
+
+================================================================================
+ENTRY — G12 FOCUSED FIRST_VISIBLE/RSS PLATFORM PROOF + POST-PLATFORM SOURCE AUDIT PASS
+Date: 2026-08-25
+State: BINDING / NON-CANDIDATE / SOURCE + PLATFORM QUALIFIED / CANDIDATE AUTHORIZATION READY
+================================================================================
+
+PLATFORM EVIDENCE
+-----------------
+The explicitly authorized focused G12 NON-CANDIDATE T480 proof executed only the rebaselined common
+FIRST_VISIBLE + stable post-visible RSS authority on exact source tree
+`648c4891b7e1ee2cb798b747fafb50fd7ed817ba` and exact product subtree
+`1eb5c018574d330907d7f0cab0353074e7b37fe6`. The runner verified the identity of the already valid
+Lane-1..17 T480 evidence before execution. No external common FIRST_EDITABLE oracle was executed; it
+remains RETIRED/REJECTED by contract.
+
+Focused result:
+  G12_COMPETITIVE_RECEIPT=PASS_COMPLETE
+  G12_COMPARATOR_BLOCKED_COUNT=0
+  G12_COMPETITIVE_RECEIPT_SHA256=9031403e1de3ec68db070c00e43c0d6d633799ba84fbafc10f2dcfe99fec7059
+  G12_COMMON_FIRST_VISIBLE=PASS
+  G12_STABLE_POST_VISIBLE_RSS=PASS
+  G12_REBASELINED_COMPETITIVE_TARGETS=PASS
+  EXIT=0
+  ERR=NONE
+  FINAL_PHASE=G12_FIRST_VISIBLE_RSS_FOCUSED_COMMON_COMPETITIVE_PASS
+
+Observed FIRST_VISIBLE medians:
+  empty: Graphium 347.914 ms; Leafpad 90.464; L3afpad 125.328; Mousepad 238.786; FeatherPad 215.726
+  5KiB:  Graphium 350.446 ms; Leafpad 92.725; L3afpad 123.866; Mousepad 242.890; FeatherPad 255.975
+  1MiB:  Graphium 361.427 ms; Leafpad 107.468; L3afpad 142.254; Mousepad 512.395; FeatherPad 254.609
+  10MiB: Graphium 465.178 ms; Leafpad 244.352; L3afpad 279.329; Mousepad 3391.424; FeatherPad 233.344
+
+Binding latency gates only:
+  empty Graphium/Mousepad ratio=1.4570078919476286 <=2.0 OR Graphium<=750 ms => PASS
+  5KiB Graphium/Mousepad ratio=1.4428185765670283 <=2.0 OR Graphium<=900 ms => PASS
+  1MiB/10MiB are report-only; no new hard ratio is inferred.
+
+Stable post-visible RSS:
+  Graphium=56.62109375 MiB <=150 MiB => PASS
+  Mousepad=46.50 MiB
+  Graphium/Mousepad ratio=1.217657930107527 <=2.5 => PASS
+
+This evidence must NOT be paraphrased as Graphium being the fastest comparator. Graphium is visibly
+slower than Leafpad/L3afpad/FeatherPad on these FIRST_VISIBLE measurements; the binding conclusion is
+only that it satisfies the frozen quick-edit admission gates and the independent memory gates.
+
+POST-PLATFORM SOURCE AUDIT
+--------------------------
+The audit independently rechecked:
+  - exact T480 source tree identity and exact product subtree identity;
+  - rebaselined competitive authority: exact PID, no XID novelty gate, post-exit X11 quiescence,
+    blocked diagnostics, incremental receipt, balanced order, BLOCKED != PASS, no AT-SPI;
+  - target code applies hard FIRST_VISIBLE gates only to empty/5KiB and memory gates only to
+    Graphium/Mousepad stable post-visible RSS;
+  - current source versus the source that passed Lane 1-17 changes no `graphium/`, no `bin/` and no
+    `tests/desktop/scenarios/` byte; the only user-facing installed-content delta is documentation
+    wording retiring the invalid common FIRST_EDITABLE experiment;
+  - 293 permanent local authorities and Structural Continuity remain the current source authorities.
+
+One canonical-current-status defect was found: the Architecture Contract header still described G11
+as publication-authorized rather than actually published, and the Roadmap still labelled G12 platform
+requalification pending. Those CURRENT-state lines are corrected in this exact post-audit source; the
+MO historical entries are preserved append-only. No product/test/harness semantics are changed.
+
+CURRENT GOVERNANCE
+------------------
+G12_STATUS=OPEN/SOURCE_PLATFORM_QUALIFIED/POST_PLATFORM_SOURCE_AUDIT_PASS/NONCANDIDATE/CANDIDATE_R1_AUTHORIZATION_READY
+G12_PRODUCT_CORE_FAIL=NO_IN_COMPLETE_NONCANDIDATE_PLATFORM_PROOF
+G12_COMPARATOR_PRODUCT_FAIL=NO
+G12_COMMON_EXTERNAL_FIRST_EDITABLE=RETIRED_BY_CONTRACT
+G12_COMMON_CROSS_PRODUCT_LATENCY_METRIC=FIRST_VISIBLE_ONLY
+G12_GRAPHIUM_FIRST_EDITABLE=INTERNAL_READY_PIPE_ONLY
+G12_CANDIDATE_ATTEMPTS=0/2
+G12_CANDIDATE_R1=NOT_DECLARED
+MANUAL_TESTS=0
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+SOURCE_PROVABLE_BLOCKERS_REMAINING=0
+PLATFORM_BLOCKERS_REMAINING=0
+
+NEXT_STEP=AWAIT_EXPLICIT_G12_CANDIDATE_R1_AUTHORIZATION
+FINAL_PHASE=G12_POST_PLATFORM_SOURCE_AUDIT_CANDIDATE_READY
+
+
+================================================================================
+ENTRY — G12 CANDIDATE R1 DECLARATION + CERTIFICATION
+Date: 2026-08-25
+State: BINDING / CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZATION READY / NO GIT
+================================================================================
+
+AUTHORIZATION
+-------------
+The user explicitly authorized the next step after G12 reached the post-platform source-audit
+Candidate-ready boundary. Candidate R1 is therefore declared on the exact frozen Candidate source:
+
+  G12_CANDIDATE_R1_SOURCE_TREE=7c855a0058e180c557d0fbb0c1de51af378e7bdf
+  G12_CANDIDATE_R1_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+  G12_PRODUCT_VERSION=0.0.12_UNPUBLISHED
+
+CERTIFICATION BASIS
+-------------------
+Candidate certification adopts already valid platform evidence rather than repeating T480 work. The
+Candidate-ready tree differs from the exact focused FIRST_VISIBLE/RSS T480 proof tree only in the three
+canonical authority documents; graphium/, tests/, bin/ and docs/user/ are byte-identical. The product
+subtree is exactly the same `1eb5c018574d330907d7f0cab0353074e7b37fe6`.
+
+Adopted platform evidence includes:
+  - valid Lane 1-17 product/GTK evidence with 10/10 permanent True-GTK sections;
+  - rebuilt G12 GTK closure PASS;
+  - installed-product file-open/User Guide smoke PASS;
+  - G12-vs-G11 internal FIRST_EDITABLE/RSS self-regression PASS;
+  - final rebaselined common FIRST_VISIBLE + stable post-visible RSS proof PASS_COMPLETE;
+  - comparator BLOCKED count 0;
+  - final competitive receipt SHA-256
+    9031403e1de3ec68db070c00e43c0d6d633799ba84fbafc10f2dcfe99fec7059;
+  - manual tests 0.
+
+The final comparative semantics remain binding: common external FIRST_EDITABLE is RETIRED/REJECTED;
+FIRST_VISIBLE is the only cross-product latency metric; Graphium-internal FIRST_EDITABLE remains
+Graphium-only regression/admission evidence. No withdrawn 1.5x/1.75x editable ratio may be revived.
+
+CANDIDATE LOCAL CERTIFICATION
+-----------------------------
+The exact frozen Candidate source was re-run locally before declaration closure:
+  Behavioral          154/154 PASS
+  Integration         126/126 PASS
+  Packaging/Release    13/13 PASS
+  TOTAL               293/293 PASS
+  Rebaselined competitive authority verifier PASS
+  Structural Continuity PASS
+    validation_files=51
+    validation_loc=4708
+    harness_files=20
+    harness_loc=1198
+    authority_nodes=3
+    cross_edges=4
+    product_import_edges=106
+
+No new T480 or manual validation is required for Candidate declaration because the platform-bound
+product/test/launcher/user-help bytes are unchanged from the already successful evidence boundary.
+
+CANDIDATE ACCOUNTING
+--------------------
+G12_CANDIDATE_R1=DECLARED_AND_CERTIFIED
+G12_CANDIDATE_R1_PRODUCT_FAILS=0
+G12_CANDIDATE_R1_HARNESS_FAILS=0
+G12_CANDIDATE_ATTEMPTS_USED=1/2
+G12_CANDIDATE_ATTEMPTS_REMAINING=1/2
+DESKTOP_CERTIFIED=YES
+MANUAL_TESTS=0
+NEW_T480_REQUIRED=NO
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+
+ROADMAP POSITION
+----------------
+G12 is the last v1 roadmap work item. G00-G09 are CLOSED/CERTIFIED/PUBLISHED; G10 is terminal FAILED /
+NOT PUBLISHED; G11 is CLOSED/CERTIFIED/PUBLISHED. With G12 Candidate R1 certified, v1 product scope,
+source qualification and platform qualification are complete. Only G12 publication remains before v1
+roadmap closure. G13 Crash Recovery Cache and G14 Offline Spellcheck remain post-v1 backlog items and
+must not be pulled into G12 publication.
+
+NEXT_STEP=AWAIT_EXPLICIT_G12_PUBLICATION_AUTHORIZATION
+FINAL_PHASE=G12_CANDIDATE_R1_DECLARED_AND_CERTIFIED_PUBLICATION_AUTHORIZATION_READY
+
+
+
+================================================================================
+ENTRY — G12 PUBLICATION AUTHORIZATION / V1 FINAL RELEASE BOUNDARY
+Date: 2026-08-25
+State: BINDING / CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED
+================================================================================
+
+AUTHORIZATION
+-------------
+The user explicitly authorized the next step after G12 Candidate R1 was declared and certified.
+Publication is therefore authorized from the exact frozen Candidate:
+
+  G12_CANDIDATE_R1_SOURCE_TREE=7c855a0058e180c557d0fbb0c1de51af378e7bdf
+  G12_CANDIDATE_R1_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+  G12_PRODUCT_VERSION=0.0.12
+  G12_CANDIDATE_ATTEMPTS_USED=1/2
+  G12_CANDIDATE_ATTEMPTS_REMAINING=1/2
+
+Canonical parent before publication remains published G11:
+  G11_PUBLICATION_COMMIT=10be01b7909c3efe6f76b4c80ea46d1586aea65c
+  G11_PUBLICATION_TREE=82619dfb95df46a33ca6d0e08ade282be44ff2c1
+
+CERTIFIED EVIDENCE ADOPTED FOR PUBLICATION
+------------------------------------------
+Candidate R1 certification remains based on:
+  - Behavioral 154/154 PASS;
+  - Integration 126/126 PASS;
+  - Packaging/Release 13/13 PASS;
+  - local total 293/293 PASS;
+  - rebaselined competitive authority PASS;
+  - Structural Continuity PASS (validation 4708 LOC, harness 1198 LOC);
+  - permanent True-GTK 10/10 sections PASS in the valid Lane 1-17 T480 evidence;
+  - rebuilt G12 GTK closure PASS;
+  - installed product file-open/User Guide smoke PASS;
+  - G12-vs-G11 internal FIRST_EDITABLE/RSS self-regression PASS;
+  - final common FIRST_VISIBLE + stable post-visible RSS T480 proof PASS_COMPLETE;
+  - comparator BLOCKED count 0;
+  - competitive receipt SHA-256
+    9031403e1de3ec68db070c00e43c0d6d633799ba84fbafc10f2dcfe99fec7059;
+  - manual tests 0.
+
+The invalid common external FIRST_EDITABLE experiment remains permanently RETIRED/REJECTED. Publication
+must not revive its 1.5x/1.75x ratios or make a cross-product FIRST_EDITABLE claim. Binding competitive
+claims are limited to common exact-PID FIRST_VISIBLE and stable post-visible Graphium/Mousepad RSS.
+
+PUBLICATION-ONLY FREEZE
+-----------------------
+Certified product behavior MUST NOT change during publication. Relative to frozen Candidate R1, the only
+permitted publication-only delta is exactly:
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_ROADMAP.md
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+  evidence/G12_DESKTOP_CERTIFICATION_RECEIPT_20260825.txt
+  evidence/SHA256SUMS.txt
+
+Frozen byte identity required:
+  graphium/ = IDENTICAL_TO_CERTIFIED_CANDIDATE
+  bin/ = IDENTICAL_TO_CERTIFIED_CANDIDATE
+  tests/ = IDENTICAL_TO_CERTIFIED_CANDIDATE
+  docs/user/ = IDENTICAL_TO_CERTIFIED_CANDIDATE
+  PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6
+
+FAIL-CLOSED FINALIZER CONTRACT
+------------------------------
+Before any Git mutation, the finalizer must prove:
+  - canonical repo `/home/luciano/Projects/graphium-work`;
+  - branch `main`, clean worktree and exact remote URL;
+  - HEAD/tree/origin-main/real remote main all exactly published G11;
+  - self-contained payload and internal manifest integrity;
+  - exact five-path publication-only delta relative to Candidate R1;
+  - protected graphium/bin/tests/docs/user byte identity and exact product subtree;
+  - evidence/SHA256SUMS integrity;
+  - Behavioral 154/154, Integration 126/126, Packaging/Release 13/13 PASS;
+  - rebaselined competitive authority PASS;
+  - Structural Continuity PASS with validation_loc=4708 and harness_loc=1198;
+  - exact staged publication target tree and exact stage-path set relative to G11;
+  - push authorization dry-run.
+
+Only after every preflight may the finalizer replace/stage the target, create one commit and push. After
+push it must fetch and prove HEAD == origin/main == real remote main == the created commit, publication
+tree == the frozen target tree, subject == `G12: close v1 product and competitive qualification`, and
+worktree CLEAN.
+
+No new Candidate attempt, T480 run or manual test is consumed by publication.
+
+ON FINALIZER PASS
+-----------------
+  G12_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  GRAPHIUM_V1_STATUS=CLOSED/CERTIFIED/PUBLISHED
+  G12_CANDIDATE_ATTEMPTS_USED=1/2
+  G12_CANDIDATE_ATTEMPTS_REMAINING=1/2
+  G13_STATUS=POST_V1_HIGH_PRIORITY_BACKLOG_NOT_OPENED
+  G14_STATUS=POST_V1_OPTIONAL_BACKLOG_NOT_OPENED
+  NEXT_STEP=POST_G12_PUBLICATION_READONLY_AUDIT_BEFORE_ANY_G13_AUTHORIZATION
+
+Until finalizer PASS:
+  CANONICAL_BASELINE=G11_PUBLISHED
+  PUBLICATION_COMPLETE=NO
+  GIT_MUTATION=NO
+
+PUBLICATION_TARGET_TREE=EXTERNAL_FINALIZER_QUALIFICATION_RECEIPT
+NEXT_STEP=RUN_FAIL_CLOSED_G12_PUBLICATION_FINALIZER
+FINAL_PHASE=G12_CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_PENDING

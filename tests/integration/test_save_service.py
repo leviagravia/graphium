@@ -7,6 +7,7 @@ import unittest
 from graphium.application.document_save_service import DocumentSaveService
 from graphium.application.document_session import DocumentSession
 from graphium.domain.document_save import SaveBindingError, SaveDisposition, SaveOperation, StaleSaveTargetError
+from graphium.domain.document_identity import BomKind, LineEnding
 from graphium.domain.document_serialization import DocumentSerializationError, MixedLineEndingConfirmationRequired
 from graphium.domain.history import TextHistory
 from graphium.infrastructure.document_loader import load_document
@@ -146,6 +147,49 @@ class SaveServiceTests(unittest.TestCase):
             self.assertEqual(target.read_bytes(), b'A\nB\n')
             self.assertEqual(result.file_state.load.encoding, 'utf-8')
             self.assertEqual(result.file_state.load.bom.value, 'none')
+            self.assertFalse(session.modified)
+
+    def test_explicit_representation_change_is_written_and_becomes_clean(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "doc.txt"; path.write_bytes(b"A\nB\n")
+            _history, session = self._open_session(path)
+            session.select_representation_encoding("utf-16-le", BomKind.UTF16_LE)
+            session.select_representation_line_ending(LineEnding.CRLF)
+            DocumentSaveService(session=session, writer=GuardedFileWriter()).save()
+            self.assertEqual(path.read_bytes(), codecs.BOM_UTF16_LE + "A\r\nB\r\n".encode("utf-16-le"))
+            self.assertFalse(session.modified)
+            self.assertEqual(session.current_representation_profile, session.saved_representation_profile)
+
+    def test_explicit_line_ending_selection_on_mixed_source_needs_no_second_consent(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "mixed.txt"; path.write_bytes(b"A\r\nB\nC\r\n")
+            _history, session = self._open_session(path)
+            session.select_representation_line_ending(LineEnding.LF)
+            DocumentSaveService(session=session, writer=GuardedFileWriter()).save()
+            self.assertEqual(path.read_bytes(), b"A\nB\nC\n"); self.assertFalse(session.modified)
+
+    def test_late_save_of_older_representation_does_not_clean_newer_choice(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "doc.txt"; path.write_bytes(b"A\n")
+            _history, session = self._open_session(path)
+            session.select_representation_line_ending(LineEnding.CRLF)
+            def hook(phase, _ctx):
+                if phase == "before_namespace_commit": session.select_representation_line_ending(LineEnding.CR)
+            DocumentSaveService(session=session, writer=GuardedFileWriter(test_hook=hook)).save()
+            self.assertEqual(path.read_bytes(), b"A\r\n")
+            self.assertEqual(session.saved_representation_profile.line_ending, LineEnding.CRLF)
+            self.assertEqual(session.current_representation_profile.line_ending, LineEnding.CR)
+            self.assertTrue(session.modified)
+
+    def test_postcommit_observation_wins_when_eol_choice_has_no_physical_evidence(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "one-line.txt"; path.write_bytes(b"A")
+            _history, session = self._open_session(path)
+            session.select_representation_line_ending(LineEnding.CRLF)
+            DocumentSaveService(session=session, writer=GuardedFileWriter()).save()
+            self.assertEqual(path.read_bytes(), b"A")
+            self.assertEqual(session.current_representation_profile.line_ending, LineEnding.LF)
+            self.assertEqual(session.current_representation_profile, session.saved_representation_profile)
             self.assertFalse(session.modified)
 
     @unittest.skipUnless(hasattr(os, 'symlink'), 'symlinks required')

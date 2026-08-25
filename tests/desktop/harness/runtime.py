@@ -1,7 +1,6 @@
 from __future__ import annotations
 import os
 import pathlib
-import subprocess
 import tempfile
 from contextlib import contextmanager
 
@@ -19,15 +18,6 @@ def drain(Gtk, limit=200):
     while Gtk.events_pending() and n < limit:
         Gtk.main_iteration_do(False)
         n += 1
-
-
-def descendants(widget):
-    out = []
-    if hasattr(widget, 'get_children'):
-        for child in widget.get_children():
-            out.append(child)
-            out.extend(descendants(child))
-    return out
 
 
 def text_of(view):
@@ -48,9 +38,17 @@ def isolated_env(prefix='graphium-desktop-'):
             env[key] = str(path)
         yield root, env
 
+def drain_for(Gtk, seconds=0.02, step=0.003):
+    import time
+    deadline=time.monotonic()+seconds
+    while time.monotonic()<deadline: drain(Gtk); time.sleep(step)
+    drain(Gtk)
 
-def run_owned(cmd, *, cwd, env, timeout=20):
-    try:
-        return subprocess.run(cmd, cwd=cwd, env=env, timeout=timeout, text=True, capture_output=True)
-    except subprocess.TimeoutExpired:
-        return None
+def wait_until(Gtk, predicate, timeout=1.0):
+    import time
+    deadline=time.monotonic()+timeout
+    while time.monotonic()<deadline:
+        drain(Gtk)
+        if predicate(): return True
+        time.sleep(0.01)
+    drain(Gtk); return bool(predicate())

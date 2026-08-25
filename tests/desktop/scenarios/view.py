@@ -5,7 +5,7 @@ import sys
 import time
 from pathlib import Path
 
-from tests.desktop.harness.runtime import drain, load_gtk3, text_of
+from tests.desktop.harness.runtime import drain, load_gtk3, text_of, drain_for, wait_until
 
 
 def action_bool(window, name: str) -> bool:
@@ -13,25 +13,6 @@ def action_bool(window, name: str) -> bool:
     if action is None or action.get_state() is None:
         raise AssertionError(f"missing stateful View action: {name}")
     return action.get_state().get_boolean()
-
-
-def drain_for(Gtk, seconds: float) -> None:
-    deadline = time.monotonic() + seconds
-    while time.monotonic() < deadline:
-        drain(Gtk)
-        time.sleep(0.005)
-    drain(Gtk)
-
-
-def wait_until(Gtk, predicate, timeout: float = 1.0) -> bool:
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        drain(Gtk)
-        if predicate():
-            return True
-        time.sleep(0.01)
-    drain(Gtk)
-    return bool(predicate())
 
 
 def assert_clean(window, label: str) -> None:
@@ -79,7 +60,7 @@ def main() -> int:
     if not app.register(None):
         return 1
     app.activate()
-    drain_for(Gtk, 0.08)
+    drain_for(Gtk, 0.08, 0.005)
     window = app.window
     if window is None:
         return 1

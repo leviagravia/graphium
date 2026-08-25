@@ -353,10 +353,6 @@ class GraphiumPrintController:
         self._active_done_handler_id = 0
 
     @property
-    def page_setup(self):
-        return self._page_setup.copy()
-
-    @property
     def busy(self) -> bool:
         return self._active_operation is not None
 

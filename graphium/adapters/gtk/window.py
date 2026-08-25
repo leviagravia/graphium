@@ -10,7 +10,7 @@ gi.require_version("Gdk", "3.0")
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk, Gio, GLib, GObject, Gtk
 
-from graphium.application.commands import COMMANDS, command_availability
+from graphium.application.commands import (COMMANDS, TOP_LEVEL_MENUS, command_availability, encoding_choice_target, encoding_choice_value, line_ending_choice_target)
 from graphium.application.document_properties import CheckNowResult, CheckNowStatus
 from graphium.application.view_status import project_compact_status
 from graphium.application.view_settings import (
@@ -20,7 +20,9 @@ from graphium.application.view_settings import (
 from graphium.application.text_statistics import count_text_statistics
 from graphium.application.text_transform import build_transformation_plan
 from graphium.application.print_model import build_print_snapshot
-from graphium.domain.document_serialization import MixedLineEndingConfirmationRequired
+from graphium.domain.document_serialization import (
+    DocumentSerializationProfile, MixedLineEndingConfirmationRequired,
+)
 from graphium.domain.document_save import SaveDisposition
 from graphium.domain.text_search import SearchInputError, SearchMatch
 from graphium.composition import build_core
@@ -244,6 +246,8 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "zoom-out": self._action_zoom_out,
             "zoom-reset": self._action_zoom_reset,
             "full-screen": self._action_full_screen,
+            "encoding": self._action_encoding,
+            "line-endings": self._action_line_endings,
             "statistics": self._action_statistics,
             "user-guide": self._action_user_guide,
             "keyboard-shortcuts": self._action_keyboard_shortcuts,
@@ -256,7 +260,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
                 action = Gio.SimpleAction.new_stateful(
                     spec.action,
                     GLib.VariantType.new("s"),
-                    GLib.Variant.new_string(self.core.view_settings.current.appearance),
+                    GLib.Variant.new_string(self._initial_choice_state(spec.action)),
                 )
             elif spec.stateful:
                 action = Gio.SimpleAction.new_stateful(
@@ -267,6 +271,16 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             action.connect("activate", callbacks[spec.action])
             self.add_action(action)
             self._actions[spec.action] = action
+
+    def _initial_choice_state(self, action: str) -> str:
+        if action == "appearance":
+            return self.core.view_settings.current.appearance
+        profile = self.core.session.current_representation_profile
+        if action == "encoding":
+            return encoding_choice_value(profile)
+        if action == "line-endings":
+            return profile.line_ending.value
+        raise KeyError(action)
 
     def _initial_action_state(self, action: str) -> bool:
         settings = self.core.view_settings.current
@@ -279,7 +293,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
 
     def _install_menu(self) -> None:
         root = Gio.Menu()
-        for menu_name in ("File", "Edit", "Search", "View", "Document", "Help"):
+        for menu_name in TOP_LEVEL_MENUS:
             section = Gio.Menu()
             for spec in COMMANDS:
                 if spec.menu != menu_name or spec.submenu is not None:
@@ -381,12 +395,6 @@ class GraphiumWindow(Gtk.ApplicationWindow):
                 system_prefer_dark_theme=self._system_prefer_dark_theme,
             )
         self._appearance_renderer.apply(value)
-
-    @staticmethod
-    def _string_action_value(action: Gio.SimpleAction) -> str:
-        state = action.get_state()
-        assert state is not None
-        return state.get_string()
 
     @staticmethod
     def _set_string_action(action: Gio.SimpleAction, value: str) -> None:
@@ -582,6 +590,9 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _refresh_projection(self) -> None:
         self.set_title(self._title())
         session = self.core.session
+        profile = session.current_representation_profile
+        self._set_string_action(self._actions["encoding"], encoding_choice_value(profile))
+        self._set_string_action(self._actions["line-endings"], profile.line_ending.value)
         availability = command_availability(
             modified=session.modified,
             has_path=session.logical_path is not None,
@@ -605,7 +616,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         status = project_compact_status(
             line=insert.get_line() + 1,
             column=insert.get_line_offset() + 1,
-            file_state=self.core.session.file_state,
+            representation_profile=self.core.session.current_representation_profile,
             modified=self.core.session.modified,
         )
         self._status_position.set_text(status.position_text)
@@ -1320,6 +1331,38 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         if action is not None and self._boolean_action_value(action) != self._window_fullscreen:
             self._set_boolean_action(action, self._window_fullscreen)
         return False
+
+    def _action_encoding(self, action: Gio.SimpleAction, parameter) -> None:
+        if parameter is None:
+            return
+        value = parameter.get_string()
+        target = encoding_choice_target(value)
+        if target is None:
+            return
+        try:
+            self.core.session.select_representation_encoding(*target)
+        except Exception as exc:
+            self._ui.show_warning("Encoding was not changed", str(exc))
+            return
+        self._set_string_action(action, value)
+        self._refresh_projection()
+        self.text_view.grab_focus()
+
+    def _action_line_endings(self, action: Gio.SimpleAction, parameter) -> None:
+        if parameter is None:
+            return
+        value = parameter.get_string()
+        target = line_ending_choice_target(value)
+        if target is None:
+            return
+        try:
+            self.core.session.select_representation_line_ending(target)
+        except Exception as exc:
+            self._ui.show_warning("Line endings were not changed", str(exc))
+            return
+        self._set_string_action(action, value)
+        self._refresh_projection()
+        self.text_view.grab_focus()
 
     def _action_statistics(self, *_args) -> None:
         captured = self.buffer_port.capture_full()

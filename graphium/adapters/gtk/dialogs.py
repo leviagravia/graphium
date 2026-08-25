@@ -1,10 +1,13 @@
 """Small GTK dialog/chooser adapter for Graphium lifecycle and View UI."""
 from __future__ import annotations
 
+import sys
+
 import gi
+gi.require_version("Gdk", "3.0")
 gi.require_version("Gtk", "3.0")
 gi.require_version("Pango", "1.0")
-from gi.repository import Gtk, Pango
+from gi.repository import Gdk, Gtk, Pango
 
 from graphium.application.file_lifecycle import ReloadDecision, UnsavedDecision
 
@@ -182,7 +185,12 @@ def show_about(parent: Gtk.Window, *, version: str) -> None:
     dialog = Gtk.AboutDialog(transient_for=parent, modal=True)
     dialog.set_program_name("Graphium")
     dialog.set_version(version)
-    dialog.set_comments("Fast, simple and safety-focused plain-text editor for Linux.")
+    display = Gdk.Display.get_default()
+    backend = type(display).__name__ if display is not None else "Unavailable"
+    system = (f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}; "
+              f"GTK {Gtk.get_major_version()}.{Gtk.get_minor_version()}.{Gtk.get_micro_version()}; "
+              f"Display {backend}")
+    dialog.set_comments("Fast, simple and safety-focused plain-text editor for Linux.\n\n" + system)
     dialog.set_website("https://github.com/leviagravia/graphium")
     dialog.set_website_label("Graphium repository")
     try:
@@ -294,7 +302,7 @@ def _format_mtime_ns(value: int | None) -> str:
 
 
 def show_properties(parent: Gtk.Window, controller) -> None:
-    """Show accepted document facts; Check Now observes but never accepts/reloads."""
+    """Show accepted disk facts plus current representation; Check Now never accepts/reloads."""
     from graphium.application.document_properties import CheckNowStatus
 
     props = controller.snapshot()

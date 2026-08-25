@@ -2,8 +2,8 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **G11 Candidate R1 certified / publication authorized**. G10 is **FAILED / NOT PUBLISHED / TERMINAL** with its Candidate line exhausted 2/2. G11 becomes **CLOSED / CERTIFIED / PUBLISHED** only if the fail-closed publication finalizer succeeds.
-Canonical parent before G11 publication: GS07 commit `3f3aa896fcf065297e5576e6b3672281a23853d9` / tree `7bff40caac93777d94538dee69633ab4d7654a12`.
+Current publication boundary: **G12 Candidate R1 certified / publication authorized** on frozen Candidate source tree `7c855a0058e180c557d0fbb0c1de51af378e7bdf`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`. G12 and Graphium v1 become **CLOSED / CERTIFIED / PUBLISHED** only if the fail-closed G12 publication finalizer succeeds. G10 remains **FAILED / NOT PUBLISHED / TERMINAL**; G11 remains **CLOSED / CERTIFIED / PUBLISHED**. Candidate accounting is 1/2 used with 1/2 remaining.
+Canonical parent for G12 remains published G11 commit `10be01b7909c3efe6f76b4c80ea46d1586aea65c` / tree `82619dfb95df46a33ca6d0e08ade282be44ff2c1`.
 
 ## 1. Product identity
 
@@ -126,7 +126,7 @@ MUST families:
 - selected basic text transformations;
 - persistent essential preferences and System/Light/Dark appearance;
 - explicit Saved/Modified state;
-- encoding/BOM/EOL visibility;
+- encoding/BOM/EOL visibility and bounded explicit representation conversion;
 - save-time and live external-file safety;
 - User Guide / Keyboard Shortcuts / About.
 
@@ -134,7 +134,6 @@ SHOULD:
 
 - drag-and-drop file open;
 - window geometry restore;
-- EOL/encoding conversion if bounded;
 - offline spellcheck after core v1 if it remains low-risk.
 
 OUT OF V1:
@@ -303,7 +302,7 @@ Comparator process-isolation is part of the oracle contract, not an implementati
 
 Direct source audit established why this distinction is mandatory: Leafpad and L3afpad show their window before completing command-line file Open, while Airpad follows a different ordering. Therefore `first mapped window` cannot be silently relabelled `first editable`.
 
-G12 may make hard cross-product FIRST_EDITABLE claims only after a single common external oracle is implemented for all compared applications, e.g. an AT-SPI/XTest-style disposable first-input acceptance probe.
+G12 source and T480 qualification attempted such a common external FIRST_EDITABLE oracle and rejected it. The mature products do not expose one homogeneous external load/editability lifecycle: Leafpad/L3afpad complete Open synchronously after showing the window, gedit and GNOME Text Editor own explicit loading state, FeatherPad owns an asynchronous loading lifecycle, and Graphium owns its inherited-pipe READY boundary. AT-SPI focus/text/editability and direct accessibility mutation are projections, not a universal transaction/completion authority. Therefore **v1 cross-product FIRST_EDITABLE ratios are permanently forbidden**. G12 reports common FIRST_VISIBLE plus exact Graphium-internal FIRST_EDITABLE/self-regression evidence instead; the invalid 1.5x/1.75x editable-ratio targets are retired rather than silently transplanted onto another metric.
 
 ### 12.4 Workloads and statistics
 
@@ -1354,4 +1353,268 @@ Integration/Filesystem, True-GTK Desktop and Packaging/Release. G11-specific exe
 universes are forbidden. Manual Reload/monitoring tests are not qualification authority; modal response
 and external fixture transitions are machine-owned. User-PC/T480 execution is permitted only when the
 real Gio/GTK platform boundary cannot be established otherwise, and diagnostic reruns are forbidden.
+
+## 22. G12 — V1 Product Closure / Six-Menu Competitive Qualification — contract freeze 2026-08-24
+
+`G12_CONTRACT=FROZEN`
+`G12_BASELINE_COMMIT=10be01b7909c3efe6f76b4c80ea46d1586aea65c`
+`G12_BASELINE_TREE=82619dfb95df46a33ca6d0e08ade282be44ff2c1`
+`G12_MODE=NONCANDIDATE_SOURCE_FIRST`
+`G12_CANDIDATE_ATTEMPTS=0_OF_2`
+`G12_TOP_LEVEL_MENUS=FILE,EDIT,SEARCH,VIEW,DOCUMENT,HELP`
+`G12_REPRESENTATION_CONVERSION=EXPLICIT_DOCUMENT_STATE_NOT_IMMEDIATE_WRITE`
+`G12_DIRTY_AUTHORITY=COMPOSITE_TEXT_STATE_PLUS_REPRESENTATION_RELATION`
+`G12_SECOND_DIRTY_AUTHORITY=FORBIDDEN`
+`G12_REPRESENTATION_UNDO=NOT_TEXT_UNDO`
+`G12_NORMAL_SAVE_IMPLICIT_CONVERSION=FORBIDDEN`
+`G12_PHYSICAL_WRITER=GuardedFileWriter_ONLY`
+`G12_ENCODING_CHOICES=UTF8,UTF8_BOM,UTF16_LE_BOM,UTF16_BE_BOM,UTF32_LE_BOM,UTF32_BE_BOM`
+`G12_LINE_ENDING_CHOICES=LF,CRLF,CR`
+`G12_LEGACY_ENCODING_GUESSING=FORBIDDEN`
+`G12_INSTALL_MODEL=MINIMAL_PRODUCT_ONLY_PREFIX_INSTALL`
+`G12_APPSTREAM_METADATA=DEFERRED_UNTIL_PROJECT_LICENSE_AUTHORITY_EXISTS`
+`G12_HELP_MENU=USER_GUIDE,KEYBOARD_SHORTCUTS,ABOUT`
+`G12_COMMON_CROSS_PRODUCT_METRIC=FIRST_VISIBLE_ONLY`
+`G12_COMMON_FIRST_EDITABLE=REJECTED_NO_HOMOGENEOUS_EXTERNAL_LIFECYCLE`
+`G12_GRAPHIUM_FIRST_EDITABLE=INTERNAL_READY_PIPE_ONLY`
+`G12_COMPARATOR_PROCESS_OWNERSHIP=EXACT_PID_PLUS_POST_EXIT_X11_QUIESCENCE`
+`G12_COMPARATOR_BLOCKED=INCOMPLETE_NOT_PASS_NOT_PRODUCT_FAIL`
+`G12_T480_BEFORE_SOURCE_ONLY_EXHAUSTION=FORBIDDEN`
+`G12_PRODUCT_VERSION=0.0.12_UNPUBLISHED`
+`G12_NONCANDIDATE_PLATFORM_PROOF=PASS_LANES_1_17_PLUS_REBASELINED_FIRST_VISIBLE_RSS`
+`G12_PLATFORM_SOURCE_TREE=648c4891b7e1ee2cb798b747fafb50fd7ed817ba`
+`G12_PRODUCT_SUBTREE=1eb5c018574d330907d7f0cab0353074e7b37fe6`
+`G12_COMPETITIVE_RECEIPT_SHA256=9031403e1de3ec68db070c00e43c0d6d633799ba84fbafc10f2dcfe99fec7059`
+`G12_CANDIDATE_R1=NOT_DECLARED_AUTHORIZATION_READY`
+
+### 22.1 Representation conversion extends the one document-state relation
+
+G12 resolves the earlier v1 SHOULD/MUST tension in favor of the already frozen six-menu closure:
+**Encoding** and **Line Endings** are v1 MUST commands because the Document menu is defined as the
+home of observed representation facts and explicit conversion. This does not authorize encoding
+guessing, locale fallback, a codec platform or implicit normalization.
+
+The G02 editor-state relation remains the text-history authority, but G12 extends the final document
+Saved/Modified relation to the exact pair of text identity and serialization profile. One active
+`DocumentSession` owns both the current and saved representation profile; this is an extension of the
+same document-state authority, not a second dirty flag. The final relation is:
+
+```text
+current_editor_state_id == saved_editor_state_id != None
+AND current_representation_profile == saved_representation_profile  -> Saved
+otherwise                                                           -> Modified
+```
+
+Open establishes current=saved representation from the accepted disk load. New establishes UTF-8,
+no BOM, LF. A representation command changes only the current profile: it does not mutate text,
+create a text Undo record, touch the filesystem or alter the accepted disk baseline. Choosing the exact
+saved profile again naturally returns to Saved when the text identity is also at its savepoint.
+Undo/Redo changes text history only; a pending representation choice survives text Undo/Redo.
+
+The only exposed encoding targets are profiles that Graphium itself can reopen without heuristics:
+UTF-8 without BOM; UTF-8 with BOM; UTF-16 LE/BE with BOM; UTF-32 LE/BE with BOM. UTF-16/32 without
+BOM, locale encodings and guessed legacy code pages are not exposed. Line-ending targets are LF,
+CRLF and CR. Mixed EOL is observable but never selectable as an output profile. Selecting any concrete
+line ending on a mixed source is itself explicit normalization consent and clears the pending
+`mixed_source` condition; changing encoding alone does not silently grant EOL-normalization consent.
+
+Save, Save As, Save a Copy and Save Version Copy serialize the exact current representation profile
+through the existing pure serializer and the one `GuardedFileWriter`. Save/Save As may advance only
+the exact captured text state and captured representation state. If text or representation changes
+while I/O is in flight, late completion leaves the newer current document Modified. Copy/version-copy
+uses the current representation but never advances the active saved relation. A fresh post-commit load
+remains the accepted disk fact; when serialized bytes cannot physically encode a preference (for
+example a file containing no line separators), the accepted post-commit observation wins rather than
+preserving a fictitious on-disk representation.
+
+Document submenus separate observation from action through one stateful choice list: the active
+radio choice is the current representation, choosing a different target is the explicit conversion
+action, and choosing the exact-current target is a no-op. No extra `Current:` row or duplicated
+`Convert to …` command family is required. The compact status and Properties remain truthful
+projections of the current document representation and accepted disk facts respectively;
+implementation must not invent a second representation cache.
+
+### 22.2 Mature-source disposition for representation
+
+Mousepad directly stores line-ending/BOM state beside its saved state and marks unbuffered
+representation changes Modified; gedit carries explicit encoding/newline choices through Save As;
+Leafpad/L3afpad normalize editor text internally and serialize with retained charset/line-ending state.
+Graphium ADAPTs the mature principle but rejects weaker modified booleans, encoding guessing and any
+second write path. Its exact state-ID safety is preserved by the composite relation above.
+
+### 22.3 Minimal install/runtime projection
+
+G12 closes install behavior without adopting a packaging framework. One small standard-library
+installer under `bin/` owns a prefix-based, staging-capable installation. Default user prefix is
+`~/.local`; an explicit `--prefix` and `--destdir` permit system/package staging. The installed product
+projection is limited to:
+
+- `PREFIX/lib/graphium/graphium/**` runtime package;
+- `PREFIX/lib/graphium/bin/graphium` runtime launcher;
+- `PREFIX/lib/graphium/docs/user/**` offline Help;
+- `PREFIX/bin/graphium` launcher link into that private runtime root;
+- `PREFIX/share/applications/io.github.leviagravia.Graphium.desktop`.
+
+The desktop entry uses the existing application ID, `Exec=graphium %F`, `MimeType=text/plain`,
+`Terminal=false`, appropriate Utility/TextEditor categories and the freedesktop generic
+`accessories-text-editor` icon. A bespoke icon is not a G12 closure requirement. Tests, evidence,
+canonical development documents, self-test launchers and qualification support are forbidden from
+the installed runtime projection. Staged-install tests must prove launchability and exact exclusion.
+
+AppStream/metainfo is DEFERRED rather than fabricated because Graphium has no frozen project-license
+authority from which legally meaningful metadata can be derived. This deferral does not block ordinary
+desktop launching, MIME association or v1 install behavior and may be revisited only with an explicit
+license decision.
+
+### 22.4 Help/command authority final wording
+
+G12 freezes the already implemented, lower-churn Help wording: **User Guide**, **Keyboard Shortcuts**,
+**About**. `Graphium Help` and `About Graphium` in the earlier roadmap target are superseded. This
+matches the existing offline documents and conventional in-application Help-menu context without
+adding redundant product-name words. Menu, command catalog and offline Help/shortcut documents must
+derive from this same command authority. The earlier `System Information` idea is satisfied inside
+About as compact support facts for the running Python, GTK and display backend; it never becomes a
+separate diagnostics command, menu or subsystem.
+
+### 22.5 Common competitive qualification oracle — FIRST_VISIBLE only
+
+G12 closes the failed common-FIRST_EDITABLE experiment by returning to the two-metric model frozen in
+G04. **FIRST_VISIBLE is the only homogeneous cross-product latency metric.** Graphium's inherited-pipe
+FIRST_EDITABLE remains an exact product-owned metric and is used only for Graphium regression/admission;
+no comparator FIRST_EDITABLE ratio is claimed in v1.
+
+The common FIRST_VISIBLE protocol is qualification-only and owns only evidence that the compared
+applications actually share:
+
+1. `empty` is a true no-file launch; 5 KiB / 1 MiB / 10 MiB use exact-size disposable UTF-8/LF
+   fixtures with recorded SHA-256 hashes;
+2. each run uses fresh HOME/XDG roots and exact process isolation: Graphium/Leafpad/L3afpad normally,
+   Mousepad with `--disable-server`, FeatherPad with `--standalone`;
+3. the monotonic clock starts immediately before spawn;
+4. readiness is the first current X11 top-level whose `_NET_WM_PID` equals the exact spawned PID. A
+   pre-spawn XID novelty set is not a second ownership authority; exact PID is the semantic owner;
+5. after every sample, terminate/kill if necessary and then wait, boundedly, until no X11 top-level is
+   still owned by the exited PID before another fresh sample begins. Non-quiescence is comparator/X11
+   BLOCKED evidence;
+6. every blocked run preserves command, exact PID, process return code, exact-PID window snapshots and
+   bounded stdout/stderr in the incremental receipt. Missing comparator/process isolation/X11 ownership
+   yields `BLOCKED_INCOMPLETE`, never Graphium product FAIL and never PASS;
+7. one priming/session-first observation plus at least seven measured runs is retained. Measured order is
+   deterministic and balanced/interleaved across applications; no cherry-picking or silent sample
+   replacement is allowed;
+8. any real RawKeyPress/RawButtonPress during a measured run invalidates the execution as environmental
+   contamination. The benchmark itself generates no input;
+9. the receipt records versions, source/product identity, workload sizes/hashes, metric definition,
+   isolation, raw runs, median, p90, execution order, blocked diagnostics and final target verdicts, and
+   is persisted incrementally after every run.
+
+The existing G04 FIRST_VISIBLE admissions remain the only hard cross-product latency gates: Graphium
+empty <= 2.0x Mousepad or <= 750 ms, and Graphium 5 KiB <= 2.0x Mousepad or <= 900 ms. 1 MiB/10 MiB
+gaps against all permanent comparators are reported without inventing a new ratio threshold. The former
+G12 1.5x/1.75x FIRST_EDITABLE targets are **withdrawn as invalid**, not reinterpreted as FIRST_VISIBLE.
+
+G12 retains the independent no-file memory target as **stable post-visible RSS**, not as a claim that a
+generic external oracle knows each editor's internal idle lifecycle. For Graphium and Mousepad, after
+exact-PID FIRST_VISIBLE the runner samples process RSS until five consecutive samples spanning at least
+0.4 s have <= 1.0 MiB spread. The resulting median must satisfy Graphium <= 150 MiB and <= 2.5x
+Mousepad. Failure to obtain a stable window is BLOCKED/INCOMPLETE; a fixed sleep is not called idle.
+
+AT-SPI, Accessible Text/EditableText, focus state, sentinel projection and input synthesis/direct
+accessibility mutation are intentionally absent from the cross-product comparative authority. They may
+be used in product-specific accessibility tests only when that interface itself is the feature under
+test; they are not promoted into file-load or keyboard-readiness authorities.
+
+### 22.6 G12 source-only implementation slices and validation boundary
+
+G12 is deliberately split so final closure cannot become a feature dump:
+
+- **S1 — Representation state foundation:** composite Saved/Modified relation, exact conversion
+  profiles, late-save/copy semantics and headless hostile tests.
+- **S2 — Document menu + projection/help synchronization:** two bounded submenus, no new top-level
+  menu, no new accelerator unless separately justified, user-guide updates and True-GTK source gates.
+- **S3 — Minimal install projection:** prefix/staging installer, desktop entry and packaging/release
+  tests proving product-only installation.
+- **S4 — Cross-product readiness-oracle study:** the original AT-SPI common-FIRST_EDITABLE attempt is
+  historically retained as a rejected experiment. The final permanent result is a small comparator
+  primitive authority for isolated commands/workloads plus the common FIRST_VISIBLE receipt; no AT-SPI
+  dependency or universal external FIRST_EDITABLE remains.
+- **S5 — Final source-only convergence:** six-menu/anti-bloat/dead-code/canonical-status audit and
+  complete permanent local authorities.
+
+No T480 run is permitted before S1-S5 have exhausted source-provable work. If the exact source-only
+pre-candidate tree then has no blocker, one consolidated automated NON-CANDIDATE T480 qualification
+may be requested for the real GTK/X11/comparator/platform boundary. Human tests remain default 0
+and are permitted only for a genuinely visual property not owned by permanent automation. Candidate
+R1 remains undeclared at 0/2 until that boundary and the post-PASS source audit are complete.
+
+### 22.7 S5 source-only convergence closure
+
+S5 completes all source-provable v1 convergence before any platform run. `TOP_LEVEL_MENUS` in the
+product command catalog is the sole six-menu ordering authority consumed by the GTK menu builder;
+no second hardcoded menu topology remains. The exact Help surface is User Guide / Keyboard Shortcuts /
+About, Preferences owns only Tab width and Insert spaces instead of tabs, Check Now remains inside
+Properties, and About owns only compact support information rather than a diagnostics platform.
+
+A reachability audit removes only source-proven dead code with no runtime/test/document references:
+the obsolete composition descriptor API, an unused native-editor checkpoint, an unused native-group
+wrapper, an unused session save-confirmation alias, an unused print page-setup copy property and an
+unused GTK string-state helper. Framework-owned `Gtk.Application.do_activate` and `do_open` overrides
+are explicitly retained despite direct-call reachability being absent.
+
+G12 uses the next serial unpublished product version `0.0.12`; G11 remains the canonical `0.0.11`
+release. S1-S5 are now source-only complete. Candidate R1 remains undeclared at 0/2. The only remaining
+pre-candidate evidence boundary is one consolidated automated NON-CANDIDATE T480 qualification for
+real GTK/X11/comparator behavior and final performance evidence; no manual test is authorized by
+this closure.
+
+### 22.8 Post-platform-stop oracle amendment
+
+The first consolidated G12 NON-CANDIDATE T480 qualification passed lanes 1-14 and stopped at the new
+Lane-15 closure gate before lanes 16-18. Source-first comparison with Leafpad, L3afpad, Mousepad,
+FeatherPad, GNOME Text Editor, gedit and Calamus W116 proved a qualification-oracle class defect, not
+a product-core failure. The immediate Lane-15 defect was querying `Gtk.Application.get_menubar()` even
+though Graphium intentionally owns the concrete `Gtk.MenuBar` in `GraphiumWindow`. The broader audit
+also invalidated the initial S4 completion rule because Leafpad/L3afpad/FeatherPad (and Graphium's own
+`do_open()` ordering) can expose an editable/focused view before requested file Open completion.
+
+The rebuilt closure contract therefore requires real window-owned menu inspection, semantic markers for
+every closure postcondition, workload-load witnesses before FIRST_EDITABLE input, true no-file empty
+startup, separate FIRST_VISIBLE measurement, explicit contamination ownership, BLOCKED != PASS,
+truthful RSS naming/settlement and a complete raw comparative receipt. Product changes merely to make
+a qualification oracle pass are forbidden. `DocumentSession`, composite Saved/Modified,
+`GuardedFileWriter` and the strong monitor remain unchanged unless independent product evidence proves
+otherwise.
+### 22.9 Focused Lane-18 BLOCKED result and common-FIRST_EDITABLE retirement
+
+The focused 2026-08-25 Lane-18 T480 run on source tree
+`cda7d34a54a57e40a140ab0e8ddc70312fa06df3` ended `BLOCKED_INCOMPLETE` with 33 blocked series. The
+pattern involved all five applications: widespread exact-PID FIRST_VISIBLE timeouts, all five empty
+`EditableText` acceptance timeouts, and all five non-empty workload-witness timeouts. Graphium and
+Mousepad still produced valid process RSS evidence, so the result does not support a Graphium-specific
+product failure.
+
+Deep direct-source re-audit against Leafpad, L3afpad, Mousepad, FeatherPad, gedit, GNOME Text Editor,
+historical Graphium G04/G07 and Calamus W116 identifies the harness/contract errors: G07's mandatory
+post-exit X11 quiescence was lost; XID novelty was added as a second ownership heuristic; focus,
+accessibility exposure, file-load completion and editability were collapsed into ambiguous timeouts;
+AT-SPI Text was promoted into a file-load transaction receipt; and `EditableText.insert_text()` was
+promoted into a user-keyboard-readiness oracle even though mature editors own editing through their
+actual view/input lifecycle. Block diagnostics also regressed below G07's already-frozen command/PID/
+window/output capture standard.
+
+Binding disposition: **retire the common external FIRST_EDITABLE experiment.** Do not keep repairing it
+until it passes. Restore G04's explicit two-metric boundary, recover G07 exact-PID/quiescence/diagnostic
+discipline for FIRST_VISIBLE, keep Graphium internal FIRST_EDITABLE for Graphium-only self-regression,
+and keep stable post-visible RSS as a separate process-level comparison. No Graphium runtime or safety
+authority is implicated by this rebaseline.
+### 22.10 FIRST_VISIBLE/RSS source-only rebaseline closure
+
+The source-only implementation of section 22.5 removes the rejected `first_editable.py` common oracle
+and replaces it with `tests/desktop/harness/comparators.py`, which owns only comparator command/process
+isolation, workload bytes and disposable environment setup. No AT-SPI import or accessibility lifecycle
+assumption remains in the permanent cross-product harness. The external qualification authority uses
+exact-PID X11 ownership, G07-style post-exit quiescence, complete blocked-run diagnostics, incremental
+receipt persistence and balanced measured order. Stable post-visible RSS is a separate process metric.
+All 293 permanent local tests pass and Structural Continuity is net-reductive versus the rejected
+common-FIRST_EDITABLE tree. Graphium runtime bytes are unchanged.
 

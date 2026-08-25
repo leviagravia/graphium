@@ -1,14 +1,7 @@
 from __future__ import annotations
-import argparse, sys, time
+import argparse, sys
 from pathlib import Path
-from tests.desktop.harness.runtime import drain, load_gtk3, text_of
-
-
-def drain_for(Gtk, seconds=0.02):
-    deadline=time.monotonic()+seconds
-    while time.monotonic()<deadline:
-        drain(Gtk); time.sleep(0.003)
-    drain(Gtk)
+from tests.desktop.harness.runtime import drain, load_gtk3, text_of, drain_for
 
 
 def establish(window, Gtk, text, insert=None, bound=None):

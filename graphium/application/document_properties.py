@@ -89,32 +89,19 @@ class DocumentPropertiesController:
     def snapshot(self) -> DocumentPropertiesSnapshot:
         session = self.session.snapshot()
         state = session.file_state
-        if state is None:
-            return DocumentPropertiesSnapshot(
-                logical_path=None,
-                canonical_path=None,
-                size=None,
-                mtime_ns=None,
-                encoding="utf-8",
-                bom=BomKind.NONE,
-                eol=LineEnding.LF,
-                eol_mixed=False,
-                modified=session.modified,
-                read_only=None,
-                nlink=None,
-            )
+        profile = session.current_representation_profile
         return DocumentPropertiesSnapshot(
-            logical_path=state.binding.logical_path,
-            canonical_path=state.binding.canonical_path,
-            size=state.disk.size,
-            mtime_ns=state.disk.mtime_ns,
-            encoding=state.load.encoding,
-            bom=state.load.bom,
-            eol=state.load.eol.dominant,
-            eol_mixed=state.load.eol.mixed,
+            logical_path=state.binding.logical_path if state else None,
+            canonical_path=state.binding.canonical_path if state else None,
+            size=state.disk.size if state else None,
+            mtime_ns=state.disk.mtime_ns if state else None,
+            encoding=profile.encoding,
+            bom=profile.bom,
+            eol=profile.line_ending,
+            eol_mixed=profile.mixed_source,
             modified=session.modified,
-            read_only=state.disk.read_only,
-            nlink=state.disk.nlink,
+            read_only=state.disk.read_only if state else None,
+            nlink=state.disk.nlink if state else None,
         )
 
     def check_now(self) -> CheckNowResult:

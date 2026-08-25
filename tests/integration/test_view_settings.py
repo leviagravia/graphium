@@ -5,7 +5,8 @@ import tempfile
 import unittest
 from graphium.application.view_settings import ViewSettings, ViewSettingsController
 from graphium.application.view_status import project_compact_status
-from graphium.domain.document_identity import BomKind, ContentFingerprint, DiskObservation, DocumentFileBinding, DocumentFileState, DocumentLoadMetadata, FileObjectIdentity, LineEnding, LineEndingProfile
+from graphium.domain.document_identity import BomKind, LineEnding
+from graphium.domain.document_serialization import DocumentSerializationProfile
 from graphium.infrastructure.view_settings_store import JsonViewSettingsStore
 
 class MemoryStore:
@@ -23,9 +24,6 @@ class MemoryStore:
         if self.fail_save:
             raise OSError('synthetic config failure')
         self.value = settings
-
-def file_state(*, encoding='utf-8', bom=BomKind.NONE, eol=LineEnding.LF, mixed=False):
-    return DocumentFileState(binding=DocumentFileBinding(logical_path='/tmp/example.txt', canonical_path='/tmp/example.txt', object_id=FileObjectIdentity(1, 2)), load=DocumentLoadMetadata(encoding=encoding, bom=bom, eol=LineEndingProfile(dominant=eol, mixed=mixed, final_newline=True, lf_count=2 if eol is LineEnding.LF else 0, crlf_count=2 if eol is LineEnding.CRLF else 0, cr_count=2 if eol is LineEnding.CR else 0)), disk=DiskObservation(size=10, mtime_ns=1, mode=33188, read_only=False), content_fingerprint=ContentFingerprint('sha256', '0' * 64))
 
 class ViewSettingsTests(unittest.TestCase):
 
@@ -78,22 +76,26 @@ class ViewSettingsTests(unittest.TestCase):
 class CompactStatusTests(unittest.TestCase):
 
     def test_new_document_projects_utf8_lf_saved(self):
-        got = project_compact_status(line=1, column=1, file_state=None, modified=False)
+        got = project_compact_status(line=1, column=1, representation_profile=DocumentSerializationProfile('utf-8', BomKind.NONE, LineEnding.LF), modified=False)
         self.assertEqual(got.position_text, 'Ln 1, Col 1')
         self.assertEqual(got.document_text, 'UTF-8 · LF · Saved')
 
     def test_loaded_representation_and_modified_relation_are_projected(self):
-        got = project_compact_status(line=12, column=7, file_state=file_state(encoding='utf-16-le', bom=BomKind.UTF16_LE, eol=LineEnding.CRLF), modified=True)
+        got = project_compact_status(line=12, column=7, representation_profile=DocumentSerializationProfile('utf-16-le', BomKind.UTF16_LE, LineEnding.CRLF), modified=True)
         self.assertEqual(got.position_text, 'Ln 12, Col 7')
-        self.assertEqual(got.document_text, 'UTF-16 LE · CRLF · Modified')
+        self.assertEqual(got.document_text, 'UTF-16 LE BOM · CRLF · Modified')
 
     def test_utf8_bom_and_mixed_eol_are_observation_not_conversion(self):
-        got = project_compact_status(line=2, column=3, file_state=file_state(encoding='utf-8', bom=BomKind.UTF8, eol=LineEnding.LF, mixed=True), modified=False)
+        got = project_compact_status(line=2, column=3, representation_profile=DocumentSerializationProfile('utf-8', BomKind.UTF8, LineEnding.LF, True), modified=False)
         self.assertEqual(got.document_text, 'UTF-8 BOM · Mixed EOL (LF) · Saved')
+
+    def test_pending_conversion_profile_is_projected_before_save(self):
+        got = project_compact_status(line=4, column=2, representation_profile=DocumentSerializationProfile('utf-32-be', BomKind.UTF32_BE, LineEnding.CR), modified=True)
+        self.assertEqual(got.document_text, 'UTF-32 BE BOM · CR · Modified')
 
     def test_position_is_strictly_one_based(self):
         with self.assertRaises(ValueError):
-            project_compact_status(line=0, column=1, file_state=None, modified=False)
+            project_compact_status(line=0, column=1, representation_profile=DocumentSerializationProfile('utf-8', BomKind.NONE, LineEnding.LF), modified=False)
 if __name__ == '__main__':
     unittest.main()
 

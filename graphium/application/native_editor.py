@@ -6,7 +6,6 @@ captured only at lifecycle boundaries that actually require it (Open/New rollbac
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Protocol
 
 from graphium.application.document_session import DocumentSession
@@ -14,7 +13,6 @@ from graphium.domain.document_identity import DocumentLoadResult
 from graphium.domain.edit_history import (
     DeleteDirection,
     DeltaHistory,
-    DeltaHistoryCheckpoint,
     EditKind,
     ReplayOperation,
     ReplayPlan,
@@ -31,11 +29,6 @@ class NativeEditorBufferPort(Protocol):
     def apply_replay(self, plan: ReplayPlan) -> None: ...
     def apply_operations(self, operations: tuple[ReplayOperation, ...], target_view: ViewState) -> None: ...
 
-
-@dataclass(frozen=True)
-class NativeEditorCheckpoint:
-    history: DeltaHistoryCheckpoint
-    session: object
 
 
 class NativeEditorController:
@@ -162,10 +155,6 @@ class NativeEditorController:
         )
         self.session.advance_editor_state(state_id)
         return state_id
-
-    def abort_native_group(self) -> None:
-        if self.history.group_active:
-            self.history.abort_group()
 
     def prepare_for_save(self) -> int:
         if self.history.group_active:
