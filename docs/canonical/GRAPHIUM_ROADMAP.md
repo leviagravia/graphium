@@ -747,3 +747,24 @@ only the three canonical documents, additive `evidence/G15_DESKTOP_CERTIFICATION
 with commit subject **`G15: complete core corrective maintenance`**. No new T480/manual test is required for
 publication. G15 is **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED** until the
 transaction actually completes. Graphium Plus remains **NOT OPENED**.
+
+
+### G15 publication closure + post-publication canonical convergence — 2026-08-26
+
+The authorized fail-closed G15 finalizer published commit `16b645ed653be5b44efa8721db11cca63f0633bd`, tree `e433758d1d68ef5bea6528e15e65d786e0679d31`, product subtree
+`1f63eca6724b379abab8e8d534667723e57276f6`, version `0.0.15`, with subject `G15: complete core corrective maintenance`. Publication preserved
+the certified Candidate product/tests/launcher/user-document/data/LICENSE bytes, requalified 406/406 permanent
+local authorities plus 34/34 G15 structural gates, adopted all focused S1-S5 T480 True-GTK proofs, synchronized
+`HEAD=origin/main=remote main`, and finished with a CLEAN worktree. No new T480 functional or manual test was
+required. Candidate attempt accounting remains 1/2 used and 1/2 unused historically.
+
+The mandatory post-publication read-only audit found no product/test/platform/structural/packaging failure and
+only the expected pre-finalizer canonical-state drift. This authorized five-path document/evidence-only
+convergence records the final publication facts, preserves all historical pre-publication evidence, adds an
+immutable G15 publication receipt and leaves `graphium/`, `bin/`, `tests/`, `docs/user/`, `data/` and `LICENSE`
+byte/mode-identical to the published product. **G15 and Graphium Core 0.0.15 are CLOSED / CERTIFIED / PUBLISHED.**
+
+**Graphium Plus:** **DEFINED / NOT OPENED**. No Plus source, entrypoint, toolbar or Workspace implementation is
+authorized by this convergence.
+
+**Graphium Ultra:** **DEFINED / NOT OPENED**.

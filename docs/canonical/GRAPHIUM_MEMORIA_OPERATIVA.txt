@@ -7937,3 +7937,73 @@ GIT_MUTATION=NO_AT_TARGET_MATERIALIZATION
 GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
 NEXT_STEP=RUN_FAIL_CLOSED_G15_PUBLICATION_FINALIZER
 FINAL_PHASE=G15_CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_PENDING
+
+
+================================================================================
+ENTRY — G15 / GRAPHIUM CORE 0.0.15 PUBLICATION CLOSURE / POST-PUBLICATION CANONICAL CONVERGENCE
+Date: 2026-08-26
+State: BINDING / G15 CLOSED / CERTIFIED / PUBLISHED / CANONICAL CONVERGENCE
+================================================================================
+
+PUBLICATION FACTS
+-----------------
+The user-provided fail-closed publication finalizer result is authoritative for the completed G15 transaction:
+  G15_PUBLICATION_COMMIT=16b645ed653be5b44efa8721db11cca63f0633bd
+  G15_PUBLICATION_TREE=e433758d1d68ef5bea6528e15e65d786e0679d31
+  G15_PRODUCT_SUBTREE=1f63eca6724b379abab8e8d534667723e57276f6
+  G15_TESTS_SUBTREE=875cae3f501fd566b49ee25b5bf613f72cedb1d7
+  G15_USER_DOCS_SUBTREE=8f5d3ef7dbe936eab18c2ed8447a487a6fe337df
+  G15_BIN_SUBTREE=585f06bf0ad4dada4675bfd5c11eb9fc793057ef
+  G15_DATA_SUBTREE=042e5dc2d043061c89e33170f5e35cd54a17e328
+  G15_LICENSE_BLOB=bdbdf23e6bc0cf4151485dbb932ffb45cd5875c4
+  G15_PRODUCT_VERSION=0.0.15
+  COMMIT_SUBJECT=G15: complete core corrective maintenance
+  LOCAL_AUTOMATED=406/406_PASS
+  G15_STRUCTURAL_GATES=34/34_PASS
+  TRUE_GTK_S1_S5_ADOPTED=PASS
+  T480_FUNCTIONAL_TESTS_THIS_PUBLICATION=0
+  MANUAL_TESTS=0
+  CANDIDATE_ATTEMPTS_USED=1/2
+  HEAD=ORIGIN_MAIN=REMOTE_MAIN=16b645ed653be5b44efa8721db11cca63f0633bd
+  WORKTREE=CLEAN
+  FINAL_PHASE=G15_PUBLICATION_PASS
+
+POST-PUBLICATION READ-ONLY AUDIT
+--------------------------------
+The publication output, frozen publication target and Candidate-protected identities were reconciled. No
+product, test, GTK/platform, structural, package or lightweight-budget failure is present. The only convergence
+item is DOCUMENT_AUTHORITY_POST_TRANSACTION_STATE_DRIFT: the five-path publication target was necessarily
+materialized before the final publication commit hash existed. That pre-finalizer history is preserved and is
+superseded for current-state authority by this binding entry.
+
+AUTHORIZED CONVERGENCE
+----------------------
+The user explicitly authorized the next step after successful publication. This convergence is document/evidence
+only and uses published commit `16b645ed653be5b44efa8721db11cca63f0633bd` / tree `e433758d1d68ef5bea6528e15e65d786e0679d31` as exact parent. Only these five paths may change:
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_ROADMAP.md
+  evidence/G15_PUBLICATION_FINAL_RECEIPT_20260826.txt
+  evidence/SHA256SUMS.txt
+
+`graphium/`, `bin/`, `tests/`, `docs/user/`, `data/` and `LICENSE` remain byte/mode-identical to the published
+G15 product. No Candidate is reopened, no attempt is consumed and no T480/manual test is required.
+
+CURRENT BINDING STATE
+---------------------
+G15_STATUS=CLOSED/CERTIFIED/PUBLISHED
+G15_PUBLICATION_COMMIT=16b645ed653be5b44efa8721db11cca63f0633bd
+G15_PUBLICATION_TREE=e433758d1d68ef5bea6528e15e65d786e0679d31
+G15_PRODUCT_SUBTREE=1f63eca6724b379abab8e8d534667723e57276f6
+G15_PRODUCT_VERSION=0.0.15
+G15_CANDIDATE_ATTEMPTS_USED=1/2
+G15_CANDIDATE_ATTEMPTS_REMAINING=1/2_HISTORICAL_ONLY
+GRAPHIUM_CORE_STATUS=0.0.15_CLOSED/CERTIFIED/PUBLISHED
+POST_G15_PUBLICATION_CANONICAL_SYNC=COMPLETE_BY_THIS_REVISION
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
+T480_FUNCTIONAL_TESTS_THIS_SYNC=0
+MANUAL_TESTS_THIS_SYNC=0
+CANDIDATE_ATTEMPTS_CONSUMED_THIS_SYNC=0
+NEXT_STEP=OPTIONAL_FINAL_READONLY_SYNC_AUDIT_OR_DISTRIBUTION_PACKAGING; PLUS_REQUIRES_SEPARATE_AUTHORIZATION
+FINAL_PHASE=G15_POST_PUBLICATION_CANONICAL_CONVERGENCE_TARGET_FROZEN

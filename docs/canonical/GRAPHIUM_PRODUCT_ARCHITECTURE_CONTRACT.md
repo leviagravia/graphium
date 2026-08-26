@@ -2,7 +2,7 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **G14 / Graphium Core CLOSED / CERTIFIED / PUBLISHED** at commit `51fc8f329be730a237f28e195fb1617de07a93d8`, tree `b0469a014a2451cfd2fa92a942583eeab02d25e1`, product subtree `396be05aaa0cc32e18341889e5494163151f4606`, product version `0.0.14`. The authorized fail-closed publication finalizer requalified 373/373 permanent local authorities, G14 focused 37/37, Structural Continuity PASS and Lightweight static PASS, adopted the binding S4 fresh-process True-GTK spellcheck proof 4/4 plus clean-startup no-spell-thread/child runtime proof, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G14 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G14/Core product publication commit/tree above. Graphium Plus is **DEFINED / AUTHORIZATION-READY AFTER FINAL POST-SYNC READ-ONLY AUDIT / NOT OPENED**; Graphium Ultra is **DEFINED / NOT OPENED**.
+Current publication boundary: **G15 / Graphium Core CLOSED / CERTIFIED / PUBLISHED** at commit `16b645ed653be5b44efa8721db11cca63f0633bd`, tree `e433758d1d68ef5bea6528e15e65d786e0679d31`, product subtree `1f63eca6724b379abab8e8d534667723e57276f6`, product version `0.0.15`. The authorized fail-closed publication finalizer requalified 406/406 permanent local authorities and 34/34 G15 structural gates, adopted the binding S1-S5 focused True-GTK proofs, performed no new T480 functional/manual test, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G15 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G15 product publication commit/tree above. Graphium Plus is **DEFINED / NOT OPENED**; Graphium Ultra is **DEFINED / NOT OPENED**.
 G12 / Graphium v1 remains CLOSED / CERTIFIED / PUBLISHED at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`; later governance-only commits do not replace that product publication identity.
 
 ## 1. Product identity
@@ -1953,3 +1953,28 @@ Publication itself consumes no additional Candidate attempt and requires no new 
 finalizer proves commit, push, fetch, `HEAD=origin/main=remote main` and CLEAN worktree, G15 remains
 **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED**, not yet PUBLISHED. Graphium Plus
 remains **DEFINED / NOT OPENED**.
+
+
+### G15 publication closure and post-publication canonical convergence — 2026-08-26
+
+The authorized fail-closed G15 publication finalizer succeeded on the canonical repository and published
+commit `16b645ed653be5b44efa8721db11cca63f0633bd`, tree `e433758d1d68ef5bea6528e15e65d786e0679d31`, product subtree `1f63eca6724b379abab8e8d534667723e57276f6`, version `0.0.15`, with subject
+`G15: complete core corrective maintenance`. The transaction requalified 190/190 Behavioral, 176/176
+Integration and 40/40 Packaging/Release = **406/406 PASS**, plus **34/34 G15 structural gates PASS**; it
+adopted the binding S1-S5 focused T480 True-GTK evidence, performed no new T480 functional or manual test,
+proved `HEAD=origin/main=remote main`, and left the worktree CLEAN. Candidate accounting remains 1/2 used
+and 1/2 unused historically.
+
+The mandatory post-publication read-only audit found no product, test, platform, structural or packaging
+failure. Its only convergence item is the expected pre-finalizer canonical-state drift: the publication target
+could not contain the final commit hash before that commit existed. This separately authorized convergence
+therefore changes only the three canonical documents, adds
+`evidence/G15_PUBLICATION_FINAL_RECEIPT_20260826.txt`, and regenerates `evidence/SHA256SUMS.txt`.
+`graphium/`, `bin/`, `tests/`, `docs/user/`, `data/` and `LICENSE` remain byte/mode-identical to the published
+G15 product. Historical pre-publication and True-GTK evidence remains immutable.
+
+G15 and Graphium Core 0.0.15 are **CLOSED / CERTIFIED / PUBLISHED**. No G15 Candidate is reopened and no
+remaining attempt is consumed. Graphium Plus and Graphium Ultra remain separate product-line definitions and
+are not opened by this convergence. The authoritative G15 product publication identity remains commit
+`16b645ed653be5b44efa8721db11cca63f0633bd` / tree `e433758d1d68ef5bea6528e15e65d786e0679d31` / product subtree `1f63eca6724b379abab8e8d534667723e57276f6` even if this governance-only convergence advances
+canonical repository HEAD.
