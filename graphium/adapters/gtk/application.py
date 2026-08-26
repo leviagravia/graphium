@@ -13,11 +13,34 @@ from pathlib import Path
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gio, Gtk
+gi.require_version("GdkPixbuf", "2.0")
+from gi.repository import GdkPixbuf, Gio, GLib, Gtk
 
 from graphium.application.commands import COMMANDS
-from graphium.product import DESKTOP_APPLICATION_ID
+from graphium.product import APPLICATION_ICON_NAME, DESKTOP_APPLICATION_ID
 from .window import GraphiumWindow
+
+
+def application_icon_paths() -> tuple[Path, ...]:
+    """Return the bundled, hand-tuned Graphium application icon set."""
+    root = Path(__file__).resolve().parents[3] / "data" / "icons" / "hicolor"
+    return tuple(
+        root / size / "apps" / f"{APPLICATION_ICON_NAME}.svg"
+        for size in ("16x16", "24x24", "32x32", "48x48", "scalable")
+    )
+
+
+def _install_application_icon_identity() -> None:
+    """Use the installed theme identity, with exact repo-local icons for source runs."""
+    Gtk.Window.set_default_icon_name(APPLICATION_ICON_NAME)
+    paths = application_icon_paths()
+    if not all(path.is_file() for path in paths):
+        return
+    try:
+        icons = [GdkPixbuf.Pixbuf.new_from_file(str(path)) for path in paths]
+    except (GLib.Error, OSError):
+        return
+    Gtk.Window.set_default_icon_list(icons)
 
 
 class GraphiumApplication(Gtk.Application):
@@ -31,6 +54,7 @@ class GraphiumApplication(Gtk.Application):
 
     def do_startup(self) -> None:
         Gtk.Application.do_startup(self)
+        _install_application_icon_identity()
         settings = Gtk.Settings.get_default()
         if settings is not None:
             self.system_prefer_dark_theme = bool(

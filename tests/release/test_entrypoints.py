@@ -16,11 +16,12 @@ class EntrypointTests(unittest.TestCase):
             prefix=stage/'usr'; private=prefix/'lib/graphium'; public=prefix/'bin/graphium'
             expected={f'usr/lib/graphium/graphium/{p.relative_to(ROOT/"graphium").as_posix()}' for p in (ROOT/'graphium').rglob('*') if p.is_file()}
             expected|={f'usr/lib/graphium/docs/user/{p.name}' for p in (ROOT/'docs/user').iterdir() if p.is_file()}
-            expected|={'usr/lib/graphium/bin/graphium','usr/bin/graphium','usr/share/applications/io.github.leviagravia.Graphium.desktop'}
+            expected|={'usr/lib/graphium/bin/graphium','usr/lib/graphium/LICENSE','usr/bin/graphium','usr/share/applications/io.github.leviagravia.Graphium.desktop'}
+            expected|={f'usr/share/icons/hicolor/{p.relative_to(ROOT/"data/icons/hicolor").as_posix()}' for p in (ROOT/'data/icons/hicolor').rglob('*') if p.is_file()}
             actual={p.relative_to(stage).as_posix() for p in stage.rglob('*') if p.is_file() or p.is_symlink()}
             self.assertEqual(actual,expected); self.assertTrue(public.is_symlink()); self.assertEqual(public.readlink(),Path('../lib/graphium/bin/graphium'))
             desktop=(prefix/'share/applications/io.github.leviagravia.Graphium.desktop').read_text(encoding='utf-8')
-            for marker in ('Type=Application','Name=Graphium','GenericName=Text Editor','Exec=graphium %F','Icon=accessories-text-editor','Terminal=false','MimeType=text/plain;','Categories=GTK;Utility;TextEditor;','StartupNotify=true'): self.assertIn(marker,desktop)
+            for marker in ('Type=Application','Name=Graphium','GenericName=Text Editor','Exec=graphium %F','Icon=io.github.leviagravia.Graphium','Terminal=false','MimeType=text/plain;','Categories=GTK;Utility;TextEditor;','StartupNotify=true'): self.assertIn(marker,desktop)
             probe='from pathlib import Path; import sys; p=Path(sys.argv[1]).resolve(); sys.path.insert(0,str(p.parents[1])); import graphium.product as x; assert x.DESKTOP_APPLICATION_ID=="io.github.leviagravia.Graphium"; assert (p.parents[1]/"docs/user/GRAPHIUM_USER_GUIDE.txt").is_file()'
             subprocess.run([sys.executable,'-I','-c',probe,str(public)],check=True)
             self.assertFalse(any((private/name).exists() for name in ('tests','evidence','docs/canonical','bin/graphium-selftest','bin/graphium-install')))

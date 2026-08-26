@@ -36,3 +36,23 @@ class BoundaryTests(unittest.TestCase):
                     if isinstance(n.func,ast.Attribute) and isinstance(n.func.value,ast.Name) and n.func.value.id=='gi' and n.func.attr=='require_version' and len(n.args)>=2 and all(isinstance(a,ast.Constant) for a in n.args[:2]) and n.args[0].value=='Gdk' and n.args[1].value=='3.0': ok=True
                 if not ok: bad.append(p.relative_to(ROOT).as_posix())
         self.assertEqual(bad,[])
+
+class TransformShortcutNamespaceTests(unittest.TestCase):
+    def test_transform_shortcuts_match_frozen_g15_s4_namespace(self):
+        from graphium.application.commands import FORBIDDEN_ACCELERATORS, accelerator_map
+        amap = accelerator_map()
+        self.assertEqual(amap.get("uppercase"), "<Ctrl>U")
+        self.assertEqual(amap.get("lowercase"), "<Ctrl><Shift>L")
+        self.assertNotEqual(amap.get("uppercase"), "<Ctrl><Shift>U")
+        self.assertNotIn(amap.get("uppercase"), FORBIDDEN_ACCELERATORS)
+        self.assertNotIn(amap.get("lowercase"), FORBIDDEN_ACCELERATORS)
+        self.assertNotIn("<Ctrl><Alt>L", (amap.get("uppercase"), amap.get("lowercase")))
+
+    def test_transform_shortcuts_are_projected_into_both_help_authorities(self):
+        shortcuts = (ROOT / "docs/user/GRAPHIUM_KEYBOARD_SHORTCUTS.txt").read_text(encoding="utf-8")
+        guide = (ROOT / "docs/user/GRAPHIUM_USER_GUIDE.txt").read_text(encoding="utf-8")
+        for text in (shortcuts, guide):
+            self.assertIn("Ctrl+U", text)
+            self.assertIn("Ctrl+Shift+L", text)
+        self.assertNotIn("Uppercase, Lowercase, Duplicate Line / Selection and Trim Trailing Spaces have no dedicated", shortcuts)
+        self.assertNotIn("remaining transformation actions are menu-driven", guide)

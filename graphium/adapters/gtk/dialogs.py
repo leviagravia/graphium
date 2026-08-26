@@ -12,6 +12,7 @@ from gi.repository import Gdk, Gtk, Pango
 from graphium.application.file_lifecycle import ReloadDecision, UnsavedDecision
 from graphium.application.recovery_startup import RecoveryStartupDecision
 from graphium.domain.recovery_artifact import RecoveryDocumentKind, RecoveryRecord
+from graphium.product import AUTHOR, COPYRIGHT, REPOSITORY_LABEL, REPOSITORY_URL
 
 
 class GtkLifecycleUI:
@@ -235,8 +236,11 @@ def show_about(parent: Gtk.Window, *, version: str) -> None:
               f"GTK {Gtk.get_major_version()}.{Gtk.get_minor_version()}.{Gtk.get_micro_version()}; "
               f"Display {backend}")
     dialog.set_comments("Fast, simple and safety-focused plain-text editor for Linux.\n\n" + system)
-    dialog.set_website("https://github.com/leviagravia/graphium")
-    dialog.set_website_label("Graphium repository")
+    dialog.set_authors([AUTHOR])
+    dialog.set_copyright(COPYRIGHT)
+    dialog.set_license_type(Gtk.License.GPL_3_0)
+    dialog.set_website(REPOSITORY_URL)
+    dialog.set_website_label(REPOSITORY_LABEL)
     try:
         dialog.run()
     finally:
@@ -455,48 +459,23 @@ def show_statistics(parent: Gtk.Window, *, document, selection) -> None:
         dialog.destroy()
 
 
-def choose_preferences(
-    parent: Gtk.Window,
-    *,
-    tab_width: int,
-    insert_spaces: bool,
-) -> tuple[int, bool] | None:
-    """Show the deliberately small Preferences dialog and return one atomic snapshot."""
-    dialog = Gtk.Dialog(
-        title="Preferences",
-        transient_for=parent,
-        modal=True,
-        destroy_with_parent=True,
-    )
+def choose_tab_width(parent: Gtk.Window, *, current: int) -> int | None:
+    """Choose one custom tab width; persistence remains outside the dialog."""
+    dialog = Gtk.Dialog(title="Tab Width", transient_for=parent, modal=True, destroy_with_parent=True)
     dialog.add_button("Cancel", Gtk.ResponseType.CANCEL)
     dialog.add_button("OK", Gtk.ResponseType.OK)
     dialog.set_default_response(Gtk.ResponseType.OK)
-
-    content = dialog.get_content_area()
-    content.set_border_width(12)
-    grid = Gtk.Grid(column_spacing=12, row_spacing=12)
-    content.pack_start(grid, True, True, 0)
-
-    tab_label = Gtk.Label(label="Tab width:")
-    tab_label.set_xalign(0.0)
+    content = dialog.get_content_area(); content.set_border_width(12)
+    row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+    label = Gtk.Label(label="Tab width:"); label.set_xalign(0.0)
     adjustment = Gtk.Adjustment(
-        value=float(tab_width), lower=1.0, upper=32.0, step_increment=1.0,
-        page_increment=4.0, page_size=0.0,
+        value=float(current), lower=1.0, upper=32.0, step_increment=1.0, page_increment=4.0, page_size=0.0
     )
-    tab_spin = Gtk.SpinButton(adjustment=adjustment, climb_rate=1.0, digits=0)
-    tab_spin.set_numeric(True)
-    tab_spin.set_value(float(tab_width))
-
-    spaces_check = Gtk.CheckButton(label="Insert spaces instead of tabs")
-    spaces_check.set_active(bool(insert_spaces))
-
-    grid.attach(tab_label, 0, 0, 1, 1)
-    grid.attach(tab_spin, 1, 0, 1, 1)
-    grid.attach(spaces_check, 0, 1, 2, 1)
-    dialog.show_all()
+    spin = Gtk.SpinButton(adjustment=adjustment, climb_rate=1.0, digits=0)
+    spin.set_numeric(True); spin.set_value(float(current))
+    row.pack_start(label, False, False, 0); row.pack_start(spin, False, False, 0)
+    content.pack_start(row, True, True, 0); dialog.show_all()
     try:
-        if dialog.run() != Gtk.ResponseType.OK:
-            return None
-        return int(tab_spin.get_value_as_int()), bool(spaces_check.get_active())
+        return int(spin.get_value_as_int()) if dialog.run() == Gtk.ResponseType.OK else None
     finally:
         dialog.destroy()

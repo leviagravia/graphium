@@ -35,7 +35,7 @@ from graphium.application.renderability import (
 )
 from graphium.product import PRODUCT_NAME, VERSION
 from .dialogs import (
-    GtkLifecycleUI, choose_copy_path, choose_font, choose_line_number, choose_preferences, show_about,
+    GtkLifecycleUI, choose_copy_path, choose_font, choose_line_number, choose_tab_width, show_about,
     show_properties, show_statistics, show_text_document,
 )
 from .editor_buffer import GtkTextBufferPort
@@ -242,7 +242,8 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "paste": self._action_paste,
             "delete": self._action_delete,
             "select-all": self._action_select_all,
-            "preferences": self._action_preferences,
+            "tab-width": self._action_tab_width,
+            "insert-spaces": self._action_insert_spaces,
             "uppercase": self._action_uppercase,
             "lowercase": self._action_lowercase,
             "duplicate-line-selection": self._action_duplicate_line_selection,
@@ -293,6 +294,9 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _initial_choice_state(self, action: str) -> str:
         if action == "appearance":
             return self.core.view_settings.current.appearance
+        if action == "tab-width":
+            width = self.core.view_settings.current.tab_width
+            return str(width) if width in (2, 3, 4, 8) else "other"
         profile = self.core.session.current_representation_profile
         if action == "encoding":
             return encoding_choice_value(profile)
@@ -307,6 +311,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "line-numbers": settings.line_numbers,
             "word-wrap": settings.word_wrap,
             "full-screen": False,
+            "insert-spaces": settings.insert_spaces,
         }[action]
 
     def _install_menu(self) -> None:
@@ -877,27 +882,35 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         start, end = self.buffer.get_bounds()
         self.buffer.select_range(start, end)
 
-    def _commit_preferences(self, *, tab_width: int, insert_spaces: bool) -> bool:
-        try:
-            updated = self.core.view_settings.update(
-                tab_width=tab_width, insert_spaces=insert_spaces
-            )
-        except Exception as exc:
-            self._ui.show_warning("Preferences were not saved", str(exc))
-            return False
-        self.text_view.set_tab_width(updated.tab_width)
-        self.text_view.set_insert_spaces(updated.insert_spaces)
-        return True
+    @staticmethod
+    def _tab_width_action_state(width: int) -> str:
+        return str(width) if width in (2, 3, 4, 8) else "other"
 
-    def _action_preferences(self, *_args) -> None:
-        settings = self.core.view_settings.current
-        chosen = choose_preferences(
-            self, tab_width=settings.tab_width, insert_spaces=settings.insert_spaces
-        )
-        if chosen is not None:
-            tab_width, insert_spaces = chosen
-            self._commit_preferences(tab_width=tab_width, insert_spaces=insert_spaces)
+    def _action_tab_width(self, action: Gio.SimpleAction, parameter) -> None:
+        if parameter is None:
+            return
+        value = parameter.get_string()
+        if value == "other":
+            width = choose_tab_width(self, current=self.core.view_settings.current.tab_width)
+            if width is None:
+                self.text_view.grab_focus(); return
+        elif value in ("2", "3", "4", "8"):
+            width = int(value)
+        else:
+            return
+        if width != self.core.view_settings.current.tab_width:
+            if not self._persist_view_setting(tab_width=width):
+                return
+            self.text_view.set_tab_width(width)
+        self._set_string_action(action, self._tab_width_action_state(width))
         self.text_view.grab_focus()
+
+    def _action_insert_spaces(self, action: Gio.SimpleAction, _parameter) -> None:
+        value = not self._boolean_action_value(action)
+        if self._persist_view_setting(insert_spaces=value):
+            self._set_boolean_action(action, value)
+            self.text_view.set_insert_spaces(value)
+            self.text_view.grab_focus()
 
     def _perform_text_transform(self, action_name: str) -> None:
         captured = self.buffer_port.capture_full()

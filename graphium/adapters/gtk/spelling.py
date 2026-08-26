@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
+import threading
 from typing import Callable
 
 import gi
@@ -15,14 +16,16 @@ from graphium.application.spellcheck import (
     SpellIssue,
 )
 from graphium.infrastructure.hunspell_session import (
+    HunspellDictionary,
     HunspellError,
     HunspellPipeSession,
+    discover_hunspell_dictionaries,
     resolve_hunspell_executable,
 )
 
 
 class GtkSpellCheckDialog:
-    """One modal dialog, one controller, at most one Hunspell child and worker."""
+    """One modal dialog, one controller, one worker, at most one Hunspell child."""
 
     def __init__(
         self,
@@ -32,13 +35,22 @@ class GtkSpellCheckDialog:
         executable: str,
         on_changed: Callable[[], None] | None = None,
         session_factory=HunspellPipeSession,
+        dictionary_discoverer=discover_hunspell_dictionaries,
     ) -> None:
+        self._editor = editor
         self._controller = SpellCheckController(editor)
-        self._session = session_factory(executable)
+        self._executable = executable
+        self._session_factory = session_factory
+        self._dictionary_discoverer = dictionary_discoverer
+        self._session: HunspellPipeSession | None = None
         self._on_changed = on_changed
         self._executor: ThreadPoolExecutor | None = None
+        self._discovery_cancel = threading.Event()
         self._closed = False
         self._ticket = 0
+        self._dictionary_ready = False
+        self._dictionary_bases: list[str | None] = [None]
+        self._selected_dictionary: str | None = None
 
         dialog = Gtk.Dialog(title="Spelling", transient_for=parent, modal=True)
         dialog.add_button("Close", Gtk.ResponseType.CLOSE)
@@ -49,8 +61,11 @@ class GtkSpellCheckDialog:
         grid.set_border_width(12)
         area.pack_start(grid, True, True, 0)
 
-        dictionary = Gtk.Label(label="System default")
-        dictionary.set_xalign(0.0)
+        self._dictionary = Gtk.ComboBoxText()
+        self._dictionary.append_text("System default")
+        self._dictionary.set_active(0)
+        self._dictionary.set_sensitive(False)
+        self._dictionary.connect("changed", self._on_dictionary_changed)
         self._word = Gtk.Label(label="")
         self._word.set_xalign(0.0)
         self._replacement = Gtk.ComboBoxText.new_with_entry()
@@ -64,7 +79,7 @@ class GtkSpellCheckDialog:
         self._status.set_line_wrap(True)
 
         grid.attach(Gtk.Label(label="Dictionary:"), 0, 0, 1, 1)
-        grid.attach(dictionary, 1, 0, 1, 1)
+        grid.attach(self._dictionary, 1, 0, 1, 1)
         grid.attach(Gtk.Label(label="Unknown word:"), 0, 1, 1, 1)
         grid.attach(self._word, 1, 1, 1, 1)
         grid.attach(Gtk.Label(label="Replacement:"), 0, 2, 1, 1)
@@ -85,7 +100,7 @@ class GtkSpellCheckDialog:
 
     def run(self) -> None:
         self._dialog.show_all()
-        self._advance()
+        self._begin_dictionary_discovery()
         try:
             self._dialog.run()
         finally:
@@ -101,8 +116,45 @@ class GtkSpellCheckDialog:
             self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="graphium-spell")
         return self._executor
 
-    def _advance(self) -> None:
+    def _begin_dictionary_discovery(self) -> None:
         if self._closed:
+            return
+        self._set_issue_controls(False)
+        self._status.set_text("Finding dictionaries…")
+        self._ticket += 1
+        ticket = self._ticket
+        future = self._ensure_executor().submit(
+            self._dictionary_discoverer,
+            self._executable,
+            cancel_event=self._discovery_cancel,
+        )
+        future.add_done_callback(lambda done, t=ticket: GLib.idle_add(self._deliver_dictionary_discovery, t, done))
+
+    def _deliver_dictionary_discovery(self, ticket: int, future: Future) -> bool:
+        if self._closed or ticket != self._ticket:
+            return False
+        try:
+            dictionaries = tuple(future.result())
+        except HunspellError:
+            dictionaries = ()
+        self._dictionary_bases = [None]
+        self._dictionary.remove_all()
+        self._dictionary.append_text("System default")
+        for dictionary in dictionaries:
+            if not isinstance(dictionary, HunspellDictionary):
+                continue
+            self._dictionary.append_text(dictionary.display_name)
+            self._dictionary_bases.append(dictionary.base_path)
+        self._dictionary.set_active(0)
+        self._dictionary_ready = True
+        self._dictionary.set_sensitive(True)
+        self._selected_dictionary = None
+        self._session = self._session_factory(self._executable, dictionary_base=None)
+        self._advance()
+        return False
+
+    def _advance(self) -> None:
+        if self._closed or self._session is None:
             return
         try:
             request = self._controller.next_request()
@@ -138,7 +190,7 @@ class GtkSpellCheckDialog:
         except HunspellError as exc:
             self._fatal(
                 "Spell check unavailable",
-                "Hunspell could not continue. Verify that Hunspell and a dictionary for your system language are installed.\n\n"
+                "Hunspell could not continue. Verify that Hunspell and the selected dictionary are installed.\n\n"
                 + str(exc),
             )
             return False
@@ -167,6 +219,36 @@ class GtkSpellCheckDialog:
         self._set_issue_controls(True)
         if isinstance(entry, Gtk.Entry):
             entry.grab_focus()
+
+    def _on_dictionary_changed(self, combo) -> None:
+        if self._closed or not self._dictionary_ready:
+            return
+        index = combo.get_active()
+        if index < 0 or index >= len(self._dictionary_bases):
+            return
+        selected = self._dictionary_bases[index]
+        if selected == self._selected_dictionary:
+            return
+        self._restart_for_dictionary(selected)
+
+    def _restart_for_dictionary(self, dictionary_base: str | None) -> None:
+        self._ticket += 1
+        snapshot = self._editor.capture_programmatic_source()
+        if snapshot.state_id != self._controller.source_state_id:
+            self._fatal("Spell check stopped", "document changed; run spell check again")
+            return
+        old_session, self._session = self._session, None
+        if old_session is not None:
+            old_session.cancel()
+        self._controller.close()
+        self._controller = SpellCheckController(self._editor)
+        self._selected_dictionary = dictionary_base
+        self._session = self._session_factory(self._executable, dictionary_base=dictionary_base)
+        self._word.set_text("")
+        self._replacement.remove_all()
+        self._set_issue_controls(False)
+        self._status.set_text("Checking…")
+        self._advance()
 
     def _on_ignore(self, _button) -> None:
         try:
@@ -221,8 +303,11 @@ class GtkSpellCheckDialog:
             return
         self._closed = True
         self._ticket += 1
+        self._discovery_cancel.set()
         self._controller.close()
-        self._session.cancel()
+        session, self._session = self._session, None
+        if session is not None:
+            session.cancel()
         executor, self._executor = self._executor, None
         if executor is not None:
             executor.shutdown(wait=True, cancel_futures=True)

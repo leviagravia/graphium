@@ -31,10 +31,12 @@ def apply_ops(source: str, operations: tuple[ReplayOperation, ...]) -> str:
 
 class ArchitectureTests(unittest.TestCase):
 
-    def test_32_command_surface_has_exact_six_transform_actions_and_two_accelerators(self):
+    def test_32_command_surface_has_exact_six_transform_actions_and_four_accelerators(self):
         transforms = [c for c in COMMANDS if c.submenu == 'Transform Text']
-        self.assertEqual([(c.action, c.label, c.accelerator) for c in transforms], [('uppercase', 'Uppercase', None), ('lowercase', 'Lowercase', None), ('duplicate-line-selection', 'Duplicate Line / Selection', None), ('move-lines-up', 'Move Lines Up', '<Alt>Up'), ('move-lines-down', 'Move Lines Down', '<Alt>Down'), ('trim-trailing-spaces', 'Trim Trailing Spaces', None)])
+        self.assertEqual([(c.action, c.label, c.accelerator) for c in transforms], [('uppercase', 'Uppercase', '<Ctrl>U'), ('lowercase', 'Lowercase', '<Ctrl><Shift>L'), ('duplicate-line-selection', 'Duplicate Line / Selection', None), ('move-lines-up', 'Move Lines Up', '<Alt>Up'), ('move-lines-down', 'Move Lines Down', '<Alt>Down'), ('trim-trailing-spaces', 'Trim Trailing Spaces', None)])
         amap = accelerator_map()
+        self.assertEqual(amap['uppercase'], '<Ctrl>U')
+        self.assertEqual(amap['lowercase'], '<Ctrl><Shift>L')
         self.assertEqual(amap['move-lines-up'], '<Alt>Up')
         self.assertEqual(amap['move-lines-down'], '<Alt>Down')
 
@@ -69,12 +71,16 @@ class CurrentCommandSurfaceTests(unittest.TestCase):
         self.assertEqual(line_ending_choice_target("crlf"), LineEnding.CRLF); self.assertFalse(document[0].accelerator or document[1].accelerator); self.assertEqual(document[2].accelerator,'F2')
 
 
-class PreferenceCommandSurfaceTests(unittest.TestCase):
-    def test_preferences_and_appearance_have_one_semantic_owner_and_no_accelerators(self):
-        prefs=[c for c in COMMANDS if c.action=="preferences"]
+class DirectSettingsCommandSurfaceTests(unittest.TestCase):
+    def test_tab_controls_are_direct_unique_and_have_no_accelerators(self):
+        self.assertFalse([c for c in COMMANDS if c.action == "preferences"])
+        tab=[c for c in COMMANDS if c.action=="tab-width"]
+        spaces=[c for c in COMMANDS if c.action=="insert-spaces"]
         appearance=[c for c in COMMANDS if c.action=="appearance"]
-        self.assertEqual([(c.label,c.menu,c.accelerator) for c in prefs],[("Preferences…","Edit",None)])
-        self.assertEqual(len(appearance),1)
+        self.assertEqual(len(tab),1); self.assertEqual(len(spaces),1); self.assertEqual(len(appearance),1)
+        self.assertEqual((tab[0].label,tab[0].menu,tab[0].accelerator),("Tab Width","Edit",None))
+        self.assertEqual(tab[0].choices,(("2","2"),("3","3"),("4","4"),("8","8"),("Other…","other")))
+        self.assertEqual((spaces[0].label,spaces[0].menu,spaces[0].stateful,spaces[0].accelerator),("Insert Spaces Instead of Tabs","Edit",True,None))
         self.assertEqual((appearance[0].menu,appearance[0].accelerator),("View",None))
         self.assertEqual(appearance[0].choices,(("System","system"),("Light","light"),("Dark","dark")))
-        amap=accelerator_map(); self.assertNotIn("preferences",amap); self.assertNotIn("appearance",amap)
+        amap=accelerator_map(); self.assertNotIn("tab-width",amap); self.assertNotIn("insert-spaces",amap); self.assertNotIn("appearance",amap)

@@ -39,8 +39,7 @@ View
   F11             Full Screen
 
 Status Bar, Line Numbers, Word Wrap and Font… are direct View commands without dedicated
-accelerators. Their persistent state is changed from the View menu rather than
-duplicated in Preferences.
+accelerators. Their persistent state is changed from the View menu.
 
 Document
   F2              Check Spelling…
@@ -60,14 +59,17 @@ Graphium does not use Ctrl+Alt+L. New accelerators are checked against active de
 global bindings before a desktop candidate is accepted.
 
 Text transformations
-  Alt+Up    Move Lines Up
-  Alt+Down  Move Lines Down
-  Uppercase, Lowercase, Duplicate Line / Selection and Trim Trailing Spaces have no dedicated
-  accelerator and remain explicit Edit -> Transform Text menu actions.
+  Ctrl+U          Uppercase
+  Ctrl+Shift+L    Lowercase
+  Alt+Up          Move Lines Up
+  Alt+Down        Move Lines Down
+  Duplicate Line / Selection and Trim Trailing Spaces have no dedicated accelerator and remain
+  explicit Edit -> Transform Text menu actions.
 
 
-Preferences and appearance
-  Preferences… has no dedicated accelerator.
+Tab controls and appearance
+  Tab Width -> 2 / 3 / 4 / 8 / Other… has no dedicated accelerator.
+  Insert Spaces Instead of Tabs has no dedicated accelerator.
   Appearance -> System / Light / Dark has no dedicated accelerator.
-  A normal Tab key follows the Insert spaces instead of tabs preference; modified Tab combinations
-  are not repurposed by these preferences.
+  A normal Tab key follows Insert Spaces Instead of Tabs; modified Tab combinations are not
+  repurposed by these settings.

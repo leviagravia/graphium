@@ -13,9 +13,9 @@ class SpellcheckProjectionTests(unittest.TestCase):
         self.assertEqual([(n.level,n.module,[a.name for a in n.names]) for n in imports],[(1,'spelling',['run_spell_check_dialog'])])
     def test_dialog_is_single_worker_main_context_projected_and_documented(self):
         text=(ROOT/'graphium/adapters/gtk/spelling.py').read_text(encoding='utf-8')
-        for token in ('ThreadPoolExecutor(max_workers=1','GLib.idle_add','HunspellPipeSession','SpellCheckController','System default','Replace','Ignore All','executor.shutdown(wait=True'):
+        for token in ('ThreadPoolExecutor(max_workers=1','GLib.idle_add','HunspellPipeSession','SpellCheckController','discover_hunspell_dictionaries','Gtk.ComboBoxText()','System default','dictionary_base=','_restart_for_dictionary','_discovery_cancel.set()','Replace','Ignore All','executor.shutdown(wait=True'):
             self.assertIn(token,text)
-        self.assertNotIn('document_path',text); self.assertNotIn('Save',text)
+        self.assertNotIn('document_path',text); self.assertNotIn('Save',text); self.assertNotIn('ViewSettings',text); self.assertNotIn('gui language',text.lower())
         commands=(ROOT/'graphium/application/commands.py').read_text(encoding='utf-8')
         self.assertIn('CHECK_SPELLING_COMMAND,',commands)
         guide=(ROOT/'docs/user/GRAPHIUM_USER_GUIDE.txt').read_text(encoding='utf-8')

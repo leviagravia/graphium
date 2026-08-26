@@ -4,7 +4,7 @@ from tests.desktop.harness.runtime import drain, load_gtk3, text_of, drain_for
 from tests.desktop.harness.fixtures import realistic_text
 
 SAMPLES=5
-PREF_LIMIT_MS=500.0
+TAB_CHOOSER_LIMIT_MS=500.0
 APPEARANCE_LIMIT_MS=1000.0
 TAB_LIMIT_MS=1000.0
 TRANSFORM_LIMIT_S=3.0
@@ -24,7 +24,7 @@ def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--repo',required=True); ap.add_argument('--manual',action='store_true'); ns=ap.parse_args(); sys.path.insert(0,ns.repo)
     _Gdk,GLib,Gtk=load_gtk3()
     from graphium.adapters.gtk.application import GraphiumApplication
-    from graphium.adapters.gtk.dialogs import choose_preferences
+    from graphium.adapters.gtk.dialogs import choose_tab_width
     app=GraphiumApplication()
     if not app.register(None): return 1
     app.activate(); drain_for(Gtk,0.08,0.002); w=app.window
@@ -37,19 +37,19 @@ def main():
         w.lookup_action('undo').activate(None); drain_for(Gtk)
         if text_of(w.text_view)!=text or w.core.session.modified:return 1
 
-        # Preferences construction is lazy and cheap; modal is auto-cancelled by the machine.
+        # The narrow Other… tab-width chooser is lazy and cheap; modal is auto-cancelled.
         w.core.editor.initialize_new_text(multiline(5*1024),clean=True); w._refresh_projection()
         def cancel_dialog():
             for top in Gtk.Window.list_toplevels():
-                if isinstance(top,Gtk.Dialog) and top.get_title()=='Preferences':
+                if isinstance(top,Gtk.Dialog) and top.get_title()=='Tab Width':
                     top.response(Gtk.ResponseType.CANCEL); return False
             return True
-        def one_pref():
+        def one_tab_chooser():
             GLib.timeout_add(1,cancel_dialog)
-            got=choose_preferences(w,tab_width=w.core.view_settings.current.tab_width,insert_spaces=w.core.view_settings.current.insert_spaces)
-            if got is not None: raise AssertionError('cancel returned preferences')
+            got=choose_tab_width(w,current=w.core.view_settings.current.tab_width)
+            if got is not None: raise AssertionError('cancel returned tab width')
             drain_for(Gtk)
-        if median_ms(one_pref)>PREF_LIMIT_MS:return 1
+        if median_ms(one_tab_chooser)>TAB_CHOOSER_LIMIT_MS:return 1
 
         # Appearance must remain independent of document size.
         for size in (5*1024,1024*1024):
@@ -61,10 +61,9 @@ def main():
 
         # Tab-width projection on 10 MiB must not scan/rewrite the document.
         ten=multiline(10*1024*1024); w.core.editor.initialize_new_text(ten,clean=True); w._refresh_projection(); before=text_of(w.text_view)
-        widths=iter([7,8]*20)
+        widths=iter([4,8]*20)
         def one_tab():
-            if not w._commit_preferences(tab_width=next(widths),insert_spaces=False): raise AssertionError('tab preference commit')
-            drain_for(Gtk,0.002)
+            w.lookup_action('tab-width').activate(GLib.Variant.new_string(str(next(widths)))); drain_for(Gtk,0.002)
         if median_ms(one_tab)>TAB_LIMIT_MS:return 1
         if text_of(w.text_view)!=before or w.core.session.modified:return 1
         return 0

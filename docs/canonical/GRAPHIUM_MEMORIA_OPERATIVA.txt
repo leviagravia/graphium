@@ -7627,3 +7627,313 @@ MANUAL_TESTS_THIS_SYNC=0
 CANDIDATE_ATTEMPTS_CONSUMED_THIS_SYNC=0
 NEXT_STEP=FINAL_POST_G14_SYNC_READONLY_AUDIT_BEFORE_ANY_GRAPHIUM_PLUS_OPENING
 FINAL_PHASE=G14_POST_PUBLICATION_CANONICAL_CONVERGENCE_TARGET_FROZEN
+
+
+================================================================================
+ENTRY — G15 CORE CORRECTIVE LINE OPENING / S1 APPLICATION ICON IDENTITY
+Date: 2026-08-26
+State: BINDING / G15 OPEN / S1 NON-CANDIDATE IMPLEMENTATION
+================================================================================
+
+USER DECISIONS
+--------------
+After G14/Core closure the user approved a bounded corrective line before Graphium Plus. The manual GUI
+language selector is explicitly removed from scope. Approved later G15 corrections remain: direct Tab Width
+and Insert Spaces controls replacing the current undersized Preferences dialog; selectable installed
+Hunspell dictionary; Uppercase/Lowercase shortcuts after keyboard-namespace audit; User Guide wording plus
+a short explanation of Latin `graphium`; About icon/legal/author metadata; repository URL unchanged.
+
+LICENSE AUTHORITY
+-----------------
+Graphium license is approved as GNU General Public License v3.0 or later (`GPL-3.0-or-later`).
+Copyright © 2026 leviagravia.
+Author: leviagravia@zohomail.eu.
+Legal-file/About implementation belongs to G15-S5, not S1.
+
+G15 SERIAL ROADMAP
+------------------
+G15-S1 Application Icon Identity
+G15-S2 Tab Controls Simplification
+G15-S3 Hunspell Dictionary Selection
+G15-S4 Transform Text Shortcuts
+G15-S5 Help / About / Legal Closure
+G15-S6 Integral Regression / Structural Audit
+then only a separately authorized Candidate.
+Graphium Plus remains NOT OPENED.
+
+G15-S1 SOURCE-FIRST DECISION
+----------------------------
+Mature direct-source comparison selected the modern stable application-ID model used by mature GTK editors,
+with a local-source fallback pattern adapted to Graphium's extracted/source-run validation needs.
+APPLICATION_ICON_NAME=io.github.leviagravia.Graphium
+DESKTOP_ICON=io.github.leviagravia.Graphium
+ASSET_AUTHORITY=data/icons/hicolor
+ASSETS=16x16,24x24,32x32,48x48,scalable SVG
+INSTALL_PROJECTION=<prefix>/share/icons/hicolor/.../apps/
+SOURCE_RUN_FALLBACK=EXACT_SAME_REPO_LOCAL_ASSETS
+PRIVATE_RUNTIME_ICON_DUPLICATION=NO
+GRESOURCE_OR_BRANDING_FRAMEWORK=NO
+ICON_CACHE_SUBPROCESS=NO
+TOOLBAR_ACTION_ICON_SCOPE=NO
+VERSION_DURING_SLICES=0.0.14
+
+GOVERNANCE
+----------
+G15-S1 is NON-CANDIDATE. No canonical Git mutation is authorized by this implementation slice. No Candidate
+is declared and no attempt is consumed. Static/headless/local authorities must be exhausted before any T480
+request; a focused automated True-GTK probe is allowed only for icon behavior that cannot be proved without
+GTK.
+
+GRAPHIUM_CORE_STATUS=PUBLISHED_G14_WITH_AUTHORIZED_G15_CORRECTIVE_LINE_OPEN
+G15_STATUS=OPEN_NONCANDIDATE
+G15_S1_STATUS=NONCANDIDATE_TRUE_GTK_PASS_CLOSED
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+CANDIDATE=NO
+GIT_MUTATION=NO
+
+
+G15-S2 TAB CONTROLS SIMPLIFICATION — NON-CANDIDATE IMPLEMENTATION
+---------------------------------------------------------------
+Source-first mature audit compared Mousepad 0.7.0, Leafpad/L3afpad, FeatherPad, gedit and GNOME Text
+Editor before implementation. The frozen decision removes Edit -> Preferences entirely and projects the
+existing global persistent settings directly as Edit -> Tab Width -> 2/3/4/8/Other… plus the checked
+Edit -> Insert Spaces Instead of Tabs action. Other… is only a 1..32 numeric chooser. The existing
+ViewSettings/JsonViewSettingsStore keys, defaults (8/false), atomic persistence and Tab insertion semantics
+remain unchanged; no migration, document metadata, dependency, module, thread, subprocess or framework is
+added. Runtime source across commands/dialogs/window is net -8 lines relative to the G15-S1 authority.
+
+Local RED->GREEN focused gates passed; post-audit full selftest passed Behavioral 190/190, Integration
+167/167 and Packaging/Release 27/27. One earlier full-selftest Hunspell timing error occurred in byte-identical
+G15-S1 spell source/test; failure-specific comparison and isolated baseline/work diagnostics passed, so no
+Hunspell repair or scope expansion was performed. The focused automated T480 True-GTK probe subsequently
+passed real menu/action topology, custom/fixed width behavior, Cancel neutrality, persistence rollback and
+fresh-window projection with source/package identity unchanged. Manual tests=0; attempt consumed=0; Git mutation=0.
+
+G15_S2_STATUS=NONCANDIDATE_TRUE_GTK_PASS_CLOSED
+G15_S2_PRODUCT_RUNTIME_NET_LINES=-8
+G15_S2_CONFIG_MIGRATION=NO
+G15_S2_NEW_AUTHORITY=NO
+G15_S2_MANUAL_TESTS_REQUIRED=0
+CANDIDATE=NO
+ATTEMPT_CONSUMED=NO
+GIT_MUTATION=NO
+
+G15-S3 HUNSPELL DICTIONARY SELECTION — NON-CANDIDATE IMPLEMENTATION
+------------------------------------------------------------------
+The mandatory source-first audit compared Mousepad 0.7.0, gedit, GNOME Text Editor, FeatherPad, Leafpad,
+L3afpad and direct Hunspell CLI behavior before implementation. The frozen design keeps the existing lazy
+external Hunspell boundary and converts the dialog's static Dictionary row into a real combo: System default
+plus verified installed Hunspell dictionary IDs. No GUI-language selector is introduced.
+
+Discovery occurs only after explicit Check Spelling invocation, through the existing single spell worker, by
+running bounded/cancellable `hunspell -D` with `LC_ALL=C`. Human headings are ignored; only absolute base
+paths backed by current `.aff` + `.dic` regular-file pairs are selectable. Output/path/count budgets are
+enforced and duplicate IDs are disambiguated. System default preserves the existing pipe argv; explicit
+selection adds exactly one `-d <base>` pair and the pair is revalidated at child start.
+
+Dictionary selection is dialog-local and non-persistent. Switching dictionary fences old callbacks, reaps the
+old Hunspell child, rejects externally stale editor state, snapshots current Graphium text with a fresh spell
+controller, resets Ignore All and restarts from the beginning. Previous Replace edits remain ordinary Undo/Redo
+edits. No config/schema, document metadata, new module, dependency, framework, daemon or startup probe exists.
+
+Focused boundary tests passed and local permanent qualification passed Behavioral 190/190, Integration
+176/176 and Packaging/Release 27/27 = 393/393. The focused T480 True-GTK run subsequently passed with real
+Hunspell discovery `en_US,it_CH,it_IT`, real GTK combo enumeration, explicit dictionary switch/restart and
+Ignore All reset, real child cleanup, document neutrality and external-edit stale fencing. Source/package
+identity remained unchanged. Manual tests=0; attempt consumed=0; Git mutation=0.
+
+G15_S3_STATUS=NONCANDIDATE_TRUE_GTK_PASS_CLOSED
+G15_S3_PERSISTENCE=NO
+G15_S3_NEW_MODULE_OR_DEPENDENCY=NO
+G15_S3_STARTUP_DISCOVERY=NO
+G15_S3_MANUAL_TESTS_REQUIRED=0
+CANDIDATE=NO
+ATTEMPT_CONSUMED=NO
+GIT_MUTATION=NO
+
+
+
+G15-S4 TRANSFORM TEXT SHORTCUTS — NON-CANDIDATE IMPLEMENTATION
+--------------------------------------------------------------
+Mandatory source-first comparison covered Mousepad, FeatherPad, gedit and additional mature Linux editor
+shortcut conventions. FeatherPad's symmetric Ctrl+Shift+U/L pair was not copied because GTK3 owns
+Ctrl+Shift+U for Unicode code-point input. Ctrl+Alt+L was rejected because Cinnamon owns it for lock screen;
+Ctrl+Alt letter bindings and chord infrastructure were also rejected as unnecessary complexity.
+
+A read-only T480 namespace audit on Cinnamon 6.6.9 / GTK 3.24.41 / X11 / Italian XKB proved the final pair:
+Ctrl+U = Uppercase; Ctrl+Shift+L = Lowercase. Both were valid GTK accelerators with no Graphium namespace,
+Gtk.TextView, GTK Unicode-input or active Cinnamon global collision.
+
+Implementation changes only the existing CommandSpec accelerator fields plus the two Help authorities and
+permanent tests. Existing text-transform code, selection-only enablement, transaction/history semantics and
+document safety are unchanged. No new product module, dependency, setting, persistence, keyboard manager,
+thread or subprocess is introduced. Ctrl+Shift+U and Ctrl+Alt+L are explicit negative oracles.
+
+G15_S4_SHORTCUT_UPPERCASE=Ctrl+U
+G15_S4_SHORTCUT_LOWERCASE=Ctrl+Shift+L
+G15_S4_NEW_PRODUCT_MODULE=NO
+G15_S4_NEW_DEPENDENCY=NO
+G15_S4_PERSISTENCE=NO
+G15_S4_MANUAL_TESTS_PLANNED=0
+G15_S4_STATUS=NONCANDIDATE_TRUE_GTK_PASS_CLOSED
+CANDIDATE=NO
+ATTEMPT_CONSUMED=NO
+GIT_MUTATION=NO
+
+G15-S4 TRUE-GTK CLOSURE
+-----------------------
+The focused T480 run passed 43/43 static/headless gates plus real GTK3 application accelerator routing for
+Ctrl+U and Ctrl+Shift+L, negative ownership of GTK Unicode input and Cinnamon lock-screen shortcuts, actual
+Uppercase/Lowercase action behavior, unchanged history/savepoint semantics and selection-only availability.
+Source/package identity remained unchanged. Manual tests=0; Candidate=NO; attempt consumed=0; Git mutation=0.
+
+G15-S5 HELP / ABOUT / LEGAL CLOSURE — NON-CANDIDATE LOCAL IMPLEMENTATION
+------------------------------------------------------------------------
+After mandatory source-first comparison with Mousepad, gedit, GNOME Text Editor, FeatherPad, Leafpad and
+L3afpad, Graphium adopts standard Gtk.AboutDialog metadata and one repository-level legal authority without
+creating a legal UI subsystem. The top-level LICENSE contains the frozen Graphium GPL-3.0-or-later project
+grant followed by the exact mature GPLv3 body. `graphium/product.py` owns AUTHOR, COPYRIGHT, LICENSE_ID,
+REPOSITORY_URL and REPOSITORY_LABEL; About projects author/copyright through standard metadata and uses
+Gtk.License.GPL_3_0, whose GTK3 semantics are GPL 3.0 or later. The existing private repository URL/label and
+Python/GTK/display support information remain unchanged. About introduces no second icon authority and relies
+on the already-certified application/default-window icon from G15-S1.
+
+The installer carries exactly one LICENSE copy into the private installed Graphium root. The User Guide intro
+is one natural paragraph, removes the hard break in `Graphium does not use tabs...`, and ends with the single
+approved Latin-name sentence. Help topology remains exactly User Guide / Keyboard Shortcuts / About; S4
+shortcut documentation remains Ctrl+U / Ctrl+Shift+L.
+
+Focused RED->GREEN legal/About/help gates PASS. Pre-authority permanent qualification passes Behavioral
+190/190, Integration 176/176 and Packaging/Release 40/40 = 406/406. No new product module, dependency,
+config/persistence, thread, subprocess, network boundary, custom About, license viewer or legal menu exists.
+Version remained 0.0.14 throughout NON-CANDIDATE S1-S5. Focused real-GTK About validation subsequently passed on T480.
+
+G15_S5_LICENSE=GPL-3.0-or-later
+G15_S5_AUTHOR=leviagravia@zohomail.eu
+G15_S5_COPYRIGHT=Copyright © 2026 leviagravia
+G15_S5_LOCAL_QUALIFICATION=PASS
+G15_S5_TRUE_GTK=PASS_CLOSED
+G15_S5_MANUAL_TESTS_PLANNED=0
+CANDIDATE=NO
+ATTEMPT_CONSUMED=NO
+GIT_MUTATION=NO
+
+
+
+================================================================================
+ENTRY — G15-S5 TRUE-GTK CLOSURE / S6 STRUCTURAL AUDIT / PRE-CANDIDATE READINESS
+Date: 2026-08-26
+State: BINDING / G15 OPEN / S1-S6 COMPLETE / NON-CANDIDATE / CANDIDATE R1 AUTHORIZATION READY
+================================================================================
+
+S5 PLATFORM CLOSURE — USER-PROVIDED EXECUTION
+---------------------------------------------
+The focused S5 T480 package passed 20 focused static/headless tests, installed LICENSE projection, GTK3/GDK3
+preflight and the real Gtk.AboutDialog checks: standard metadata, GPL-3.0-or-later enum, unchanged private
+repository, Python/GTK/display support information and reuse of the S1 application icon authority. Source and
+package identity were unchanged. Manual tests=0; Candidate=NO; attempt consumed=NO; Git mutation=NO.
+
+S6 INTEGRAL REGRESSION / STRUCTURAL AUDIT
+-----------------------------------------
+S6 made no product/test/runtime change. Exact G15 cumulative source was compared against the exact G14 handover
+and the mature editor corpus. Structural gates: 34/34 PASS. Runtime modules 57->57; import roots/dependencies
++0; changed runtime modules 7/57; runtime LOC 11258->11532 (+274, +2.43%). Per-slice runtime LOC: S1 +25,
+S2 -8, S3 +248, S4 0, S5 +9. S3's concentrated growth is essential complexity for bounded/cancellable,
+distro-agnostic external Hunspell discovery/reap/stale fencing under the dependency-free architecture.
+Integral local authorities passed Behavioral 190/190, Integration 176/176, Packaging/Release 40/40 = 406/406.
+A new S6 T480/manual run is rejected as redundant because S6 changes no product bytes and S1-S5 already own
+focused real-GTK evidence for every changed platform property.
+
+PRE-CANDIDATE RELEASE IDENTITY
+------------------------------
+The exact final S5 True-GTK-proven product still reports VERSION=0.0.14, which is already the published G14
+release identity. Reusing it for G15 would make the corrective release indistinguishable from the published
+Core release. Candidate readiness therefore advances exactly the serial product identity to:
+  G15_PRODUCT_VERSION=0.0.15_UNPUBLISHED
+
+The only product-byte path changed after the S5 platform proof is `graphium/product.py` with VERSION
+`0.0.14 -> 0.0.15`. The matching permanent release-test expectation and canonical/evidence convergence are
+updated. All S1-S5 feature implementation bytes outside that identity path, all launchers and all user
+documentation remain byte-identical to the S5 T480-proven source. No new platform property is introduced, so
+no new T480/manual run is required before Candidate declaration.
+
+CANDIDATE READINESS BASIS
+-------------------------
+- G15-S1 Application Icon Identity: source-first audit + NON-CANDIDATE True-GTK PASS/CLOSED.
+- G15-S2 Tab Controls Simplification: source-first audit + NON-CANDIDATE True-GTK PASS/CLOSED.
+- G15-S3 Hunspell Dictionary Selection: source-first audit + NON-CANDIDATE True-GTK PASS/CLOSED.
+- G15-S4 Transform Text Shortcuts: mature audit + read-only keyboard namespace PASS + True-GTK PASS/CLOSED.
+- G15-S5 Help/About/Legal: source-first audit + NON-CANDIDATE True-GTK PASS/CLOSED.
+- G15-S6 Integral Regression/Structural Audit: 34/34 structural PASS, 406/406 local PASS, no product delta.
+- Manual-only blockers: 0.
+- Source-provable blockers: 0.
+- Platform blockers: 0.
+- Product failures in G15 NON-CANDIDATE line: 0.
+
+GOVERNANCE
+----------
+G15_STATUS=OPEN/S1_S2_S3_S4_S5_S6_COMPLETE/NONCANDIDATE/CANDIDATE_R1_AUTHORIZATION_READY
+G15_PRODUCT_VERSION=0.0.15_UNPUBLISHED
+G15_CANDIDATE_R1=NOT_DECLARED
+G15_CANDIDATE_ATTEMPTS=0/2
+G15_PRODUCT_FAILS=0
+G15_MANUAL_TESTS_REQUIRED=0
+G15_NEW_T480_REQUIRED_BEFORE_CANDIDATE=NO
+GIT_MUTATION=NO
+PUBLICATION_AUTHORIZED=NO
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+NEXT_STEP=AWAIT_EXPLICIT_G15_CANDIDATE_R1_AUTHORIZATION
+FINAL_PHASE=G15_PRE_CANDIDATE_READINESS_PASS_CANDIDATE_R1_AUTHORIZATION_READY
+
+
+================================================================================
+ENTRY — G15 CANDIDATE R1 CERTIFICATION / PUBLICATION AUTHORIZATION
+Date: 2026-08-26
+State: BINDING / G15 CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED
+================================================================================
+
+CANDIDATE R1 CERTIFICATION
+--------------------------
+The user explicitly authorized G15 Candidate R1 after the exact pre-Candidate readiness freeze. Candidate R1
+was declared and certified on version 0.0.15 with exact source tree
+`42884dfbd4c5abd725d928bcb76e1064dbec23b7`, product subtree
+`1f63eca6724b379abab8e8d534667723e57276f6`, tests subtree
+`875cae3f501fd566b49ee25b5bf613f72cedb1d7`, user-docs subtree
+`8f5d3ef7dbe936eab18c2ed8447a487a6fe337df`, bin subtree
+`585f06bf0ad4dada4675bfd5c11eb9fc793057ef` and data subtree
+`042e5dc2d043061c89e33170f5e35cd54a17e328`. Exact Candidate qualification passed Behavioral 190/190,
+Integration 176/176 and Packaging/Release 40/40 = 406/406, plus 34/34 structural gates. The focused S1-S5
+T480 True-GTK receipts are adopted as the platform proof for the cumulative feature bytes. Manual tests=0.
+Candidate attempt 1/2 is consumed; 1/2 remains unused.
+
+PUBLICATION AUTHORIZATION
+-------------------------
+After a separate publication-readiness/confinement audit PASS, the user explicitly authorized G15 publication.
+The publication transaction is fail-closed and may start only from canonical post-G14-sync HEAD
+`cd685ecf060a57e5239f641e9e30dd7a7b8144e5`, tree
+`8cfe2c194829e3d59487b2f596129c36cfe1856f`, branch main, remote
+`https://github.com/leviagravia/graphium.git`, with clean index/worktree and real remote main at that parent.
+Relative to certified Candidate R1, publication may change exactly five paths: the three canonical documents,
+additive `evidence/G15_DESKTOP_CERTIFICATION_RECEIPT_20260826.txt`, and regenerated
+`evidence/SHA256SUMS.txt`. `graphium/`, `bin/`, `tests/`, `docs/user/`, `data/` and `LICENSE` must remain
+byte/mode-identical to Candidate R1. No new T480/manual test is required because publication changes no
+Candidate product byte. Commit subject is frozen exactly as `G15: complete core corrective maintenance`.
+
+G15_STATUS=CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_REQUIRED
+G15_PRODUCT_VERSION=0.0.15
+G15_CANDIDATE_R1_SOURCE_TREE=42884dfbd4c5abd725d928bcb76e1064dbec23b7
+G15_CANDIDATE_R1_PRODUCT_TREE=1f63eca6724b379abab8e8d534667723e57276f6
+G15_CANDIDATE_R1_TESTS_TREE=875cae3f501fd566b49ee25b5bf613f72cedb1d7
+G15_CANDIDATE_R1_USER_DOCS_TREE=8f5d3ef7dbe936eab18c2ed8447a487a6fe337df
+G15_LOCAL_AUTOMATED=406/406_PASS
+G15_STRUCTURAL_GATES=34/34_PASS
+G15_TRUE_GTK_S1_S5=PASS_ADOPTED
+G15_MANUAL_TESTS=0
+G15_CANDIDATE_ATTEMPTS_USED=1/2
+G15_CANDIDATE_ATTEMPTS_REMAINING=1/2
+PUBLICATION_AUTHORIZED=YES
+PUBLICATION_COMPLETE=NO
+GIT_MUTATION=NO_AT_TARGET_MATERIALIZATION
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+NEXT_STEP=RUN_FAIL_CLOSED_G15_PUBLICATION_FINALIZER
+FINAL_PHASE=G15_CANDIDATE_R1_CERTIFIED_PUBLICATION_AUTHORIZED_FINALIZER_PENDING

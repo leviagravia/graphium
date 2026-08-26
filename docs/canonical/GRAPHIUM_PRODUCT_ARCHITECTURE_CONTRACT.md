@@ -1811,3 +1811,145 @@ G14 and Graphium Core are **CLOSED / CERTIFIED / PUBLISHED / FEATURE-COMPLETE**.
 reopened and no remaining attempt is consumed. Graphium Plus and Graphium Ultra remain separate cumulative
 product-line definitions; neither is opened by this convergence. Graphium Plus may become authorization-ready
 only after the required final post-sync read-only audit confirms the converged repository.
+
+## Application icon identity — G15 Core corrective authority
+
+Graphium has one stable application icon identity: `io.github.leviagravia.Graphium`, equal to the existing
+GTK/desktop application ID. The desktop entry must reference that icon by name, never by an absolute path
+or by the generic `accessories-text-editor` identity.
+
+The authoritative artwork is bounded to five SVG assets: hand-tuned 16x16, 24x24, 32x32 and 48x48 variants
+plus one scalable variant. Source assets live under `data/icons/hicolor`; installation projects those exact
+bytes under `<prefix>/share/icons/hicolor/.../apps/`. The installed private Python/runtime projection must
+not duplicate the icon assets. Direct source execution may load the same repo-local five assets as a
+process-local GTK default-icon fallback so it does not depend on a prior Graphium installation.
+
+The same GTK default application/window icon is inherited by About when no independent About logo authority
+is set. G15-S1 must not introduce GResource, a branding/resource framework, icon-cache subprocesses,
+network lookup, toolbar/action icon packs, new background work or a second application identity.
+
+
+### G15-S2 direct tab-control authority
+
+Graphium has no general Preferences surface in G15-S2. The two pre-existing persistent editor-input settings
+remain owned only by `ViewSettings` and `JsonViewSettingsStore`, with the unchanged `tab_width` and
+`insert_spaces` keys, default 8/false and tab-width domain 1..32. Their user projection is direct and unique:
+`Edit -> Tab Width -> 2 / 3 / 4 / 8 / Other…` and checked `Edit -> Insert Spaces Instead of Tabs`. `Other…`
+is a narrow numeric chooser only and owns no persistence. A custom current width is represented by the
+`Other…` action state.
+
+Persistence commits before action/TextView projection; persistence failure must leave the prior semantic
+snapshot, action state and TextView behavior intact. Merely changing either setting must not alter document
+text, dirty state, history, file bytes or recovery authority. Existing plain-Tab insertion and modified-Tab
+non-ownership remain unchanged. No GSettings, GtkSourceView, EditorConfig/modeline support, per-document
+setting, migration layer or generic preferences framework is permitted by this slice.
+
+### G15-S3 Hunspell dictionary-selection authority
+
+Graphium retains the existing optional, explicit external Hunspell boundary and adds no spelling service,
+plugin framework, binding, daemon, settings store or document metadata. Dictionary discovery occurs only
+after the user invokes `Document -> Check Spelling…`; the already-existing single spell executor is reused.
+The discovery child is short-lived, bounded, cancellable and fully reaped before a pipe-mode spell child may
+start. Normal startup/import/idle behavior remains free of Hunspell discovery, worker and child-process cost.
+
+Discovery invokes the resolved Hunspell executable with `-D`, `shell=False` and `LC_ALL=C`. Human headings
+and search-path prose are not parsed as protocol. A selectable candidate must be an absolute bounded base path
+reported by Hunspell for which both `<base>.aff` and `<base>.dic` are current regular files. Output size,
+dictionary count and path size are bounded; unsafe control/comma semantics are rejected; duplicate dictionary
+IDs remain distinct and are disambiguated with parent-path context. `System default` is always the first UI
+choice and remains usable when discovery itself fails.
+
+System default preserves the pre-G15 pipe argv with no `-d`. An explicit selection adds exactly one separate
+`-d <verified-base-path>` argv pair. The base pair is revalidated when the spell child starts, so disappearance
+after discovery fails closed rather than silently selecting another dictionary. No document path is passed to
+Hunspell.
+
+The Dictionary combo is dialog-local only: no value is written to ViewSettings, JSON, document metadata or
+restart state. Changing dictionary fences old callbacks, reaps the old Hunspell session, rejects an externally
+stale editor state, snapshots the current Graphium-owned text through a fresh `SpellCheckController`, resets
+Ignore All and restarts from the beginning under the selected dictionary. Prior Replace operations remain
+ordinary Graphium edits and normal Undo/Redo history; dictionary selection itself never changes text, dirty
+state, savepoint, representation profile or file bytes.
+
+
+
+### G15-S4 Transform Text shortcut authority
+
+The product-owned command catalog is the single accelerator authority for the two case transforms. Uppercase
+uses exactly `<Ctrl>U`; Lowercase uses exactly `<Ctrl><Shift>L`. The same command specs drive GTK application
+accelerator registration, menu projection and Help documentation. The transform implementations, selection
+availability, document transaction/history ownership and no-op behavior are unchanged by this slice.
+
+`<Ctrl><Shift>U` is a permanent negative oracle because GTK3 reserves Ctrl+Shift+U for Unicode code-point
+input. `<Ctrl><Alt>L` remains forbidden because Cinnamon uses it for lock screen; Graphium does not introduce
+Ctrl+Alt letter bindings or multi-stroke/chord infrastructure for these actions. The exact accepted pair was
+validated read-only on the T480 against GTK3/Gtk.TextView, Graphium's current accelerator namespace and active
+Cinnamon global bindings. No keyboard manager, new module, dependency, preference, persistence or per-document
+metadata is permitted by G15-S4.
+
+### G15-S5 Help / About / legal authority
+
+Graphium's project license authority is exactly one top-level `LICENSE`. It begins with the Graphium
+GPL-3.0-or-later grant (`either version 3 ... or (at your option) any later version`) and then contains the
+unchanged complete GNU GPL version 3 body. `graphium/product.py` remains the single product metadata owner and
+contains the exact values `AUTHOR = leviagravia@zohomail.eu`, `COPYRIGHT = Copyright © 2026 leviagravia`,
+`LICENSE_ID = GPL-3.0-or-later`, repository URL `https://github.com/leviagravia/graphium` and repository label
+`Graphium repository`. Version remains 0.0.14 throughout NON-CANDIDATE slices.
+
+Help > About remains a standard `Gtk.AboutDialog`. It projects the product author, copyright and repository
+metadata and uses `Gtk.License.GPL_3_0`, whose GTK3 contract is GNU GPL 3.0 or later. Existing Python/GTK/display
+support information remains present. About owns no icon asset, file path, pixbuf loader or resource framework:
+with no independent logo, it reuses the already-certified G15-S1 default application/window icon authority.
+The private repository link remains present even while the repository is not public; Graphium performs no
+network/reachability check.
+
+Installation copies the single repository `LICENSE` byte-for-byte into the private installed Graphium root;
+no second COPYING/license authority or license viewer is created. Help topology remains exactly User Guide,
+Keyboard Shortcuts and About. The User Guide introduction has no source hard break inside `Graphium does not
+use tabs...` and ends with exactly one compact Latin-name explanation. This slice creates no new Python product
+module, dependency, configuration/persistence key, thread, subprocess, network boundary, i18n subsystem or
+source-wide license-header churn.
+
+
+
+### G15-S6 integral structural closure and Candidate-readiness authority
+
+G15-S1 through G15-S5 are closed at NON-CANDIDATE True-GTK PASS. S6 introduces no product delta and proves
+34/34 structural gates plus 190/190 Behavioral, 176/176 Integration and 40/40 Packaging/Release = 406/406
+on the exact cumulative line. Runtime module topology remains 57 modules with no new import root/dependency;
+only seven pre-existing runtime owners differ from G14. `composition.py`, `architecture.py`, `ViewSettings`
+and `JsonViewSettingsStore` remain byte-identical to G14. The +248-line S3 spelling-boundary growth is accepted
+as essential complexity because it owns bounded/cancellable distro-agnostic external Hunspell discovery,
+reap and stale fencing without gspell/libspelling, startup discovery or hard-coded dictionary paths.
+
+Candidate readiness advances only the product release identity from published `0.0.14` to unpublished
+`0.0.15`, plus the corresponding release-test expectation and canonical/evidence convergence. Every S1-S5
+feature implementation byte outside `graphium/product.py`, all launchers and all `docs/user/` bytes remain
+frozen to the final S5 True-GTK-proven source. The 0.0.15 identity-only delta does not require another T480
+or manual test. Candidate R1 is NOT declared; attempts remain 0/2; Git mutation and publication are not
+authorized. Graphium Plus remains NOT OPENED.
+
+### G15 Candidate R1 certification and publication boundary — 2026-08-26
+
+G15 Candidate R1 is certified on version `0.0.15`, exact source tree
+`42884dfbd4c5abd725d928bcb76e1064dbec23b7`, product subtree
+`1f63eca6724b379abab8e8d534667723e57276f6`, tests subtree
+`875cae3f501fd566b49ee25b5bf613f72cedb1d7`, user-docs subtree
+`8f5d3ef7dbe936eab18c2ed8447a487a6fe337df`, bin subtree
+`585f06bf0ad4dada4675bfd5c11eb9fc793057ef` and data subtree
+`042e5dc2d043061c89e33170f5e35cd54a17e328`. Certification passed 190/190 Behavioral, 176/176 Integration
+and 40/40 Packaging/Release = **406/406 PASS**, plus **34/34 structural gates PASS**. The already completed
+S1-S5 focused T480 True-GTK receipts are the binding platform evidence for the cumulative feature bytes;
+manual tests are 0. Candidate accounting is 1/2 used, 1/2 remaining.
+
+The user separately authorized the fail-closed G15 publication transaction. Publication must start only from
+canonical post-G14-sync HEAD `cd685ecf060a57e5239f641e9e30dd7a7b8144e5`, tree
+`8cfe2c194829e3d59487b2f596129c36cfe1856f`, with real `main` remote synchronized and a clean worktree/index.
+Relative to certified Candidate R1, publication may change **exactly five paths**: the three canonical documents,
+additive `evidence/G15_DESKTOP_CERTIFICATION_RECEIPT_20260826.txt`, and regenerated
+`evidence/SHA256SUMS.txt`. `graphium/`, `bin/`, `tests/`, `docs/user/`, `data/` and `LICENSE` are immutable
+Candidate-protected bytes. The commit subject is frozen as **`G15: complete core corrective maintenance`**.
+Publication itself consumes no additional Candidate attempt and requires no new T480/manual test. Until the
+finalizer proves commit, push, fetch, `HEAD=origin/main=remote main` and CLEAN worktree, G15 remains
+**CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED**, not yet PUBLISHED. Graphium Plus
+remains **DEFINED / NOT OPENED**.

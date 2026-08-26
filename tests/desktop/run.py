@@ -9,7 +9,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 from tests.desktop.harness.runtime import isolated_env
 
-SECTIONS = ['lifecycle', 'actions', 'editing', 'search', 'view', 'printing', 'preferences', 'dnd', 'monitoring', 'performance']
+SECTIONS = ['lifecycle', 'actions', 'editing', 'search', 'view', 'printing', 'tab_controls', 'dnd', 'monitoring', 'performance']
 
 
 def main() -> int:

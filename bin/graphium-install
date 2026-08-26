@@ -9,6 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DESKTOP_FILE = "io.github.leviagravia.Graphium.desktop"
+ICON_SOURCE = ROOT / "data" / "icons" / "hicolor"
 
 
 def _absolute(value: str) -> Path:
@@ -38,6 +39,7 @@ def install(prefix: Path, destdir: Path | None) -> None:
     (private / "bin").mkdir()
     shutil.copy2(ROOT / "bin" / "graphium", private / "bin" / "graphium")
     shutil.copytree(ROOT / "docs" / "user", private / "docs" / "user")
+    shutil.copy2(ROOT / "LICENSE", private / "LICENSE")
 
     public_bin.parent.mkdir(parents=True, exist_ok=True)
     _remove(public_bin)
@@ -45,6 +47,14 @@ def install(prefix: Path, destdir: Path | None) -> None:
 
     desktop.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "data" / DESKTOP_FILE, desktop)
+
+    icon_root = target_prefix / "share" / "icons" / "hicolor"
+    for source in ICON_SOURCE.rglob("*"):
+        if not source.is_file():
+            continue
+        target = icon_root / source.relative_to(ICON_SOURCE)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
 
 
 def main() -> int:

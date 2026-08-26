@@ -1,12 +1,7 @@
 GRAPHIUM USER GUIDE
 ===================
 
-Graphium is a fast, simple and safety-focused plain-text editor for Linux. It keeps a
-single-document quick-edit model with Search and View controls, a bounded Recent list,
-non-binding copy commands, read-only Properties/Check Now, explicit Reload from Disk,
-strong low-noise live external-file monitoring, explicit Encoding/Line Endings choices and on-demand Statistics. Graphium does not use
-tabs, projects, syntax modes, plugins, cloud services, general session restoration or hidden document
-databases. Crash recovery is a narrow safety mechanism, not a session manager.
+Graphium is a fast, simple and safety-focused plain-text editor for Linux. It keeps a single-document quick-edit model with Search and View controls, a bounded Recent list, non-binding copy commands, read-only Properties/Check Now, explicit Reload from Disk, strong low-noise live external-file monitoring, explicit Encoding/Line Endings choices and on-demand Statistics. Graphium does not use tabs, projects, syntax modes, plugins, cloud services, general session restoration or hidden document databases. Crash recovery is a narrow safety mechanism, not a session manager. The name Graphium comes from Latin graphium, the stylus used to write on wax tablets: a simple tool for writing.
 
 1. THE BASIC MODEL
 ------------------
@@ -200,13 +195,16 @@ The Compact Status always projects the current selected representation, includin
 Encoding/Line Endings choice, together with Saved/Modified.
 
 Check Spelling… (F2)
-  Runs an explicit, on-demand spelling pass with the system Hunspell installation and its default
-  dictionary. Graphium starts no spell process, thread or dictionary scan at normal startup or while
-  you type. Unknown words are presented one at a time with bounded suggestions and Replace, Ignore
-  and Ignore All. Replace is a normal Graphium edit and therefore a normal Undo step; the file on disk
-  changes only after the ordinary Save command. Ignore All lasts only for the current spelling dialog.
-  If Hunspell or a suitable dictionary is unavailable, Graphium reports that condition without changing
-  the document. There is no live underline, autocorrect, grammar checker or personal-dictionary manager.
+  Runs an explicit, on-demand spelling pass with the system Hunspell installation. The Dictionary selector
+  starts with System default and, when available, lists verified installed Hunspell dictionary IDs such as
+  it_IT, en_GB or en_US. Dictionary discovery happens only after you explicitly open Check Spelling. Choosing
+  another dictionary restarts the pass from the current document text; the choice lasts only for this spelling
+  dialog and does not change the document by itself. Unknown words are presented one at a time with bounded
+  suggestions and Replace, Ignore and Ignore All. Replace is a normal Graphium edit and therefore a normal
+  Undo step; the file on disk changes only after the ordinary Save command. Ignore All lasts only for the
+  current dictionary pass and is reset when you change dictionary. If Hunspell or a selected dictionary is
+  unavailable, Graphium reports that condition without changing the document. There is no live underline,
+  autocorrect, grammar checker, personal-dictionary manager or persistent spelling-language preference.
 
 Statistics…
   Captures the current live buffer only when you request it and shows Lines, Words and Characters
@@ -325,9 +323,10 @@ Cross-product timing uses FIRST_VISIBLE only; exact Graphium FIRST_EDITABLE rema
 
 17. HELP AND KEYBOARD SHORTCUTS
 -------------------------------
-Help contains exactly User Guide, Keyboard Shortcuts and About. About includes compact support
-information for the running Python, GTK and display backend; Graphium has no separate diagnostics
-menu. Choose Help > Keyboard Shortcuts for the current accelerator list. Accelerators are audited
+Help contains exactly User Guide, Keyboard Shortcuts and About. About includes author, copyright,
+GNU GPL v3.0-or-later, the Graphium repository link and compact support information for the running
+Python, GTK and display backend; Graphium has no separate diagnostics menu. Choose Help > Keyboard
+Shortcuts for the current accelerator list. Accelerators are audited
 against the active Linux Mint/Cinnamon global bindings before release. Ctrl+Alt+L is reserved in
 the target environment and is not used by Graphium.
 
@@ -355,18 +354,20 @@ Edit -> Transform Text contains Uppercase, Lowercase, Duplicate Line / Selection
 Move Lines Down and Trim Trailing Spaces. Uppercase/Lowercase require a selection. Duplicate and
 Move use the current line when there is no selection. Trim Trailing Spaces affects selected lines,
 or the whole document when there is no selection, and removes only ASCII spaces/tabs at line ends.
-These commands are never applied automatically on Open or Save. Move Lines Up/Down use Alt+Up and
-Alt+Down; the remaining transformation actions are menu-driven.
+These commands are never applied automatically on Open or Save. Uppercase uses Ctrl+U, Lowercase uses
+Ctrl+Shift+L, and Move Lines Up/Down use Alt+Up and Alt+Down; Duplicate Line / Selection and Trim Trailing
+Spaces remain menu-driven.
 
-20. PREFERENCES, APPEARANCE AND DESKTOP POLISH
---------------------------------------------------
-Edit -> Preferences… contains exactly two settings: Tab width (1-32, default 8) and Insert spaces
-instead of tabs. Changing Tab width affects how literal TAB characters are displayed; it never
-rewrites existing text. When Insert spaces instead of tabs is enabled, a normal Tab key inserts
-spaces to the next configured tab stop. Shift+Tab, Ctrl+Tab and Alt+Tab are not repurposed.
+20. TAB CONTROLS, APPEARANCE AND DESKTOP POLISH
+----------------------------------------------------
+Edit -> Tab Width offers 2, 3, 4, 8 and Other…; Other… accepts any width from 1 to 32. The default
+is 8. Changing Tab Width affects how literal TAB characters are displayed; it never rewrites
+existing text. Edit -> Insert Spaces Instead of Tabs is a direct checked command. When enabled, a
+normal Tab key inserts spaces to the next configured tab stop. Shift+Tab, Ctrl+Tab and Alt+Tab are
+not repurposed. Both settings persist across restarts.
 
 View -> Appearance contains System, Light and Dark. Appearance is changed and persisted only from
-this View submenu; it is intentionally not duplicated in Preferences.
+this View submenu.
 
 Graphium remembers the latest normal window size after an accepted close. It does not remember
 window position, monitor, maximized state or fullscreen state.

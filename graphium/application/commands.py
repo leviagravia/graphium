@@ -64,9 +64,13 @@ COMMANDS = (
     CommandSpec("paste", "Paste", "<Ctrl>V", "Edit"),
     CommandSpec("delete", "Delete", "Delete", "Edit"),
     CommandSpec("select-all", "Select All", "<Ctrl>A", "Edit"),
-    CommandSpec("preferences", "Preferences…", None, "Edit"),
-    CommandSpec("uppercase", "Uppercase", None, "Edit", False, "Transform Text"),
-    CommandSpec("lowercase", "Lowercase", None, "Edit", False, "Transform Text"),
+    CommandSpec(
+        "tab-width", "Tab Width", None, "Edit", False, None,
+        (("2", "2"), ("3", "3"), ("4", "4"), ("8", "8"), ("Other…", "other")),
+    ),
+    CommandSpec("insert-spaces", "Insert Spaces Instead of Tabs", None, "Edit", True),
+    CommandSpec("uppercase", "Uppercase", "<Ctrl>U", "Edit", False, "Transform Text"),
+    CommandSpec("lowercase", "Lowercase", "<Ctrl><Shift>L", "Edit", False, "Transform Text"),
     CommandSpec("duplicate-line-selection", "Duplicate Line / Selection", None, "Edit", False, "Transform Text"),
     CommandSpec("move-lines-up", "Move Lines Up", "<Alt>Up", "Edit", False, "Transform Text"),
     CommandSpec("move-lines-down", "Move Lines Down", "<Alt>Down", "Edit", False, "Transform Text"),
@@ -103,7 +107,7 @@ COMMANDS = (
     CommandSpec("about", "About", None, "Help"),
 )
 
-FORBIDDEN_ACCELERATORS = ("<Ctrl><Alt>L",)
+FORBIDDEN_ACCELERATORS = ("<Ctrl><Alt>L", "<Ctrl><Shift>U")
 
 
 def accelerator_map() -> dict[str, str]:
