@@ -815,3 +815,32 @@ Publication is now explicitly authorized but not yet complete. The fail-closed f
 
 Status: **G16 CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED**. Graphium Core is not definitively closed until publication and post-publication canonical convergence both PASS. Graphium Plus and Ultra remain **DEFINED / NOT OPENED**.
 
+
+
+### G16 publication closure + post-publication canonical convergence — 2026-08-27
+
+The authorized G16 fail-closed publication finalizer harness reissue published commit
+`b4b447423de8eb6f6d4022639497ca1f6b3daca6`, tree `90c651815400851ebcc0ff5300b2807261fb33fe`, product subtree
+`e09d45ec07aad4956c0edead777cb61588eb758a`, version `0.0.16`, with subject
+`G16: finalize core corrective release`. Publication preserved all certified Candidate product/test/user-doc/bin/
+data/LICENSE bytes, passed 190/190 Behavioral and 54/54 Packaging/Release, adopted the binding 181/181
+Integration authority on byte-identical owners, preserved the complete G16 True-GTK evidence chain and final
+user desktop validation, synchronized `HEAD=origin/main=remote main`, and finished CLEAN with zero known
+user-visible G16 defects. Candidate accounting remains 1/2 used and 1/2 unused historically.
+
+The earlier stopped publication-finalizer run was harness-only and pre-mutation; it is not a product/Candidate
+failure. The authorized reissue changed only the runner and completed publication on the unchanged target.
+
+This five-path post-publication document/evidence convergence records the final publication facts and leaves the
+published product bytes untouched. **G16 and Graphium Core 0.0.16 are CLOSED / CERTIFIED / PUBLISHED /
+CANONICALLY CONVERGED.**
+
+**Immediate next activity:** Graphium's GitHub public surface and release preparation. Before making the
+repository public, perform the mandatory full-history read-only hygiene audit, then install the final README/logo,
+repository description/topics, release metadata and certified `.deb` artifact. This is distribution/publication
+work, not a new Graphium Core feature line.
+
+**Graphium Plus:** **DEFINED / NOT OPENED**. Opening Plus requires a new explicit authorization and a fresh
+source-first mature-editor audit under the Plus contract.
+
+**Graphium Ultra:** **DEFINED / NOT OPENED**.

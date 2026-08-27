@@ -8350,3 +8350,74 @@ Publication is a separate fail-closed Git transaction. It must start only from c
 
 G16 is therefore **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED**, not yet published. Graphium Core becomes definitively CLOSED / CERTIFIED / PUBLISHED / CANONICALLY_CONVERGED only after publication PASS and the subsequent documentation/evidence-only post-publication convergence. Graphium Plus and Ultra remain DEFINED / NOT OPENED.
 
+
+
+================================================================================
+ENTRY G16-008 — 2026-08-27 — PUBLICATION PASS / POST-PUBLICATION CANONICAL CONVERGENCE
+================================================================================
+
+PUBLICATION FACTS
+-----------------
+The authorized fail-closed G16 publication finalizer harness reissue completed successfully on the canonical
+repository. The first publication-finalizer execution had stopped safely in canonical preflight because of a
+runner working-directory error and performed no stage, commit or push; the harness-only reissue corrected that
+single preflight context without changing Graphium or the frozen publication target.
+
+The completed G16 product publication authority is:
+  G16_PUBLICATION_COMMIT=b4b447423de8eb6f6d4022639497ca1f6b3daca6
+  G16_PUBLICATION_TREE=90c651815400851ebcc0ff5300b2807261fb33fe
+  G16_PRODUCT_SUBTREE=e09d45ec07aad4956c0edead777cb61588eb758a
+  G16_TESTS_SUBTREE=f86a01225586cb88133c053c21e9829f82ab5581
+  G16_INTEGRATION_SUBTREE=671df01a302665c60b6edac77e2180d7b72830c2
+  G16_USER_DOCS_SUBTREE=8f5d3ef7dbe936eab18c2ed8447a487a6fe337df
+  G16_BIN_SUBTREE=585f06bf0ad4dada4675bfd5c11eb9fc793057ef
+  G16_DATA_SUBTREE=042e5dc2d043061c89e33170f5e35cd54a17e328
+  G16_LICENSE_BLOB=bdbdf23e6bc0cf4151485dbb932ffb45cd5875c4
+  PRODUCT_VERSION=0.0.16
+  COMMIT_SUBJECT=G16: finalize core corrective release
+  BEHAVIORAL=190/190_PASS
+  INTEGRATION=181/181_ADOPTED_BYTE_IDENTICAL_AUTHORITY
+  PACKAGING_RELEASE=54/54_PASS
+  G16_TRUE_GTK_PLATFORM_EVIDENCE=PASS
+  FINAL_USER_DESKTOP_VALIDATION=PASS
+  KNOWN_USER_VISIBLE_G16_DEFECTS=0_OPEN
+  T480_FUNCTIONAL_TESTS_THIS_PUBLICATION=0
+  MANUAL_TESTS_THIS_PUBLICATION=0
+  CANDIDATE_ATTEMPTS_USED=1/2
+  HEAD=ORIGIN_MAIN=REMOTE_MAIN=b4b447423de8eb6f6d4022639497ca1f6b3daca6
+  WORKTREE=CLEAN
+  FINAL_PHASE=G16_PUBLICATION_PASS
+
+POST-PUBLICATION CONVERGENCE CONTRACT
+-------------------------------------
+The only remaining state drift is expected document/evidence post-transaction drift: the final publication
+commit hash could not exist inside the pre-commit publication target. This separately authorized convergence
+is governance/evidence only. It changes exactly these five paths:
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_ROADMAP.md
+  evidence/G16_PUBLICATION_FINAL_RECEIPT_20260827.txt
+  evidence/SHA256SUMS.txt
+
+`graphium/`, `tests/`, `docs/user/`, `bin/`, `data/` and `LICENSE` remain byte/mode-identical to the published
+G16 product. No Candidate is reopened, no Candidate attempt is consumed, and no additional T480 functional or
+manual validation is required. Historical evidence, including the safe publication-finalizer harness FAIL and
+its corrected harness-only reissue, remains historical and must not be rewritten as a product failure.
+
+CURRENT BINDING STATE
+---------------------
+G16_STATUS=CLOSED/CERTIFIED/PUBLISHED/CANONICALLY_CONVERGED_BY_THIS_REVISION
+G16_PUBLICATION_COMMIT=b4b447423de8eb6f6d4022639497ca1f6b3daca6
+G16_PUBLICATION_TREE=90c651815400851ebcc0ff5300b2807261fb33fe
+G16_PRODUCT_SUBTREE=e09d45ec07aad4956c0edead777cb61588eb758a
+G16_PRODUCT_VERSION=0.0.16
+G16_CANDIDATE_ATTEMPTS_USED=1/2_HISTORICAL
+G16_CANDIDATE_ATTEMPTS_REMAINING=1/2_HISTORICAL_ONLY
+CANDIDATE_ATTEMPTS_CONSUMED_THIS_SYNC=0
+GRAPHIUM_CORE_STATUS=0.0.16_CLOSED/CERTIFIED/PUBLISHED/CANONICALLY_CONVERGED
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+GRAPHIUM_ULTRA_STATUS=DEFINED_NOT_OPENED
+T480_FUNCTIONAL_TESTS_THIS_SYNC=0
+MANUAL_TESTS_THIS_SYNC=0
+NEXT_STEP=GRAPHIUM_GITHUB_PUBLICATION_SURFACE_AND_FULL_HISTORY_HYGIENE_AUDIT
+FINAL_PHASE=G16_POST_PUBLICATION_CANONICAL_CONVERGENCE_TARGET_FROZEN

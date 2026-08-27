@@ -2,7 +2,7 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **G15 / Graphium Core CLOSED / CERTIFIED / PUBLISHED** at commit `16b645ed653be5b44efa8721db11cca63f0633bd`, tree `e433758d1d68ef5bea6528e15e65d786e0679d31`, product subtree `1f63eca6724b379abab8e8d534667723e57276f6`, product version `0.0.15`. The authorized fail-closed publication finalizer requalified 406/406 permanent local authorities and 34/34 G15 structural gates, adopted the binding S1-S5 focused True-GTK proofs, performed no new T480 functional/manual test, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G15 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G15 product publication commit/tree above. Graphium Plus is **DEFINED / NOT OPENED**; Graphium Ultra is **DEFINED / NOT OPENED**.
+Current publication boundary: **G16 / Graphium Core CLOSED / CERTIFIED / PUBLISHED** at commit `b4b447423de8eb6f6d4022639497ca1f6b3daca6`, tree `90c651815400851ebcc0ff5300b2807261fb33fe`, product subtree `e09d45ec07aad4956c0edead777cb61588eb758a`, product version `0.0.16`. The authorized fail-closed publication finalizer qualified 190/190 Behavioral and 54/54 Packaging/Release, adopted the binding 181/181 Integration authority on byte-identical owners, preserved the complete G16 True-GTK platform evidence chain and final desktop validation, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G16 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G16/Core product publication commit/tree above. Graphium Plus is **DEFINED / NOT OPENED**; Graphium Ultra is **DEFINED / NOT OPENED**.
 G12 / Graphium v1 remains CLOSED / CERTIFIED / PUBLISHED at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`; later governance-only commits do not replace that product publication identity.
 
 ## 1. Product identity
@@ -2028,3 +2028,29 @@ The user explicitly authorized publication. Publication may alter exactly the th
 
 Until that transaction completes, G16 is **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED**. Graphium Plus and Ultra remain **DEFINED / NOT OPENED**.
 
+
+
+### G16 publication closure and post-publication canonical convergence — 2026-08-27
+
+The authorized fail-closed G16 publication transaction succeeded at commit
+`b4b447423de8eb6f6d4022639497ca1f6b3daca6`, tree `90c651815400851ebcc0ff5300b2807261fb33fe`, product subtree
+`e09d45ec07aad4956c0edead777cb61588eb758a`, version `0.0.16`, with subject
+`G16: finalize core corrective release`. The publication preserved the certified Candidate product/tests/user-doc/
+bin/data/LICENSE bytes, passed 190/190 Behavioral and 54/54 Packaging/Release, adopted the previously qualified
+181/181 Integration authority on byte-identical product/integration owners, preserved the complete focused G16
+True-GTK evidence chain and final user desktop validation, and ended with zero known user-visible G16 defects.
+The canonical repository finished with `HEAD=origin/main=remote main` and CLEAN worktree. Candidate accounting
+remains 1/2 used and 1/2 unused historically.
+
+The first publication-finalizer execution was an invalid harness stop in canonical preflight caused solely by
+manifest working-directory context; it reached no stage, commit or push and is not a product/Candidate failure.
+The authorized harness-only reissue changed no Graphium or publication-target byte and completed publication.
+
+The post-publication convergence is therefore restricted to the three canonical documents, additive
+`evidence/G16_PUBLICATION_FINAL_RECEIPT_20260827.txt`, and regenerated `evidence/SHA256SUMS.txt`.
+`graphium/`, `tests/`, `docs/user/`, `bin/`, `data/` and `LICENSE` remain byte/mode-identical to the published G16
+product. No Candidate is reopened, no attempt is consumed, and no new T480 functional/manual test is justified.
+
+Graphium Core 0.0.16 is **CLOSED / CERTIFIED / PUBLISHED / CANONICALLY CONVERGED** by this revision. The next
+product-adjacent activity is the public GitHub surface/release preparation and full Git-history hygiene audit;
+Graphium Plus and Graphium Ultra remain separately defined and **NOT OPENED**.
