@@ -281,6 +281,9 @@ class GraphiumTextView(Gtk.TextView):
         layout = self.create_pango_layout("")
         layout.set_alignment(Pango.Alignment.RIGHT)
         width = self.get_border_window_size(Gtk.TextWindowType.LEFT)
+        left = self.get_window(Gtk.TextWindowType.LEFT)
+        height = left.get_height() if left is not None else self.get_allocated_height()
+        Gtk.render_background(context, cr, 0, 0, width, max(1, height))
 
         # Viewport-bounded iteration only. Wrapped display-line
         # continuations intentionally receive no additional logical line number.

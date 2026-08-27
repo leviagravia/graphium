@@ -12,7 +12,13 @@ from gi.repository import Gdk, Gtk, Pango
 from graphium.application.file_lifecycle import ReloadDecision, UnsavedDecision
 from graphium.application.recovery_startup import RecoveryStartupDecision
 from graphium.domain.recovery_artifact import RecoveryDocumentKind, RecoveryRecord
-from graphium.product import AUTHOR, COPYRIGHT, REPOSITORY_LABEL, REPOSITORY_URL
+from graphium.product import (
+    APPLICATION_ICON_NAME,
+    AUTHOR,
+    COPYRIGHT,
+    REPOSITORY_LABEL,
+    REPOSITORY_URL,
+)
 
 
 class GtkLifecycleUI:
@@ -226,8 +232,21 @@ def show_text_document(parent: Gtk.Window, *, title: str, path: str) -> None:
         dialog.destroy()
 
 
+def _project_about_application_icon(dialog: Gtk.AboutDialog) -> None:
+    """Project the single Graphium application-icon authority into About."""
+    theme = Gtk.IconTheme.get_default()
+    if theme is not None and theme.has_icon(APPLICATION_ICON_NAME):
+        dialog.set_logo_icon_name(APPLICATION_ICON_NAME)
+        return
+    for icon in Gtk.Window.get_default_icon_list() or ():
+        if icon.get_width() == 48 and icon.get_height() == 48:
+            dialog.set_logo(icon)
+            return
+
+
 def show_about(parent: Gtk.Window, *, version: str) -> None:
     dialog = Gtk.AboutDialog(transient_for=parent, modal=True)
+    _project_about_application_icon(dialog)
     dialog.set_program_name("Graphium")
     dialog.set_version(version)
     display = Gdk.Display.get_default()

@@ -19,6 +19,9 @@ from graphium.infrastructure.hunspell_session import (
     HunspellDictionary,
     HunspellError,
     HunspellPipeSession,
+    HunspellProcessError,
+    HunspellProtocolError,
+    HunspellTimeoutError,
     discover_hunspell_dictionaries,
     resolve_hunspell_executable,
 )
@@ -187,12 +190,28 @@ class GtkSpellCheckDialog:
         except SpellCheckStaleError as exc:
             self._fatal("Spell check stopped", str(exc))
             return False
-        except HunspellError as exc:
+        except HunspellProtocolError as exc:
             self._fatal(
-                "Spell check unavailable",
-                "Hunspell could not continue. Verify that Hunspell and the selected dictionary are installed.\n\n"
+                "Spell check stopped",
+                "Hunspell returned an unexpected response. Spell check stopped to avoid using unreliable results.\n\n"
                 + str(exc),
             )
+            return False
+        except HunspellTimeoutError as exc:
+            self._fatal(
+                "Spell check stopped",
+                "Hunspell did not respond in time. Spell check stopped.\n\n" + str(exc),
+            )
+            return False
+        except HunspellProcessError as exc:
+            self._fatal(
+                "Spell check stopped",
+                "Hunspell stopped or the selected dictionary became unavailable during spell checking.\n\n"
+                + str(exc),
+            )
+            return False
+        except HunspellError as exc:
+            self._fatal("Spell check stopped", "Hunspell could not continue.\n\n" + str(exc))
             return False
         except Exception as exc:
             self._fatal("Spell check stopped", str(exc))

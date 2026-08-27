@@ -8007,3 +8007,346 @@ MANUAL_TESTS_THIS_SYNC=0
 CANDIDATE_ATTEMPTS_CONSUMED_THIS_SYNC=0
 NEXT_STEP=OPTIONAL_FINAL_READONLY_SYNC_AUDIT_OR_DISTRIBUTION_PACKAGING; PLUS_REQUIRES_SEPARATE_AUTHORIZATION
 FINAL_PHASE=G15_POST_PUBLICATION_CANONICAL_CONVERGENCE_TARGET_FROZEN
+
+================================================================================
+ENTRY — G16 / ABOUT ICON CORRECTIVE CLOSURE — NON-CANDIDATE LOCAL PASS / TRUE-GTK PENDING
+Date: 2026-08-26
+State: BINDING / POST-G15 CORRECTIVE LINE / NO CANDIDATE
+================================================================================
+
+TRIGGER AND CLASSIFICATION
+--------------------------
+After G15 0.0.15 was published and canonically converged, a real user screenshot of Help > About showed the
+GTK missing-image placeholder instead of the Graphium logo. This is a genuine post-G15 product/oracle gap and
+does not rewrite G15 certification history. The G15-S5 oracle had accepted a non-null 16x16 pixbuf without
+proving Graphium-logo identity and therefore produced a false positive for the About logo property.
+
+MANDATORY SOURCE-FIRST RE-AUDIT
+--------------------------------
+Direct comparison with Mousepad 0.7.0, Leafpad, L3afpad, GNOME Text Editor and FeatherPad confirms that mature
+editors explicitly project their application icon into About. GTK3's GtkAboutDialog `logo-icon-name` defaults
+to `image-missing`; leaving both About logo properties unset therefore does not safely inherit Graphium's
+default-window icon identity.
+
+G16 NON-CANDIDATE IMPLEMENTATION
+--------------------------------
+The correction remains inside existing owner `graphium/adapters/gtk/dialogs.py`. About first asks the current
+GTK icon theme whether the canonical `APPLICATION_ICON_NAME` (`io.github.leviagravia.Graphium`) is available;
+when available it explicitly sets that same icon-name. If the named theme icon is unavailable during direct
+source execution, About reuses the already-loaded default Graphium window icon list and selects the exact
+hand-tuned 48x48 pixbuf. No SVG path, About-specific asset, second icon authority, GResource, module,
+dependency, configuration key, thread or subprocess is added. Version remains 0.0.15 during NON-CANDIDATE
+implementation.
+
+PERMANENT ORACLE REPAIR
+-----------------------
+The former S5 no-explicit-logo assertion is superseded. Permanent release tests now require explicit projection
+of the existing application-icon authority, the exact 48x48 source fallback, unchanged bounded five-file hicolor
+asset topology and absence of an About-specific resource/path. Future True-GTK proof must compare actual logo
+identity and reject the previous image-missing/16x16 false-positive class.
+
+LOCAL QUALIFICATION
+-------------------
+Behavioral: 190/190 PASS
+Integration: 176/176 PASS
+Packaging/Release: 45/45 PASS
+Total: 411/411 PASS
+Focused G16 release gates: 5/5 PASS
+Manual tests: 0 planned if exact True-GTK identity can be proven automatically.
+
+CURRENT STATE
+-------------
+G15_STATUS=CLOSED/CERTIFIED/PUBLISHED/CANONICALLY_CONVERGED
+G16_SOURCE_FIRST_MATURE_AUDIT=PASS
+G16_ROOT_CAUSE=GTK_ABOUT_LOGO_ICON_NAME_DEFAULT_IMAGE_MISSING
+G16_PREVIOUS_ORACLE_FALSE_POSITIVE=CONFIRMED
+G16_NONCANDIDATE_LOCAL_IMPLEMENTATION=PASS
+G16_TRUE_GTK=PENDING
+G16_CANDIDATE=NO
+ATTEMPT_CONSUMED=NO
+GIT_MUTATION=NO
+GRAPHIUM_PLUS_STATUS=DEFINED_NOT_OPENED
+NEXT_STEP=FOCUSED_G16_TRUE_GTK_SOURCE_AND_STAGED_ICON_IDENTITY_PROBE
+FINAL_PHASE=G16_NONCANDIDATE_LOCAL_PASS_TRUE_GTK_PENDING
+
+
+================================================================================
+ENTRY — G16 / ABOUT TRUE-GTK PASS + TWO PRE-CANDIDATE BLOCKERS LOCAL PASS
+Date: 2026-08-26
+State: BINDING / NON-CANDIDATE / TRUE-GTK BLOCKER PROBE PENDING
+================================================================================
+
+The focused G16 About-icon T480 probe passed exact Graphium identity in both isolated source-run and staged-installed modes, rejecting image-missing. Its one Gtk-CRITICAL was harness-only: set_custom_theme() was incorrectly called on a screen-singleton IconTheme; product assertions and source/package identity all passed.
+
+Before Candidate-readiness, two user-visible defects were reported and source-first audited: explicit Light appearance left the custom Gtk.TextView LEFT border-window gutter black, and real installed Hunspell with it_IT failed on a legitimate multi-record `hunspell -a` response group while presenting misleading installation guidance. Candidate-readiness is therefore blocked until these are platform-proven.
+
+The frozen RED->GREEN implementation preserves all existing architecture. The gutter now paints its native LEFT border-window background from the same GtkStyleContext used by the editor before drawing line-number glyphs. Hunspell now reads one bounded response group until the documented blank terminator (64 records / 64 KiB / one group timeout), preserves single-record suggestions, aggregates multi-record all-correct as correct, and conservatively returns no whole-span suggestions when any component is misspelled. Protocol, timeout and runtime-process messages no longer claim Hunspell is absent after discovery has succeeded. No tokenizer, dependency, module, config, thread or new subprocess type is added.
+
+Local qualification: 190/190 Behavioral + 180/180 Integration + 50/50 Packaging/Release = 421/421 PASS. Runtime modules remain 57 and runtime delta versus the About-only G16 source is +65 LOC. Version remains 0.0.15, Candidate NO, attempt NO, Git mutation NO. Next step is one focused automated T480 probe covering Light/Dark/System gutter pixels and real installed it_IT multi-record Hunspell synchronization; manual tests target 0.
+
+
+================================================================================
+ENTRY G16-004 — 2026-08-27 — TWO BLOCKERS TRUE-GTK PASS / CANDIDATE READINESS
+================================================================================
+
+User T480 proof closed the two pre-Candidate blockers on the exact NON-CANDIDATE source. Real GTK proved the line-number gutter follows the editor family in Dark `(30,30,30)`, Light `(255,255,255)` and System restoration, rejecting the prior black Light-mode column and preserving document text. Real `/usr/bin/hunspell` with `/usr/share/hunspell/it_IT` produced a genuine two-record response group for `NON-CANDIDATE`; Graphium consumed the complete group, kept the next request synchronized, reaped the child and completed the real GTK spell dialog without false installation guidance. Source/package identity remained unchanged; manual tests=0; Candidate=NO; attempt=0; Git mutation=NO.
+
+All G16 NON-CANDIDATE product properties are therefore closed. Candidate-readiness serializes only VERSION from published 0.0.15 to unpublished 0.0.16 plus matching release-test/canonical/evidence authority. No feature byte changes after the final T480 proof. Candidate R1 remains NOT DECLARED at attempts 0/2 and requires separate explicit authorization. Graphium Plus remains DEFINED / NOT OPENED.
+
+================================================================================
+ENTRY G16-005 — 2026-08-27 — ABOUT CREDITS LIGHT REPAIR + GITHUB README AUTHORITY
+================================================================================
+
+USER DESKTOP VALIDATION
+-----------------------
+The pre-Candidate 0.0.16 test .deb produced 4/5 manual desktop PASS and one product FAIL:
+Help > About > Credits was unreadable in explicit Light mode because GtkAboutDialog's internal GtkViewport `.view` retained the dark system-theme background while Graphium's explicit Light provider forced label text dark. About logo, Light line-number gutter, real Hunspell it_IT and Uppercase/Lowercase shortcuts all PASS. Candidate-readiness was revoked before any Candidate declaration; attempts remain 0/2.
+
+SOURCE-FIRST REPAIR CONTRACT
+----------------------------
+Mature-source comparison against Mousepad, gedit, GNOME Text Editor, Leafpad/L3afpad and FeatherPad rejects a custom Credits dialog or second styling authority. The single existing `GtkAppearanceRenderer` remains authoritative. The corrective implementation extends the SAME Light/Dark editor-family background/color rule to `dialog viewport.view`; dialogs.py remains free of Credits-specific styling. No new runtime module, dependency, config key, CSS provider, dialog subclass or hard-coded About-specific palette is introduced.
+
+GITHUB PUBLIC PAGE README AUTHORITY
+-----------------------------------
+At explicit user request, the complete planned public GitHub README is embedded below verbatim. This section is the canonical text authority for the GitHub front page until superseded by a later explicit revision. The benchmark presentation intentionally contains no numeric table; it states only the defensible comparative conclusion and names Leafpad, L3afpad, Mousepad and FeatherPad, while distinguishing Graphium's file-safety and representation-preservation strengths from areas where broader editors remain stronger.
+
+----- BEGIN VERBATIM GITHUB README.md -----
+<p align="center">
+  <img src="assets/graphium.svg" width="128" height="128" alt="Graphium logo">
+</p>
+
+<h1 align="center">Graphium</h1>
+
+<p align="center">
+  <strong>Fast · Simple · Safe · Native GTK</strong>
+</p>
+
+<p align="center">
+  A lightweight plain-text editor for Linux with unusually strict file-safety semantics.
+</p>
+
+Graphium is a native **GTK 3 / Gtk.TextView** editor for quick single-file work.
+
+It deliberately keeps the classic lightweight-editor model — **one process, one window, one active document** — while adding careful file handling, exact Saved/Modified state, representation preservation, recovery, printing, spell checking and the everyday conveniences expected from a mature desktop editor.
+
+Graphium has no projects, plugin platform, cloud service, hidden document database, syntax-highlighting subsystem or multi-document tab model.
+
+## Why Graphium?
+
+### Lightweight by design
+
+Graphium is continuously benchmarked against **Leafpad, L3afpad, Mousepad and FeatherPad**.
+
+Certified comparative runs place Graphium in the **same practical lightweight performance class** as these editors: startup and working-set results are broadly comparable for ordinary quick-edit use, although different editors lead in different workloads.
+
+Graphium is not designed to win every microbenchmark. Its goal is to remain lightweight while providing stronger guarantees around the file being edited.
+
+### Where Graphium goes further
+
+**Compared with Leafpad and L3afpad**, Graphium keeps a similarly direct single-document workflow but provides a substantially broader trust and desktop-completeness layer: guarded saving, external-file monitoring, recovery, explicit encoding and line-ending control, printing, spell checking, appearance controls and richer file-state information.
+
+**Compared with Mousepad**, Graphium deliberately keeps a smaller architectural surface: no server-style document sharing, no tabs, no syntax/language subsystem and no plugin platform. At the same time, its Save model explicitly separates editor state from filesystem state and treats external notifications only as triggers for fresh observation.
+
+**Compared with FeatherPad**, Graphium is intentionally narrower. FeatherPad is stronger for users who need tabs, sessions, syntax highlighting or power-editor features; Graphium instead focuses on a single-document GTK workflow with a smaller conceptual surface and stricter file-preservation rules.
+
+Graphium's clearest advantage is therefore not feature count alone. It is the combination of:
+
+- **lightweight quick-edit behavior**;
+- **guarded file writes and destination revalidation**;
+- **content-neutral Open and Save**;
+- **explicit preservation of encoding, BOM and line endings**;
+- **external-change detection without silent reload/adoption**;
+- **exact Saved/Modified semantics across Undo and Redo**;
+- **crash recovery without turning the editor into a session manager**;
+- enough mature desktop features to avoid feeling intentionally incomplete.
+
+## File safety
+
+Graphium treats the state of the file on disk separately from the text visible in the editor.
+
+Saving uses same-directory staging and revalidates the destination before replacement. If another process replaces or changes the file unexpectedly, Graphium fails closed instead of silently overwriting the new filesystem object.
+
+External filesystem notifications are not accepted as authoritative state. They trigger a fresh observation of the file, and unexpected changes are reported to the user.
+
+Graphium does **not** silently normalize a file merely because it was opened and saved. Encoding, BOM, line endings, whitespace and final-newline representation are preserved unless the user explicitly requests a conversion or transformation.
+
+## Features
+
+### Files and safety
+
+- New, Open, Open Recent, Save and Save As
+- **Save a Copy**
+- **Save Version Copy**
+- guarded saving with destination revalidation
+- external-file change detection
+- explicit **Reload from Disk**
+- crash recovery
+- UTF-8, UTF-16 and UTF-32
+- LF, CRLF and CR line endings
+- explicit handling of mixed line endings
+
+### Editing
+
+- Undo / Redo
+- Cut / Copy / Paste / Delete / Select All
+- Find / Replace
+- Go to Line
+- Duplicate Line / Selection
+- Move Lines Up / Down
+- Uppercase / Lowercase
+- Trim Trailing Spaces
+
+### View and document controls
+
+- Line Numbers
+- Word Wrap
+- Font and Zoom
+- compact status information
+- System / Light / Dark appearance
+- direct **Tab Width**
+- direct **Insert Spaces Instead of Tabs**
+- document statistics
+- explicit encoding and line-ending conversion
+
+### Desktop integration
+
+- Hunspell spell checking with selection among installed dictionaries
+- GTK Page Setup
+- Print Preview
+- Print
+- offline User Guide
+- offline Keyboard Shortcuts
+- native Linux desktop entry and application icon
+
+## Editing model
+
+Graphium is intentionally single-document.
+
+To edit several files at the same time, open several Graphium windows. Each invocation owns its own process, window and active document.
+
+Search is literal and limited to the current document. Graphium intentionally does not provide project search, regular expressions, syntax highlighting, tabs or plugins.
+
+## Installation
+
+### Debian / Ubuntu / Linux Mint
+
+Download the current `.deb` from the repository's **Releases** page and install it with:
+
+```bash
+sudo apt install ./graphium_<version>_all.deb
+```
+
+### Run from source
+
+Requirements:
+
+- Linux
+- Python 3
+- PyGObject
+- GTK 3
+- Hunspell (optional, for spell checking)
+
+```bash
+git clone https://github.com/leviagravia/graphium.git
+cd graphium
+./bin/graphium
+```
+
+### Install for the current user
+
+```bash
+./bin/graphium-install
+```
+
+The default installation prefix is `~/.local`.
+
+## Keyboard shortcuts
+
+| Action | Shortcut |
+|---|---|
+| New | `Ctrl+N` |
+| Open | `Ctrl+O` |
+| Save | `Ctrl+S` |
+| Save As | `Ctrl+Shift+S` |
+| Reload from Disk | `F5` |
+| Undo | `Ctrl+Z` |
+| Redo | `Ctrl+Shift+Z` |
+| Find | `Ctrl+F` |
+| Find Next | `F3` |
+| Find Previous | `Shift+F3` |
+| Replace | `Ctrl+H` |
+| Go to Line | `Ctrl+G` |
+| Uppercase | `Ctrl+U` |
+| Lowercase | `Ctrl+Shift+L` |
+| Print | `Ctrl+P` |
+| Full Screen | `F11` |
+| Move Lines Up | `Alt+Up` |
+| Move Lines Down | `Alt+Down` |
+| Quit | `Ctrl+Q` |
+
+See [`docs/user/GRAPHIUM_KEYBOARD_SHORTCUTS.txt`](docs/user/GRAPHIUM_KEYBOARD_SHORTCUTS.txt) for the complete list.
+
+## Deliberate non-goals
+
+Graphium is not trying to be a smaller IDE.
+
+It deliberately does **not** provide:
+
+- tabs inside one window;
+- project/workspace management;
+- syntax highlighting;
+- language modes;
+- column editing;
+- plugin marketplace;
+- integrated file browser;
+- cloud services.
+
+Users who depend on those workflows may be better served by Mousepad, FeatherPad, Kate or a code-oriented editor.
+
+Graphium instead focuses on the quick-edit user who values a conventional interface, low cognitive load and strong trust in Save and file-state behavior.
+
+## Documentation
+
+- [`User Guide`](docs/user/GRAPHIUM_USER_GUIDE.txt)
+- [`Keyboard Shortcuts`](docs/user/GRAPHIUM_KEYBOARD_SHORTCUTS.txt)
+
+Both are also available offline from Graphium's **Help** menu.
+
+## About the name
+
+*Graphium* is Latin for a **writing stylus**, the instrument traditionally used to write on wax tablets: a simple tool made for writing.
+
+## License
+
+Graphium is free software released under the **GNU General Public License v3.0 or later (GPL-3.0-or-later)**.
+
+See [`LICENSE`](LICENSE) for the complete license terms.
+
+## Author
+
+**leviagravia**  
+`leviagravia@zohomail.eu`
+
+---
+
+**Graphium** — a lightweight native GTK editor built around a simple idea: the text editor should never make you distrust your file.
+
+----- END VERBATIM GITHUB README.md -----
+
+
+================================================================================
+ENTRY G16-006 — 2026-08-27 — ABOUT CREDITS TRUE-GTK PASS / FINAL CANDIDATE READINESS
+================================================================================
+The single authorized harness-only reissue passed. The prior run was invalid before product execution because its grep guard matched itself; no product attempt was consumed. On the exact corrected source, real GtkAboutDialog Credits measured coherent System/Light/Dark backgrounds and high text contrast in both direct-source and staged-installed projections: Light background 255/255/255 with contrast 16.29, Dark 30/30/30 with contrast 15.31, and System restored exactly to the dark baseline 46/46/51. The prior black Light panel is rejected and the Graphium About-logo regression remains PASS. Source/package identity remained unchanged; manual tests=0; Candidate=NO; attempt=0; Git mutation=NO.
+
+All G16 user-visible corrective properties are now NON-CANDIDATE platform-closed: About logo, About Credits appearance, Light/Dark/System line-number gutter, real installed Hunspell it_IT response groups and transform shortcuts. The complete GitHub README remains embedded verbatim earlier in this MO and is unchanged. Candidate-readiness is re-established on this exact source; Candidate R1 remains NOT DECLARED and requires separate authorization.
+
+================================================================================
+ENTRY G16-007 — 2026-08-27 — CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED
+================================================================================
+The user explicitly authorized G16 publication after Candidate R1 certification and final desktop verification. Candidate R1 is certified on version 0.0.16, exact source tree `48ef29541e1068cb890c305c4ddfa57aab7310bd`, product subtree `e09d45ec07aad4956c0edead777cb61588eb758a`, tests `f86a01225586cb88133c053c21e9829f82ab5581` and user docs `8f5d3ef7dbe936eab18c2ed8447a487a6fe337df`. Attempt accounting is 1/2 used and 1/2 remaining. Final user desktop verification is PASS, including Help > About > Credits in Light mode on the installed 0.0.16-2 package. No known user-visible G16 blocker remains.
+
+Publication is a separate fail-closed Git transaction. It must start only from canonical post-G15-convergence HEAD `15ae13fa153d77db74470d5718e8ab9bbbb5708c`, tree `0bb9335c717f371481c752818c5f83fdb9cb16f3`, branch `main`, remote `https://github.com/leviagravia/graphium.git`, CLEAN worktree/index and real remote main equal to that HEAD. Relative to Candidate R1, publication may change exactly five paths: the three canonical documents, additive `evidence/G16_DESKTOP_CERTIFICATION_RECEIPT_20260827.txt`, and regenerated `evidence/SHA256SUMS.txt`. All product/test/user-doc/bin/data/LICENSE bytes remain Candidate-protected. Commit subject is frozen as `G16: finalize core corrective release`.
+
+G16 is therefore **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED**, not yet published. Graphium Core becomes definitively CLOSED / CERTIFIED / PUBLISHED / CANONICALLY_CONVERGED only after publication PASS and the subsequent documentation/evidence-only post-publication convergence. Graphium Plus and Ultra remain DEFINED / NOT OPENED.
+

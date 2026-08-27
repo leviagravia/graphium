@@ -52,7 +52,7 @@ class HelpAboutLegalClosureTests(unittest.TestCase):
         self.assertEqual(product.LICENSE_ID, LICENSE_ID)
         self.assertEqual(product.REPOSITORY_URL, REPOSITORY_URL)
         self.assertEqual(product.REPOSITORY_LABEL, REPOSITORY_LABEL)
-        self.assertEqual(product.VERSION, "0.0.15")
+        self.assertEqual(product.VERSION, "0.0.16")
 
     def test_about_uses_standard_metadata_and_keeps_support_information(self):
         source = (ROOT / "graphium/adapters/gtk/dialogs.py").read_text(encoding="utf-8")
@@ -67,20 +67,23 @@ class HelpAboutLegalClosureTests(unittest.TestCase):
         self.assertNotIn("Gtk.License.CUSTOM", source)
         self.assertNotIn("GPL_3_0_ONLY", source)
 
-    def test_about_reuses_application_icon_without_second_authority(self):
+    def test_about_explicitly_projects_existing_application_icon_authority(self):
         source = (ROOT / "graphium/adapters/gtk/dialogs.py").read_text(encoding="utf-8")
-        forbidden = (
-            "set_logo_icon_name",
-            "set_logo(",
-            "GdkPixbuf",
-            "Pixbuf",
+        self.assertIn("APPLICATION_ICON_NAME", source)
+        self.assertIn("Gtk.IconTheme.get_default()", source)
+        self.assertIn("theme.has_icon(APPLICATION_ICON_NAME)", source)
+        self.assertIn("dialog.set_logo_icon_name(APPLICATION_ICON_NAME)", source)
+        self.assertIn("Gtk.Window.get_default_icon_list()", source)
+        self.assertIn("icon.get_width() == 48 and icon.get_height() == 48", source)
+        self.assertIn("dialog.set_logo(icon)", source)
+        for forbidden in (
             ".svg",
-            "APPLICATION_ICON_NAME",
+            "image-missing",
             "GResource",
             "resource_register",
-        )
-        for marker in forbidden:
-            self.assertNotIn(marker, source)
+            "data/icons",
+        ):
+            self.assertNotIn(forbidden, source)
 
     def test_repository_is_retained_without_reachability_logic(self):
         product = (ROOT / "graphium/product.py").read_text(encoding="utf-8")

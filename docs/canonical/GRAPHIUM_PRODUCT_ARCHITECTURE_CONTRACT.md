@@ -1978,3 +1978,53 @@ remaining attempt is consumed. Graphium Plus and Graphium Ultra remain separate 
 are not opened by this convergence. The authoritative G15 product publication identity remains commit
 `16b645ed653be5b44efa8721db11cca63f0633bd` / tree `e433758d1d68ef5bea6528e15e65d786e0679d31` / product subtree `1f63eca6724b379abab8e8d534667723e57276f6` even if this governance-only convergence advances
 canonical repository HEAD.
+
+### G16 About-icon corrective authority — supersedes the G15 implicit-logo assumption
+
+A post-G15 real screenshot proved that relying on an unset GtkAboutDialog logo is not a valid projection of the
+application icon. GtkAboutDialog's `logo-icon-name` default may resolve to `image-missing`; therefore About must
+explicitly project Graphium's existing application-icon authority.
+
+The single icon identity remains `graphium.product.APPLICATION_ICON_NAME` and the five G15-S1 hicolor assets
+remain the only icon assets. About may not own an SVG path, About-specific file/resource or second icon name.
+When the current Gtk.IconTheme resolves `APPLICATION_ICON_NAME`, About sets that exact named identity. When the
+name is not theme-resolvable in a direct source run, About may reuse `Gtk.Window.get_default_icon_list()` and
+select only the existing exact 48x48 Graphium pixbuf already loaded by application bootstrap. This fallback does
+not create a new authority or loader.
+
+True-GTK certification must prove identity, not mere pixbuf existence: source mode must compare the About logo
+pixels with the canonical 48x48 Graphium asset under an icon-theme search path that cannot accidentally see an
+installed Graphium icon; staged-installed mode must prove the theme resolves `APPLICATION_ICON_NAME` and that
+About projects that name. A generic `image-missing` pixbuf or 16x16 placeholder can never satisfy this contract.
+
+
+### G16 pre-Candidate gutter and Hunspell response-group corrective authority
+
+Graphium's line-number implementation continues to use Gtk.TextView's native LEFT border window. Because Graphium draws this gutter itself, its background is part of the same editor appearance authority: the existing GraphiumTextView GtkStyleContext must render the gutter background before line-number glyphs. No independent gutter color constants, widget, GtkSourceView dependency, preference or CSS/palette subsystem may be introduced. Explicit Light/Dark and System restoration must therefore propagate through one style authority.
+
+The external Hunspell process remains the only optional spell-engine boundary. A `hunspell -a` request owns a bounded response group consisting of one or more nonblank result records followed by one blank terminator. Graphium must consume the full group under one timeout, per-line limits, a 64-record group limit and a 64-KiB group limit before issuing the next request. Single-record groups retain current exact suggestion semantics. For multi-record groups, all-correct means the Graphium lexical span is correct; any miss means the span is incorrect and component-level suggestions are not exposed as whole-span replacements. The Graphium apostrophe/hyphen lexical model remains unchanged. Once executable and dictionary discovery succeed, protocol/timeout/process failures must not be presented as an installation-absence error. Existing child cancellation, terminate/kill/reap, dictionary revalidation, one-worker ownership, stale-result fencing and startup laziness remain mandatory.
+
+
+### G16 Candidate-readiness freeze — corrective closure authority
+
+The G16 cumulative corrective product is closed at NON-CANDIDATE True-GTK PASS before Candidate declaration. The existing application-icon authority is explicitly projected into About; the custom Gtk.TextView LEFT border-window gutter is painted through the same editor GtkStyleContext before line-number glyphs; the optional external `hunspell -a` boundary consumes bounded complete response groups and separates installation absence from protocol/timeout/runtime failures. No new runtime module, dependency, config key, icon asset, appearance palette authority, spell worker, subprocess type or lexical model is introduced.
+
+After the final focused T480 proof, no functional byte may change for Candidate readiness. The only product delta permitted by the readiness freeze is `graphium.product.VERSION` `0.0.15` -> `0.0.16`; matching release-test identity plus canonical/evidence convergence are non-feature authority updates. Candidate R1 remains undeclared until separately authorized.
+
+
+### G16 GtkAboutDialog Credits appearance authority
+
+`Gtk.AboutDialog` remains the sole About implementation. Its internal Credits `GtkViewport.view` is not a separate visual authority: when Graphium explicit Light or Dark mode is active, that viewport participates in the same `GtkAppearanceRenderer` / single screen CSS provider and the same editor-family background/foreground rule as other text-bearing views. `graphium.adapters.gtk.dialogs` may not own Credits-specific CSS, widget-tree recoloring or a custom Credits surface. System mode removes the application provider and restores the GTK baseline. No second palette, CSS provider, module, dependency or persistent setting is permitted for Credits styling.
+
+### G16 final Credits qualification authority
+
+The standard GtkAboutDialog Credits viewport participates in the single Graphium appearance authority and has real GTK proof in both source-run and staged-installed projections. Explicit Light must render the Credits viewport in the same light family with readable foreground; Dark must remain coherent and readable; System must restore the underlying GTK baseline without stale Graphium projection. The About logo identity must remain Graphium during this transition. The validation harness may inspect rendered colors, but deprecated or diagnostic-only GTK calls used by the harness are not product dependencies. No custom Credits implementation or second appearance authority is permitted.
+
+### G16 Candidate R1 certification and publication boundary — 2026-08-27
+
+G16 Candidate R1 is certified on version `0.0.16`, exact source tree `48ef29541e1068cb890c305c4ddfa57aab7310bd`, product subtree `e09d45ec07aad4956c0edead777cb61588eb758a`, tests `f86a01225586cb88133c053c21e9829f82ab5581`, user docs `8f5d3ef7dbe936eab18c2ed8447a487a6fe337df`, bin `585f06bf0ad4dada4675bfd5c11eb9fc793057ef` and data `042e5dc2d043061c89e33170f5e35cd54a17e328`. The complete G16 platform evidence chain and final user desktop verification are PASS. Candidate attempt 1/2 is consumed; 1/2 remains.
+
+The user explicitly authorized publication. Publication may alter exactly the three canonical authority documents, additive `evidence/G16_DESKTOP_CERTIFICATION_RECEIPT_20260827.txt`, and regenerated `evidence/SHA256SUMS.txt` relative to Candidate R1. `graphium/`, `bin/`, `tests/`, `docs/user/`, `data/` and `LICENSE` are publication-protected and must remain byte/mode-identical. The transaction must start from canonical HEAD `15ae13fa153d77db74470d5718e8ab9bbbb5708c` / tree `0bb9335c717f371481c752818c5f83fdb9cb16f3`, use commit subject `G16: finalize core corrective release`, push to real `origin/main`, fetch and prove `HEAD=origin/main=remote main`, then leave the worktree CLEAN. No new functional T480 test is justified because publication cannot change product bytes.
+
+Until that transaction completes, G16 is **CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED**. Graphium Plus and Ultra remain **DEFINED / NOT OPENED**.
+

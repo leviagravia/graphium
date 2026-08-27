@@ -768,3 +768,50 @@ byte/mode-identical to the published product. **G15 and Graphium Core 0.0.15 are
 authorized by this convergence.
 
 **Graphium Ultra:** **DEFINED / NOT OPENED**.
+
+### G16 — About Icon Corrective Closure — NON-CANDIDATE TRUE-GTK PASS / CLOSED
+
+A real post-G15 user screenshot exposed a narrow About-logo product/oracle gap: GtkAboutDialog displayed the
+GTK missing-image placeholder rather than Graphium's icon. Mandatory source-first comparison with Mousepad,
+Leafpad/L3afpad, GNOME Text Editor and FeatherPad confirmed explicit About application-icon projection as the
+mature pattern. GTK3 `logo-icon-name` defaults to `image-missing`, so the G15-S5 implicit inheritance assumption
+and its non-null-16x16 pixbuf oracle are superseded.
+
+G16 is deliberately corrective and confined. The existing About owner explicitly uses the existing
+`APPLICATION_ICON_NAME` when the icon theme resolves it and otherwise reuses the existing Graphium default
+window-icon list, selecting the exact 48x48 hand-tuned pixbuf for source runs. No new icon asset, path,
+authority, module, dependency, GResource, config, thread or subprocess is introduced. Local permanent
+qualification passes 190/190 Behavioral + 176/176 Integration + 45/45 Release = **411/411 PASS**. Version remains
+0.0.15 while NON-CANDIDATE. Candidate remains NO, attempt consumed NO, Git mutation NO. The focused automated True-GTK source-run + staged-install identity probe passed exact Graphium logo identity, rejected image-missing, preserved source/package identity and required 0 manual tests.
+
+
+### G16 pre-Candidate blockers — NON-CANDIDATE TRUE-GTK PASS / CLOSED
+
+The About-icon correction is NON-CANDIDATE True-GTK PASS. Candidate-readiness remains blocked by two later user-visible defects: Light appearance left the custom line-number gutter dark, and real installed Hunspell/it_IT exposed a multi-record `hunspell -a` response group that the one-record parser rejected while the UI incorrectly suggested installing Hunspell. Mandatory mature/authoritative comparison is complete and the corrective contract is frozen.
+
+The NON-CANDIDATE repair preserves the existing Gtk.TextView LEFT border-window and paints it from the same style context before glyphs; it adds no gutter palette authority. The Hunspell boundary now consumes a bounded complete response group, preserves single-record behavior, aggregates multi-record groups conservatively, retains timeout/cancel/reap/stale fencing and separates installation absence from protocol/timeout/runtime errors. No tokenizer or dependency migration is allowed. Local qualification is **421/421 PASS** (190 Behavioral, 181 Integration, 50 Release); runtime modules remain 57. Version remains 0.0.15 and Candidate remains NO. Focused real-GTK gutter + real-it_IT Hunspell validation passed on the T480 with source/package identity unchanged and 0 manual tests.
+
+
+### G16 Candidate-readiness / exact freeze — PASS / CANDIDATE R1 AUTHORIZATION READY
+
+All G16 NON-CANDIDATE corrective properties are now closed. About icon identity, Light/Dark/System line-number gutter rendering and real installed `hunspell`/`it_IT` multi-record response handling all have focused T480 True-GTK proof with source/package identity unchanged and **0 manual tests**. Permanent local qualification on the exact cumulative implementation is 190/190 Behavioral + 181/181 Integration + 50/50 Packaging/Release = **421/421 PASS**.
+
+Candidate readiness advances only the serial release identity from published `0.0.15` to unpublished `0.0.16`, plus the corresponding release-oracle expectation and canonical/evidence convergence. No feature implementation byte is changed after the final T480 proof. Candidate R1 is **NOT DECLARED**; attempts remain **0/2**. Canonical Git mutation and publication remain unauthorized. Graphium Plus remains **DEFINED / NOT OPENED**.
+
+
+#### G16 About Credits Light corrective — LOCAL PASS / TRUE-GTK PENDING
+
+User desktop validation of the pre-Candidate 0.0.16 `.deb` produced 4/5 PASS and one product FAIL: the standard `GtkAboutDialog` Credits viewport remained dark under explicit Light appearance. Source-first comparison confirmed that Graphium's single application CSS provider, not the dialog layer, must own this background. The RED->GREEN repair changes only `graphium/adapters/gtk/appearance.py`, extending the existing Light/Dark editor-family rule to `dialog viewport.view`; no custom Credits dialog, second CSS provider, new palette authority, dependency, module or config is added. Focused release gates pass 4/4, Behavioral 190/190 and Release 54/54; the integration tree and Hunspell owners are byte-identical to the previously qualified G16 source. Candidate-readiness remains blocked until one focused True-GTK Credits Light/Dark/System proof passes. Candidate=NO, attempts=0/2, Git mutation=NO.
+
+#### G16 final pre-Candidate closure — TRUE-GTK PASS / CANDIDATE READINESS RESTORED
+
+The post-readiness manual Credits Light failure is repaired without expanding architecture: only the existing appearance authority projects the standard GtkAboutDialog `viewport.view`. The single authorized harness reissue passed real source and staged-installed GtkAboutDialog Credits in System/Light/Dark with contrast checks, black-panel rejection, System restoration and About-logo regression. The initial stopped run was INVALID HARNESS before product execution and consumed no attempt. All G16 corrective properties are now NON-CANDIDATE closed. Candidate R1 remains **NOT DECLARED**, attempts **0/2**, Git mutation **NO**.
+
+### G16 Candidate R1 certification / publication authorization — 2026-08-27
+
+G16 Candidate R1 is **DECLARED_AND_CERTIFIED** on the exact 0.0.16 source tree `48ef29541e1068cb890c305c4ddfa57aab7310bd`, product subtree `e09d45ec07aad4956c0edead777cb61588eb758a`. Final desktop verification is PASS; known user-visible G16 defects open = 0. Attempt accounting: 1/2 used, 1/2 remaining.
+
+Publication is now explicitly authorized but not yet complete. The fail-closed finalizer may change exactly five Candidate-relative paths: the three canonical documents, additive `evidence/G16_DESKTOP_CERTIFICATION_RECEIPT_20260827.txt`, and regenerated `evidence/SHA256SUMS.txt`. Commit subject: **`G16: finalize core corrective release`**. No product/test/user-doc/bin/data/LICENSE byte may change and no new T480/manual test is required for publication.
+
+Status: **G16 CANDIDATE R1 CERTIFIED / PUBLICATION AUTHORIZED / FINALIZER REQUIRED**. Graphium Core is not definitively closed until publication and post-publication canonical convergence both PASS. Graphium Plus and Ultra remain **DEFINED / NOT OPENED**.
+

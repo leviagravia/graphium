@@ -11,6 +11,8 @@ import threading
 import time
 
 MAX_PROTOCOL_LINE_BYTES = 16 * 1024
+MAX_RESPONSE_GROUP_LINES = 64
+MAX_RESPONSE_GROUP_BYTES = 64 * 1024
 MAX_SUGGESTIONS = 16
 MAX_SUGGESTION_CODEPOINTS = 256
 MAX_TOKEN_UTF8_BYTES = 4096
@@ -214,8 +216,7 @@ def _suggestions(raw: str, expected: int) -> tuple[str, ...]:
     return items[:MAX_SUGGESTIONS]
 
 
-def parse_hunspell_response(word: str, line: str) -> HunspellResult:
-    """Parse one strict `hunspell -a` result line for one Graphium-owned token."""
+def _parse_hunspell_record(word: str, line: str, *, require_word_match: bool) -> HunspellResult:
     _safe_token(word)
     if not isinstance(line, str) or not line or "\r" in line or "\n" in line or "\x00" in line:
         raise HunspellProtocolError("Hunspell returned a malformed response line")
@@ -226,17 +227,42 @@ def parse_hunspell_response(word: str, line: str) -> HunspellResult:
     marker = line[:1]
     if marker == "#":
         parts = line.split()
-        if len(parts) != 3 or parts[1] != word or not parts[2].isdigit():
+        if len(parts) != 3 or not parts[2].isdigit():
             raise HunspellProtocolError("Hunspell no-suggestion response is malformed")
+        _safe_token(parts[1])
+        if require_word_match and parts[1] != word:
+            raise HunspellProtocolError("Hunspell no-suggestion response word does not match the request")
         return HunspellResult(word, False)
     if marker in {"&", "?"}:
         head, sep, tail = line.partition(": ")
         parts = head.split()
-        if not sep or len(parts) != 4 or parts[0] != marker or parts[1] != word or not parts[2].isdigit() or not parts[3].isdigit():
+        if not sep or len(parts) != 4 or parts[0] != marker or not parts[2].isdigit() or not parts[3].isdigit():
             raise HunspellProtocolError("Hunspell suggestion response is malformed")
+        _safe_token(parts[1])
+        if require_word_match and parts[1] != word:
+            raise HunspellProtocolError("Hunspell suggestion response word does not match the request")
         count = int(parts[2])
         return HunspellResult(word, False, _suggestions(tail, count))
     raise HunspellProtocolError("Hunspell returned an unsupported protocol response")
+
+
+def parse_hunspell_response(word: str, line: str) -> HunspellResult:
+    """Parse one strict `hunspell -a` result line for one Graphium-owned token."""
+    return _parse_hunspell_record(word, line, require_word_match=True)
+
+
+def _parse_hunspell_group(word: str, lines: tuple[str, ...]) -> HunspellResult:
+    if not lines:
+        raise HunspellProtocolError("Hunspell returned an empty response group")
+    if len(lines) == 1:
+        return parse_hunspell_response(word, lines[0])
+    parsed = tuple(
+        _parse_hunspell_record(word, line, require_word_match=False) for line in lines
+    )
+    if all(result.correct for result in parsed):
+        return HunspellResult(word, True)
+    # Suggestions from component records cannot safely replace the entire Graphium span.
+    return HunspellResult(word, False, ())
 
 
 class HunspellPipeSession:
@@ -310,13 +336,30 @@ class HunspellPipeSession:
                         proc.stdin.write(b"^" + data + b"\n"); proc.stdin.flush()
                     except (BrokenPipeError, OSError) as exc:
                         raise HunspellProcessError("Hunspell input pipe failed") from exc
-                result_line = self._readline(self._timeout)
-                terminator = self._readline(self._timeout)
-                if terminator != "":
-                    raise HunspellProtocolError("Hunspell response group is not blank-terminated")
-                return parse_hunspell_response(word, result_line)
+                response_group = self._read_response_group(self._timeout)
+                return _parse_hunspell_group(word, response_group)
             except HunspellError:
                 self.close(); raise
+
+    def _read_response_group(self, timeout: float) -> tuple[str, ...]:
+        deadline = time.monotonic() + timeout
+        lines: list[str] = []
+        total_bytes = 0
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise HunspellTimeoutError("Hunspell response group timed out")
+            line = self._readline(remaining)
+            if line == "":
+                if not lines:
+                    raise HunspellProtocolError("Hunspell returned an empty response group")
+                return tuple(lines)
+            lines.append(line)
+            total_bytes += len(line.encode("utf-8")) + 1
+            if len(lines) > MAX_RESPONSE_GROUP_LINES:
+                raise HunspellProtocolError("Hunspell response group exceeds the bounded line count")
+            if total_bytes > MAX_RESPONSE_GROUP_BYTES:
+                raise HunspellProtocolError("Hunspell response group exceeds the bounded byte size")
 
     def _readline(self, timeout: float) -> str:
         proc = self._proc

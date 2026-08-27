@@ -15,6 +15,22 @@ print('@(#) Fake Hunspell 1.0',flush=True)
 for raw in sys.stdin:
     LOG.write_text(LOG.read_text()+'\\n'+raw.rstrip('\\n'))
     word=raw.rstrip('\\n')[1:]
+    if mode=='multi' and word=='compound-ok':
+        print('*',flush=True); print('*',flush=True); print('',flush=True); continue
+    if mode=='multi' and word=='compound-bad':
+        print('*',flush=True); print('& component 1 0: replacement',flush=True); print('',flush=True); continue
+    if mode=='multi' and word=='compound-manybad':
+        print('& first 1 0: one',flush=True); print('& second 1 0: two',flush=True); print('',flush=True); continue
+    if mode=='multi-malformed':
+        print('*',flush=True); print('BAD',flush=True); print('',flush=True); continue
+    if mode=='too-many-records':
+        [print('*',flush=True) for _ in range(80)]; print('',flush=True); continue
+    if mode=='too-many-bytes':
+        [print('+ '+('x'*15000),flush=True) for _ in range(8)]; print('',flush=True); continue
+    if mode=='partial-hang':
+        print('*',flush=True); time.sleep(10); continue
+    if mode=='no-terminator':
+        print('*',flush=True); sys.exit(0)
     if mode=='hang': time.sleep(10); continue
     if mode=='die': sys.exit(3)
     if mode=='malformed': print('BAD',flush=True); print('',flush=True); continue
@@ -72,6 +88,27 @@ class HunspellPipeTests(unittest.TestCase):
         exe,_=self.fake('die'); s=HunspellPipeSession(str(exe),timeout_seconds=.8); s.start(); pid=s.pid; self.assertRaises(HunspellProcessError,s.check,'bad'); self.assertFalse(_alive(pid))
         exe,_=self.fake('hang'); s=HunspellPipeSession(str(exe),timeout_seconds=1.0); s.start(); pid=s.pid; start=time.monotonic(); self.assertRaises(HunspellTimeoutError,s.check,'bad'); self.assertLess(time.monotonic()-start,2.5); self.assertFalse(_alive(pid))
         exe,_=self.fake('hang'); s=HunspellPipeSession(str(exe),timeout_seconds=5); s.start(); pid=s.pid; errors=[]; th=threading.Thread(target=lambda: _capture(errors,lambda:s.check('bad'))); th.start(); time.sleep(.1); s.cancel(); th.join(1); self.assertFalse(th.is_alive()); self.assertTrue(errors); self.assertFalse(_alive(pid))
+    def test_multi_record_groups_aggregate_conservatively_and_preserve_sync(self):
+        exe,_=self.fake('multi'); s=HunspellPipeSession(str(exe))
+        self.assertEqual(s.check('compound-ok'),HunspellResult('compound-ok',True,()))
+        self.assertEqual(s.check('compound-bad'),HunspellResult('compound-bad',False,()))
+        self.assertEqual(s.check('compound-manybad'),HunspellResult('compound-manybad',False,()))
+        self.assertTrue(s.check('good').correct)
+        s.close()
+    def test_malformed_record_inside_multi_record_group_fails_closed(self):
+        exe,_=self.fake('multi-malformed'); s=HunspellPipeSession(str(exe)); self.assertRaises(HunspellProtocolError,s.check,'compound'); s.close()
+    def test_response_group_line_and_byte_budgets_fail_closed(self):
+        for mode in ('too-many-records','too-many-bytes'):
+            exe,_=self.fake(mode); s=HunspellPipeSession(str(exe)); self.assertRaises(HunspellProtocolError,s.check,'compound'); s.close()
+    def test_missing_terminator_and_partial_group_timeout_fail_closed(self):
+        exe,_=self.fake('no-terminator'); s=HunspellPipeSession(str(exe),timeout_seconds=.8); s.start(); pid=s.pid
+        self.assertRaises(HunspellError,s.check,'compound'); self.assertFalse(_alive(pid))
+        exe,_=self.fake('partial-hang'); s=HunspellPipeSession(str(exe),timeout_seconds=.8); s.start(); pid=s.pid
+        start=time.monotonic(); self.assertRaises(HunspellTimeoutError,s.check,'compound'); self.assertLess(time.monotonic()-start,2.0); self.assertFalse(_alive(pid))
+    def test_cancellation_mid_multi_record_group_is_bounded_and_reaped(self):
+        exe,_=self.fake('partial-hang'); s=HunspellPipeSession(str(exe),timeout_seconds=5); s.start(); pid=s.pid; errors=[]
+        th=threading.Thread(target=lambda: _capture(errors,lambda:s.check('compound'))); th.start(); time.sleep(.1); s.cancel(); th.join(1)
+        self.assertFalse(th.is_alive()); self.assertTrue(errors); self.assertFalse(_alive(pid))
     def test_repeated_open_close_reaps_and_closed_session_cannot_restart(self):
         exe,_=self.fake(); pids=[]
         for _ in range(3):

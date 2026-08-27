@@ -28,7 +28,8 @@ menubar, toolbar, searchbar {
 menuitem, modelbutton, label, checkbutton, radiobutton {
   color: #202020;
 }
-textview, textview text, entry, spinbutton, treeview.view, list, listbox, row {
+textview, textview text, entry, spinbutton, treeview.view, list, listbox, row,
+dialog viewport.view {
   background-color: #ffffff;
   color: #202020;
 }
@@ -59,7 +60,8 @@ menubar, toolbar, searchbar {
 menuitem, modelbutton, label, checkbutton, radiobutton {
   color: #f6f5f4;
 }
-textview, textview text, entry, spinbutton, treeview.view, list, listbox, row {
+textview, textview text, entry, spinbutton, treeview.view, list, listbox, row,
+dialog viewport.view {
   background-color: #1e1e1e;
   color: #f6f5f4;
 }
