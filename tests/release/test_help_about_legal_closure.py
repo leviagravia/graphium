@@ -52,7 +52,7 @@ class HelpAboutLegalClosureTests(unittest.TestCase):
         self.assertEqual(product.LICENSE_ID, LICENSE_ID)
         self.assertEqual(product.REPOSITORY_URL, REPOSITORY_URL)
         self.assertEqual(product.REPOSITORY_LABEL, REPOSITORY_LABEL)
-        self.assertEqual(product.VERSION, "0.0.16")
+        self.assertEqual(product.VERSION, "0.0.17")
 
     def test_about_uses_standard_metadata_and_keeps_support_information(self):
         source = (ROOT / "graphium/adapters/gtk/dialogs.py").read_text(encoding="utf-8")

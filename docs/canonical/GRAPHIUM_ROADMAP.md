@@ -844,3 +844,19 @@ work, not a new Graphium Core feature line.
 source-first mature-editor audit under the Plus contract.
 
 **Graphium Ultra:** **DEFINED / NOT OPENED**.
+### Post-G16 Core 0.0.17 — FAT32 Save Compatibility Maintenance Corrective — SOURCE PUBLICATION
+
+This is a maintenance line after G16, not G17 feature work. Candidate R1 is certified on version `0.0.17`, source
+`da73fd08ff06588f8aeef04cfe60e7206553b9a5`, product `8e4a601287b5cd83bec9579e3167635cb03e4fd6`, with attempt
+accounting 1/2 used. The corrected EXPECTED_ABSENT writer uses `renameat2(RENAME_NOREPLACE)` first and retains
+hard-link + unlink only as an unsupported-primitive fallback; the exact bytes passed the real FAT32/vfat device
+proof and the permanent Candidate authority is 433/433.
+
+This revision is the authorized Core 0.0.17 source publication with subject `Core 0.0.17: fix FAT32 save
+compatibility`, confined to the five Candidate paths plus three canonical docs, one additive Candidate receipt and
+the regenerated evidence manifest. About/legal remains `Gtk.License.GPL_3_0` with no product delta.
+
+**Immediate next step after publication PASS:** a separate five-path documentation/evidence-only post-publication
+canonical convergence recording the final commit/tree. Do not open G17, create/move a release tag, build/publish a
+Debian artifact, or port the corrective to Graphium Plus inside this source-publication transaction. The Plus
+0.0.2 corrective port is a separate later action.

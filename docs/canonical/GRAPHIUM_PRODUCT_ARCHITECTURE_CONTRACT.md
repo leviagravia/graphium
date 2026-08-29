@@ -2054,3 +2054,31 @@ product. No Candidate is reopened, no attempt is consumed, and no new T480 funct
 Graphium Core 0.0.16 is **CLOSED / CERTIFIED / PUBLISHED / CANONICALLY CONVERGED** by this revision. The next
 product-adjacent activity is the public GitHub surface/release preparation and full Git-history hygiene audit;
 Graphium Plus and Graphium Ultra remain separately defined and **NOT OPENED**.
+### Post-G16 Core 0.0.17 FAT32 save-compatibility maintenance authority — 2026-08-29
+
+Core 0.0.17 is a post-G16 maintenance corrective, not G17 feature development. Its only runtime owner delta from
+published Core 0.0.16 is `graphium/infrastructure/guarded_file_writer.py`; the corresponding permanent hostile
+oracle is `tests/integration/test_guarded_writer.py`, and serial identity is projected through `graphium/product.py`
+and the two release identity oracles.
+
+For an EXPECTED_ABSENT target, the writer MUST attempt `renameat2(..., RENAME_NOREPLACE)` as the primary atomic
+no-replace primitive. Only when that primitive is genuinely unsupported may it use the historical hard-link +
+unlink fallback. Replacing rename, `os.replace`, pre-check + rename, direct/truncate writes and filesystem-name
+special cases are forbidden. After a successful hard-link commit, stage-unlink failure is post-commit cleanup and
+must not be reported as a pre-commit failure that invites an unsafe blind Save retry.
+
+The exact corrected writer passed the real FAT32/vfat proof on `/dev/sdb1`: EXPECTED_ABSENT commit PASS,
+hard-link fallback NO, correct target bytes, zero staging residue and cleanup PASS. Candidate R1 is certified on
+source tree `da73fd08ff06588f8aeef04cfe60e7206553b9a5`, product tree
+`8e4a601287b5cd83bec9579e3167635cb03e4fd6`, with permanent 433/433 authority and historical attempt accounting
+1/2 used. The known fake-Hunspell child-start timing sensitivity is not part of this product delta and must not be
+'repaired' by timeout relaxation.
+
+About/legal remains the existing GTK authority: `Gtk.License.GPL_3_0`. No `Gtk.License.CUSTOM`, duplicate warranty
+sentence or LICENSE fork is permitted for this corrective.
+
+The authorized source-publication revision has parent `8899c94006757c066c88739ff84bf8e1a6cb1b35` and subject
+`Core 0.0.17: fix FAT32 save compatibility`. Relative to Candidate R1, publication may alter only the three
+canonical documents, add `evidence/CORE_0.0.17_CANDIDATE_R1_CERTIFICATION_RECEIPT_20260829.txt`, and regenerate
+`evidence/SHA256SUMS.txt`. Final commit/tree identity is recorded only by the subsequent governance/evidence-only
+canonical convergence; that convergence may not alter product, tests, user docs, bin, data or LICENSE.

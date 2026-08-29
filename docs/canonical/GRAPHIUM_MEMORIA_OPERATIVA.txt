@@ -8421,3 +8421,47 @@ T480_FUNCTIONAL_TESTS_THIS_SYNC=0
 MANUAL_TESTS_THIS_SYNC=0
 NEXT_STEP=GRAPHIUM_GITHUB_PUBLICATION_SURFACE_AND_FULL_HISTORY_HYGIENE_AUDIT
 FINAL_PHASE=G16_POST_PUBLICATION_CANONICAL_CONVERGENCE_TARGET_FROZEN
+================================================================================
+ENTRY POST-G16-001 — 2026-08-29 — CORE 0.0.17 FAT32 MAINTENANCE CORRECTIVE / SOURCE PUBLICATION
+================================================================================
+This revision publishes the certified post-G16 Graphium Core maintenance corrective as version `0.0.17`.
+It is a maintenance release and does not open G17 feature development. The source-publication transaction was
+separately authorized after Candidate R1 certification and a fail-closed read-only publication-readiness PASS.
+
+The certified Candidate authority carried by this revision is:
+  VERSION=0.0.17
+  CANDIDATE_R1=CERTIFIED
+  CANDIDATE_SOURCE_TREE=da73fd08ff06588f8aeef04cfe60e7206553b9a5
+  CANDIDATE_PRODUCT_TREE=8e4a601287b5cd83bec9579e3167635cb03e4fd6
+  CANDIDATE_TESTS_TREE=add34b587196d847bed79cd607227952a2204b74
+  CANDIDATE_INTEGRATION_TREE=742d3a430191a1fdf838ec003a885b98d702f94d
+  CANDIDATE_USER_DOCS_TREE=8f5d3ef7dbe936eab18c2ed8447a487a6fe337df
+  CANDIDATE_ATTEMPTS_USED=1/2
+
+The product correction is confined to the guarded writer's EXPECTED_ABSENT commit lane. The primary no-replace
+primitive is `renameat2(..., RENAME_NOREPLACE)`; hard-link + unlink remains only the unsupported-primitive
+fallback. There is no replacing-rename, direct/truncate or FAT32/vfat special-case branch. The exact writer bytes
+were proven on a real `/dev/sdb1` vfat read-write filesystem: commit confirmed, payload hash correct, hard-link
+fallback unused, zero stage residue and proof cleanup PASS.
+
+Permanent Candidate authority is 433/433: 190/190 Behavioral PASS, 189/189 Integration authority (167/167 fresh
+plus 22/22 byte-identical fake-Hunspell authority), and 54/54 Packaging/Release PASS. The fake-Hunspell startup
+timing sensitivity remains an environment/harness classification; no timeout or Hunspell product/test source is
+changed by this corrective.
+
+About/legal has NO product delta. Graphium continues to use `Gtk.License.GPL_3_0`; GTK supplies the standard GPL
+warranty notice and license projection. No custom license, duplicate warranty string or LICENSE mutation is
+introduced.
+
+The publication parent is canonical Core HEAD `8899c94006757c066c88739ff84bf8e1a6cb1b35` and the commit subject is
+`Core 0.0.17: fix FAT32 save compatibility`. Relative to that parent, this source-publication revision is confined
+to the five Candidate paths plus the three canonical documents, additive
+`evidence/CORE_0.0.17_CANDIDATE_R1_CERTIFICATION_RECEIPT_20260829.txt`, and regenerated
+`evidence/SHA256SUMS.txt` — exactly 10 paths. README, assets, user docs, bin, data and LICENSE remain unchanged.
+
+The final publication commit hash cannot be self-recorded inside its own tree. After this source publication PASS,
+Core 0.0.17 is PUBLISHED_PENDING_CANONICAL_CONVERGENCE. A separate documentation/evidence-only convergence must
+record the final commit/tree and restore HEAD=origin/main=remote-main canonical closure without changing product,
+tests, user docs, bin, data or LICENSE. Tag `v0.0.17`, GitHub Release and Debian artifact publication remain
+separately governed distribution actions. Graphium Plus 0.0.2 porting is also separate and must not be mixed into
+this Core transaction.
