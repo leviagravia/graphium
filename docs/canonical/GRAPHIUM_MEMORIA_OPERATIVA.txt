@@ -8465,3 +8465,73 @@ record the final commit/tree and restore HEAD=origin/main=remote-main canonical 
 tests, user docs, bin, data or LICENSE. Tag `v0.0.17`, GitHub Release and Debian artifact publication remain
 separately governed distribution actions. Graphium Plus 0.0.2 porting is also separate and must not be mixed into
 this Core transaction.
+
+================================================================================
+ENTRY POST-G16-002 — 2026-08-29 — CORE 0.0.17 PUBLICATION PASS / CANONICAL CONVERGENCE
+================================================================================
+
+PUBLICATION FACTS
+-----------------
+The separately authorized fail-closed Core 0.0.17 source-publication finalizer completed PASS on the canonical
+repository. The transaction started from exact parent `8899c94006757c066c88739ff84bf8e1a6cb1b35`, reconstructed
+the certified Candidate, materialized the frozen publication tree, committed, pushed, fetched and proved final
+canonical convergence of the publication transaction itself.
+
+Authoritative product publication identity:
+  CORE_0.0.17_PUBLICATION=PASS
+  PUBLICATION_COMMIT=50f7a2e352cc597ffc8e3b9875f125100080f623
+  PUBLICATION_TREE=31a3f5d279e0d83967b640c8437dccf51ef05e65
+  PRODUCT_SUBTREE=8e4a601287b5cd83bec9579e3167635cb03e4fd6
+  TESTS_SUBTREE=add34b587196d847bed79cd607227952a2204b74
+  INTEGRATION_SUBTREE=742d3a430191a1fdf838ec003a885b98d702f94d
+  USER_DOCS_SUBTREE=8f5d3ef7dbe936eab18c2ed8447a487a6fe337df
+  BIN_SUBTREE=585f06bf0ad4dada4675bfd5c11eb9fc793057ef
+  DATA_SUBTREE=042e5dc2d043061c89e33170f5e35cd54a17e328
+  LICENSE_BLOB=bdbdf23e6bc0cf4151485dbb932ffb45cd5875c4
+  PRODUCT_VERSION=0.0.17
+  COMMIT_SUBJECT=Core 0.0.17: fix FAT32 save compatibility
+  CANDIDATE_SOURCE_TREE=da73fd08ff06588f8aeef04cfe60e7206553b9a5
+  CANDIDATE_AUTHORITY=433/433
+  REAL_FAT32_EXPECTED_ABSENT_COMMIT=PASS
+  REAL_FAT32_HARDLINK_FALLBACK_USED=NO
+  ABOUT_GPL_AUTHORITY=Gtk.License.GPL_3_0_NO_DELTA
+  CANDIDATE_ATTEMPTS_USED=1/2_HISTORICAL
+  CANDIDATE_ATTEMPTS_REMAINING=1/2_HISTORICAL_ONLY
+  HEAD=ORIGIN_MAIN=REMOTE_MAIN=50f7a2e352cc597ffc8e3b9875f125100080f623
+  WORKTREE_INDEX=CLEAN
+  FINAL_PHASE=GRAPHIUM_CORE_0.0.17_SOURCE_PUBLICATION_PASS
+
+POST-PUBLICATION CONVERGENCE CONTRACT
+-------------------------------------
+The final publication commit hash cannot exist inside its own publication tree. This separately authorized
+canonical convergence therefore changes exactly five governance/evidence paths:
+  docs/canonical/GRAPHIUM_MEMORIA_OPERATIVA.txt
+  docs/canonical/GRAPHIUM_PRODUCT_ARCHITECTURE_CONTRACT.md
+  docs/canonical/GRAPHIUM_ROADMAP.md
+  evidence/CORE_0.0.17_PUBLICATION_FINAL_RECEIPT_20260829.txt
+  evidence/SHA256SUMS.txt
+
+`graphium/`, `tests/`, `docs/user/`, `bin/`, `data/` and `LICENSE` remain byte/mode-identical to the published
+Core 0.0.17 product. Candidate R1 is not reopened, no attempt is consumed, and no additional functional T480, GTK
+or FAT32 validation is required. The convergence commit is governance/evidence authority and does not replace the
+authoritative product publication commit/tree above.
+
+CURRENT BINDING STATE
+---------------------
+CORE_0.0.17_STATUS=CLOSED/CERTIFIED/PUBLISHED/CANONICALLY_CONVERGED_BY_THIS_REVISION
+CORE_0.0.17_PUBLICATION_COMMIT=50f7a2e352cc597ffc8e3b9875f125100080f623
+CORE_0.0.17_PUBLICATION_TREE=31a3f5d279e0d83967b640c8437dccf51ef05e65
+CORE_0.0.17_PRODUCT_SUBTREE=8e4a601287b5cd83bec9579e3167635cb03e4fd6
+CORE_0.0.17_PRODUCT_VERSION=0.0.17
+CORE_0.0.17_CANDIDATE_ATTEMPTS_USED=1/2_HISTORICAL
+CORE_0.0.17_CANDIDATE_ATTEMPTS_REMAINING=1/2_HISTORICAL_ONLY
+CANDIDATE_ATTEMPTS_CONSUMED_THIS_SYNC=0
+ABOUT_WARRANTY_AUTHORITY=GTK_GPL_3_0_STANDARD_PROJECTION_NO_DELTA
+TAG_V0.0.17=NOT_CREATED_SEPARATELY_GOVERNED
+GITHUB_RELEASE_0.0.17=NOT_CREATED_SEPARATELY_GOVERNED
+DEBIAN_ARTIFACT_0.0.17=NOT_PUBLISHED_SEPARATELY_GOVERNED
+T480_FUNCTIONAL_TESTS_THIS_SYNC=0
+MANUAL_TESTS_THIS_SYNC=0
+NEXT_STEP=GRAPHIUM_PLUS_0.0.2_FAT32_PORT_SOURCE_FIRST_NONCANDIDATE
+FINAL_PHASE=CORE_0.0.17_POST_PUBLICATION_CANONICAL_CONVERGENCE_TARGET_FROZEN
+

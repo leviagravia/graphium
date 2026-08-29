@@ -2,7 +2,7 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **G16 / Graphium Core CLOSED / CERTIFIED / PUBLISHED** at commit `b4b447423de8eb6f6d4022639497ca1f6b3daca6`, tree `90c651815400851ebcc0ff5300b2807261fb33fe`, product subtree `e09d45ec07aad4956c0edead777cb61588eb758a`, product version `0.0.16`. The authorized fail-closed publication finalizer qualified 190/190 Behavioral and 54/54 Packaging/Release, adopted the binding 181/181 Integration authority on byte-identical owners, preserved the complete G16 True-GTK platform evidence chain and final desktop validation, and proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and G16 is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative G16/Core product publication commit/tree above. Graphium Plus is **DEFINED / NOT OPENED**; Graphium Ultra is **DEFINED / NOT OPENED**.
+Current publication boundary: **Graphium Core 0.0.17 CLOSED / CERTIFIED / PUBLISHED** at source-publication commit `50f7a2e352cc597ffc8e3b9875f125100080f623`, tree `31a3f5d279e0d83967b640c8437dccf51ef05e65`, product subtree `8e4a601287b5cd83bec9579e3167635cb03e4fd6`, product version `0.0.17`. The maintenance Candidate R1 authority is 433/433, its corrected EXPECTED_ABSENT writer was proven on real FAT32/vfat, and the authorized fail-closed source-publication transaction proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and the Candidate is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative Core 0.0.17 source-publication commit/tree above. Tag `v0.0.17`, GitHub Release and Debian artifact remain separate distribution actions; the Graphium Plus 0.0.2 FAT32 port remains a separate product transaction.
 G12 / Graphium v1 remains CLOSED / CERTIFIED / PUBLISHED at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`; later governance-only commits do not replace that product publication identity.
 
 ## 1. Product identity
@@ -2082,3 +2082,25 @@ The authorized source-publication revision has parent `8899c94006757c066c88739ff
 canonical documents, add `evidence/CORE_0.0.17_CANDIDATE_R1_CERTIFICATION_RECEIPT_20260829.txt`, and regenerate
 `evidence/SHA256SUMS.txt`. Final commit/tree identity is recorded only by the subsequent governance/evidence-only
 canonical convergence; that convergence may not alter product, tests, user docs, bin, data or LICENSE.
+
+### Post-G16 Core 0.0.17 publication closure and canonical convergence — 2026-08-29
+
+The separately authorized Core 0.0.17 source-publication transaction completed PASS from canonical parent
+`8899c94006757c066c88739ff84bf8e1a6cb1b35`. The authoritative product publication is commit
+`50f7a2e352cc597ffc8e3b9875f125100080f623`, tree `31a3f5d279e0d83967b640c8437dccf51ef05e65`,
+product subtree `8e4a601287b5cd83bec9579e3167635cb03e4fd6`, version `0.0.17`, with subject
+`Core 0.0.17: fix FAT32 save compatibility`. The transaction ended with `HEAD=origin/main=remote main` and a CLEAN
+worktree/index. Candidate R1 historical accounting remains 1/2 used and 1/2 unused.
+
+This canonical convergence is governance/evidence-only and may change exactly the three canonical documents, add
+`evidence/CORE_0.0.17_PUBLICATION_FINAL_RECEIPT_20260829.txt`, and regenerate `evidence/SHA256SUMS.txt`. It MUST
+leave `graphium/`, `tests/`, `docs/user/`, `bin/`, `data/` and `LICENSE` byte/mode-identical to the published
+0.0.17 tree. No Candidate is reopened, no attempt is consumed, and no further functional T480/GTK/FAT32 proof is
+required. The current About/legal authority remains `Gtk.License.GPL_3_0`; no duplicate warranty string or custom
+license authority is introduced.
+
+Core 0.0.17 is **CLOSED / CERTIFIED / PUBLISHED / CANONICALLY CONVERGED** by this revision. This governance commit
+does not replace the product publication identity above. Tag `v0.0.17`, GitHub Release and Debian artifact remain
+separately governed distribution actions. The next corrective product action is the separately governed Graphium
+Plus 0.0.2 port of the exact Core FAT32 writer semantics; it must start source-first and NON-CANDIDATE.
+

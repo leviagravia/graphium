@@ -860,3 +860,26 @@ the regenerated evidence manifest. About/legal remains `Gtk.License.GPL_3_0` wit
 canonical convergence recording the final commit/tree. Do not open G17, create/move a release tag, build/publish a
 Debian artifact, or port the corrective to Graphium Plus inside this source-publication transaction. The Plus
 0.0.2 corrective port is a separate later action.
+
+### Post-G16 Core 0.0.17 publication closure + canonical convergence — 2026-08-29
+
+Core 0.0.17 is the bounded FAT32 Save-compatibility maintenance release, not G17 feature development. Candidate R1
+was certified on source tree `da73fd08ff06588f8aeef04cfe60e7206553b9a5` with permanent 433/433 authority and
+historical attempt accounting 1/2 used. The exact corrected writer was proven on real `/dev/sdb1` vfat with
+EXPECTED_ABSENT commit PASS, hard-link fallback unused, correct target bytes, zero stage residue and cleanup PASS.
+
+The authorized source-publication transaction completed PASS at commit
+`50f7a2e352cc597ffc8e3b9875f125100080f623`, tree `31a3f5d279e0d83967b640c8437dccf51ef05e65`,
+product subtree `8e4a601287b5cd83bec9579e3167635cb03e4fd6`, version `0.0.17`, subject
+`Core 0.0.17: fix FAT32 save compatibility`; `HEAD=origin/main=remote main` and the worktree/index were CLEAN.
+
+This separately authorized convergence changes only the three canonical documents, additive
+`evidence/CORE_0.0.17_PUBLICATION_FINAL_RECEIPT_20260829.txt`, and regenerated `evidence/SHA256SUMS.txt`. Product,
+tests, user docs, bin, data and LICENSE remain byte/mode-identical to the published 0.0.17 product. No Candidate
+is reopened and no new T480 functional/manual test is justified. About/legal remains `Gtk.License.GPL_3_0` with
+no duplicate warranty string.
+
+**Graphium Core 0.0.17 is CLOSED / CERTIFIED / PUBLISHED / CANONICALLY CONVERGED.** Tag `v0.0.17`, GitHub Release
+and Debian artifact are still separate distribution work. The next product corrective is **Graphium Plus 0.0.2
+FAT32 port**, starting source-first / NON-CANDIDATE from the already published and converged Core authority.
+
