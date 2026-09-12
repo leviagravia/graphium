@@ -214,6 +214,10 @@ See [`LICENSE`](LICENSE) for the complete license terms.
 **leviagravia**  
 `leviagravia@zohomail.eu`
 
+## Disclaimer
+
+This software was built with substantial assistance from AI. AI wrote a substantial amount of this software. Architecture, product decisions, testing criteria and release acceptance remain directed and reviewed by the project author.
+
 ---
 
 **Graphium** — a lightweight native GTK editor built around a simple idea: the text editor should never make you distrust your file.
