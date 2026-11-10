@@ -82,6 +82,15 @@ Graphium does **not** silently normalize a file merely because it was opened and
 - Move Lines Up / Down
 - Uppercase / Lowercase
 - Trim Trailing Spaces
+- **Native Character Map** with searchable Unicode groups and direct insertion
+
+### Native Character Map
+
+Graphium includes its own GTK Character Map for inserting Unicode characters without launching or installing a separate character-map application. Open **Edit → Character Map…**, choose a Unicode group or search by character, Unicode name or code point such as `U+03A9`, then double-click a character or use **Insert**.
+
+The picker is designed for readability rather than maximum character density: it opens at about three quarters of the editor window, keeps large glyph cells, and shows a much larger preview of the selected character. Results are paged so the interface remains responsive instead of creating thousands of GTK widgets at once.
+
+The Character Map uses Graphium's normal editor insertion and Undo path. It adds no external Unicode dependency, network service, background process or alternate Save path, and it does not participate in document Open/Save processing.
 
 ### View and document controls
 

@@ -360,18 +360,35 @@ Spaces remain menu-driven.
 
 20. CHARACTER MAP
 -----------------
-Edit -> Character Map… opens Graphium's native Unicode character picker. The window opens at about
-three quarters of the editor's width and height and remains resizable. Its glyph cells stay large so
-characters remain readable without turning the picker into an oversized utility window. Selecting a
-character shows an extra-large preview together with its Unicode name, code point and category.
+Edit -> Character Map… opens Graphium's native Unicode character picker. It is intended to be
+simple to consult: choose a Unicode group, use Search when needed, select a character and insert it
+with a double-click or the Insert button. No setup is required before first use.
+
+The window opens at about three quarters of the editor's width and height and remains resizable.
+Readability is deliberately preferred to maximum character density: glyph cells stay large. The
+current layout uses 76 x 76 pixel glyph cells, 30-point grid glyphs and an 88-point selected-character
+preview. Scrolling does not shrink the glyphs. This proportion and visual scale were validated on
+the desktop so the picker remains clearly legible without becoming an oversized utility window.
 
 Choose a group such as Latin, Greek, Diacritics, Cyrillic, Hebrew, Arabic, Punctuation, Currency,
-Arrows, Mathematics or Symbols. Combining marks are shown against a dotted circle so they remain visible;
-the dotted circle is display-only and is never inserted. Search accepts a literal character, Unicode name words, or a code point such
-as U+03A9. Results are paged rather than creating thousands of GTK widgets at once. Double-click a
-character, or select it and choose Insert. The insertion goes through Graphium's normal native editor
-path, is a normal Undo step, and does not create a second document or Save authority. The Character
-Map has no network service, external Unicode application or required gucharmap dependency.
+Arrows, Mathematics or Symbols. Combining marks are shown against a dotted circle so they remain
+visible; the dotted circle is display-only and is never inserted. Search accepts a literal character,
+Unicode name words, or a code point such as U+03A9. Results are paged rather than creating thousands
+of GTK widgets at once.
+
+The Character Map is native to Graphium. It uses GTK 3/PyGObject and Python's built-in Unicode data;
+it does not require gucharmap/libgucharmap, a network service, plugins, a background process or any
+additional Character Map configuration. The feature is created only when requested and introduces
+no persistent background activity when closed.
+
+Insertion goes through Graphium's normal native editor path. It is a normal Undo step and does not
+create a second document or Save authority. Character Map is outside the Open/Save, serialization
+and GuardedFileWriter paths, so it does not add work to normal document reading or writing. Search
+and paging operate only while the Character Map is in use.
+
+In practical terms, the design goals are: simple operation, clearly distinguishable characters,
+native no-setup behavior, small implementation overhead, no meaningful effect on normal Open/Save
+performance, and proportions that remain balanced with the editor window.
 
 21. TAB CONTROLS, APPEARANCE AND DESKTOP POLISH
 ----------------------------------------------------
