@@ -2,7 +2,7 @@
 
 Canonical document 1 of 3.
 Initial freeze: 2026-08-13 — G00.
-Current publication boundary: **Graphium Core 0.0.17 CLOSED / CERTIFIED / PUBLISHED** at source-publication commit `50f7a2e352cc597ffc8e3b9875f125100080f623`, tree `31a3f5d279e0d83967b640c8437dccf51ef05e65`, product subtree `8e4a601287b5cd83bec9579e3167635cb03e4fd6`, product version `0.0.17`. The maintenance Candidate R1 authority is 433/433, its corrected EXPECTED_ABSENT writer was proven on real FAT32/vfat, and the authorized fail-closed source-publication transaction proved `HEAD=origin/main=remote main` with a CLEAN worktree. Candidate R1 consumed attempt 1/2; the unused 1/2 remains historical and the Candidate is not reopened. This document/evidence-only post-publication convergence may advance repository HEAD but does not replace the authoritative Core 0.0.17 source-publication commit/tree above. Tag `v0.0.17`, GitHub Release and Debian artifact remain separate distribution actions; the Graphium Plus 0.0.2 FAT32 port remains a separate product transaction.
+Current publication boundary: **Graphium Core GTK3 0.0.18 CLOSED / CERTIFIED / PUBLISHED / CANONICALLY CONVERGED BY THIS REVISION**. The authoritative Character Map source publication is commit `15a6302a404a0ee6db24966ef05b804647017c7c`, tree `abe00c6e7572215919ea054e978047249b75f270`, product subtree `8d1e1818b9eee41a266138a22775f26730e3afff`, version `0.0.18`. The post-publication documentation corrective is commit `5f9bb02ea5a940999655ece04c752f3619ebadad`, tree `7e2c0a45605cb39432466dc26af151b5e443b8b0`; it changes only `README.md` and `docs/user/GRAPHIUM_USER_GUIDE.txt`. Candidate R1 remains the certified product authority with 447/447 permanent automated tests plus exact-byte TRUE-GTK and T480 visual PASS, historical attempt accounting 1/2 used and 1/2 unused. This convergence is governance/evidence-only and does not alter product, tests, README/User Guide, bin, data, assets or LICENSE. Tag `v0.0.18`, GitHub Release and Debian artifact remain separate distribution actions.
 G12 / Graphium v1 remains CLOSED / CERTIFIED / PUBLISHED at commit `cb71d9575f7c347fd10334cd7ddb54e5c921ea34`, tree `4e4651b9323c080716bfb28340fa274bd48c0017`, product subtree `1eb5c018574d330907d7f0cab0353074e7b37fe6`; later governance-only commits do not replace that product publication identity.
 
 ## 1. Product identity
@@ -2129,3 +2129,29 @@ that README byte-identically. The authorized source-publication subject is `Core
 Relative to the current remote parent, exactly ten Candidate paths and five governance/evidence paths may change.
 No Candidate reopening or new functional T480 test is justified by publication because the certified product bytes
 are frozen. Final commit/tree facts require a separate post-publication canonical convergence.
+
+
+### Core GTK3 0.0.18 publication closure, documentation corrective and canonical convergence — 2026-11-10
+
+The native Character Map source publication completed PASS at commit
+`15a6302a404a0ee6db24966ef05b804647017c7c`, tree `abe00c6e7572215919ea054e978047249b75f270`, product subtree
+`8d1e1818b9eee41a266138a22775f26730e3afff`, version `0.0.18`, subject `Core 0.0.18: add native Character Map`.
+The transaction ended with `HEAD=origin/main=remote main` and a CLEAN worktree/index.
+
+A separately governed documentation-only corrective then completed PASS at commit
+`5f9bb02ea5a940999655ece04c752f3619ebadad`, tree `7e2c0a45605cb39432466dc26af151b5e443b8b0`, subject
+`Core 0.0.18: document native Character Map`. It changed exactly `README.md` and
+`docs/user/GRAPHIUM_USER_GUIDE.txt`; all product/test/version authorities remained unchanged. The documentation
+closure retained the verified product claims: simple native Unicode selection, large readable glyphs, no external
+Character Map dependency, bounded/lightweight implementation, no Open/Save-path mutation, and the accepted 75% x
+75% parent-relative presentation with 76x76 cells, 30 pt grid glyphs and 88 pt preview.
+
+This final convergence may change exactly the three canonical documents, add
+`evidence/CORE_0.0.18_PUBLICATION_FINAL_RECEIPT_20261110.txt`, and regenerate `evidence/SHA256SUMS.txt`. It MUST
+leave `graphium/`, `tests/`, `README.md`, `docs/user/`, `bin/`, `data/`, `assets/` and `LICENSE` byte/mode-identical
+to documentation-corrective commit `5f9bb02ea5a940999655ece04c752f3619ebadad`. No Candidate is reopened, no
+attempt is consumed, and no further functional/GTK/manual test is justified.
+
+Graphium Core GTK3 0.0.18 is **CLOSED / CERTIFIED / PUBLISHED / CANONICALLY CONVERGED** by this revision. This
+governance commit does not replace the authoritative source-publication or documentation-corrective identities
+above. Tag `v0.0.18`, GitHub Release and Debian artifact remain separately governed distribution actions.

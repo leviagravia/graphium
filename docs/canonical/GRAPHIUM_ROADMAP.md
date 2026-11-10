@@ -903,3 +903,24 @@ exactly 15 paths from that current remote parent: ten Candidate paths plus three
 Candidate certification receipt and `evidence/SHA256SUMS.txt`. After publication PASS, perform a separate five-path
 canonical convergence before declaring 0.0.18 fully closed. Tag/Release/`.deb` distribution remains a separate
 later transaction.
+
+
+### Core GTK3 0.0.18 — Native Character Map — publication closure + canonical convergence
+
+Status: **CLOSED / CERTIFIED / PUBLISHED / CANONICALLY CONVERGED BY THIS REVISION**.
+
+Candidate R1 remains certified at source tree `eaf046bb301a65259fb836f8bcc5895f35f7e9a1`, product subtree
+`8d1e1818b9eee41a266138a22775f26730e3afff`, with 447/447 permanent automated authority plus exact-byte TRUE-GTK
+and T480 manual visual PASS. Historical Candidate accounting remains 1/2 used.
+
+Source publication completed at commit `15a6302a404a0ee6db24966ef05b804647017c7c`, tree
+`abe00c6e7572215919ea054e978047249b75f270`. The subsequent documentation-only closure completed at commit
+`5f9bb02ea5a940999655ece04c752f3619ebadad`, tree `7e2c0a45605cb39432466dc26af151b5e443b8b0`, changing only
+README and the User Guide and preserving all product/test identities.
+
+This five-path canonical convergence records those facts without modifying Character Map or user documentation.
+The feature remains `Edit -> Character Map…`, native GTK3, dependency-free, modeless/single-instance, searchable
+by literal/name/code point, and sized for readability with the accepted parent-relative visual contract.
+
+**Immediate next activity:** separately governed public distribution of 0.0.18 (`v0.0.18`, GitHub Release and
+Debian artifact). No new Core feature work is opened by this convergence.
