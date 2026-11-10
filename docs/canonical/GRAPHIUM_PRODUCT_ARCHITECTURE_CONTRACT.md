@@ -2104,3 +2104,28 @@ does not replace the product publication identity above. Tag `v0.0.17`, GitHub R
 separately governed distribution actions. The next corrective product action is the separately governed Graphium
 Plus 0.0.2 port of the exact Core FAT32 writer semantics; it must start source-first and NON-CANDIDATE.
 
+### Core 0.0.18 native Character Map authority — 2026-11-10
+
+Graphium Core GTK3 owns one native Character Map editing surface under `Edit -> Character Map…`. It is a modeless,
+single-instance GTK3 picker whose sole product purpose is to select a Unicode code point and insert it through the
+existing editor buffer/Undo authority. The Character Map is not a document authority, save authority, font browser
+or replacement for Gucharmap, and it may not introduce a second writer, filesystem service, subprocess, network
+service, thread or external character-map dependency.
+
+The frozen visual contract prioritizes legibility: initial size approximately 75% x 75% of the parent editor,
+minimum 480x360, grid cells 76x76, grid glyphs 30 pt and selected preview 88 pt. Scrolling/paging must preserve
+those glyph sizes rather than shrinking the grid to fit more characters. Search supports literal character, Unicode
+name tokens, `U+XXXX` and `0xXXXX`; combining marks may use a dotted-circle display aid without changing the
+inserted code point.
+
+Candidate R1 is certified at version `0.0.18`, source tree `eaf046bb301a65259fb836f8bcc5895f35f7e9a1`, product
+subtree `8d1e1818b9eee41a266138a22775f26730e3afff`, tests `586e705a32d90ccbe520a7e12cc435a34f3aef86`, with
+447/447 permanent automated authority plus adopted exact-byte TRUE-GTK and user desktop visual PASS. Attempt
+accounting is 1/2 used, 1/2 remaining historically.
+
+A post-Candidate remote commit `9a993c81ce7cbc4ae5b68743642ac569c94c562c` changes only top-level README (+4/-0)
+and is adopted as the publication parent after fail-closed read-only proof. Character Map publication must inherit
+that README byte-identically. The authorized source-publication subject is `Core 0.0.18: add native Character Map`.
+Relative to the current remote parent, exactly ten Candidate paths and five governance/evidence paths may change.
+No Candidate reopening or new functional T480 test is justified by publication because the certified product bytes
+are frozen. Final commit/tree facts require a separate post-publication canonical convergence.

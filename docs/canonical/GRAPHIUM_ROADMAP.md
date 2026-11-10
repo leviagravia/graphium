@@ -883,3 +883,23 @@ no duplicate warranty string.
 and Debian artifact are still separate distribution work. The next product corrective is **Graphium Plus 0.0.2
 FAT32 port**, starting source-first / NON-CANDIDATE from the already published and converged Core authority.
 
+### Core GTK3 0.0.18 — Native Character Map — publication authority
+
+Status at this revision: **CANDIDATE R1 CERTIFIED / SOURCE PUBLICATION AUTHORIZED**.
+
+The release adds the native Core Character Map under `Edit -> Character Map…` with a deliberately readable visual
+contract: about three quarters of the editor window, 76x76 cells, 30 pt grid glyphs and an 88 pt selected-character
+preview. Search supports Unicode names and code-point notation, groups are paged/lazy, and insertion reuses the
+normal editor buffer and Undo authority. No Gucharmap dependency, writer, network, subprocess or new save/document
+authority is introduced.
+
+Permanent Candidate authority is 447/447 PASS, with exact-byte TRUE-GTK and T480 manual visual validation adopted
+from the final R2 implementation. Candidate attempt accounting is 1/2 used. The later public README-only commit
+`9a993c81ce7cbc4ae5b68743642ac569c94c562c` is an adopted documentation drift and becomes the publication parent;
+it does not reopen Candidate R1.
+
+The authorized source-publication transaction uses subject `Core 0.0.18: add native Character Map` and may change
+exactly 15 paths from that current remote parent: ten Candidate paths plus three canonical documents, one additive
+Candidate certification receipt and `evidence/SHA256SUMS.txt`. After publication PASS, perform a separate five-path
+canonical convergence before declaring 0.0.18 fully closed. Tag/Release/`.deb` distribution remains a separate
+later transaction.

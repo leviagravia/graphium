@@ -8535,3 +8535,50 @@ MANUAL_TESTS_THIS_SYNC=0
 NEXT_STEP=GRAPHIUM_PLUS_0.0.2_FAT32_PORT_SOURCE_FIRST_NONCANDIDATE
 FINAL_PHASE=CORE_0.0.17_POST_PUBLICATION_CANONICAL_CONVERGENCE_TARGET_FROZEN
 
+================================================================================
+ENTRY POST-G16-003 — 2026-11-10 — CORE 0.0.18 NATIVE CHARACTER MAP / SOURCE PUBLICATION
+================================================================================
+This revision publishes the certified Graphium Core GTK3 native Character Map as version `0.0.18`. It is a
+bounded Core editing feature release on the Python/GTK3 line; it does not modify or open the separate Rust/GTK4
+line, Graphium Plus, or Graphium Ultra.
+
+Certified Candidate R1 authority:
+  VERSION=0.0.18
+  CANDIDATE_R1=CERTIFIED
+  CANDIDATE_SOURCE_TREE=eaf046bb301a65259fb836f8bcc5895f35f7e9a1
+  CANDIDATE_PRODUCT_TREE=8d1e1818b9eee41a266138a22775f26730e3afff
+  CANDIDATE_TESTS_TREE=586e705a32d90ccbe520a7e12cc435a34f3aef86
+  CANDIDATE_INTEGRATION_TREE=742d3a430191a1fdf838ec003a885b98d702f94d
+  CANDIDATE_USER_DOCS_TREE=624fe5a4e90969d806f74ed9d1209cb377a09675
+  CANDIDATE_AUTOMATED_AUTHORITY=447/447_PASS
+  CANDIDATE_ATTEMPTS_USED=1/2
+
+The feature contract is native GTK3 `Edit -> Character Map…`: one modeless single-instance picker, parent-relative
+initial size approximately 75% x 75%, readability floor 480x360, 76x76 glyph cells, 30 pt grid glyphs and 88 pt
+selected preview. Unicode search accepts literal characters, name tokens, `U+XXXX` and `0xXXXX`; script/category
+groups are paged/lazy. Combining marks receive only a display aid; the inserted code point is unchanged. Insert
+and double-click use the existing editor buffer/Undo authority. There is no new dependency, filesystem writer,
+save path, thread, subprocess or network authority.
+
+The exact Character Map bytes passed focused headless tests, TRUE-GTK structure/search/Insert/Undo/singleton and
+parent-relative sizing validation, destroy-timer cleanup, fatal Gtk-critical gating, and user desktop visual
+validation PASS on the T480. The final R2 visual contract was accepted by the user. Candidate certification then
+passed 199/199 Behavioral, 189/189 Integration and 59/59 Packaging/Release = 447/447 permanent automated tests.
+
+After Candidate certification, public `main` advanced by one documentation-only commit
+`9a993c81ce7cbc4ae5b68743642ac569c94c562c` (`README: add AI development disclaimer`) whose exact parent is the
+previous converged Core 0.0.17 commit `743d96135fdb57c04d6fe0f0bf3655014b107c2d`. The drift changes only
+`README.md` with +4/-0 lines and does not change any protected product/test/user-doc/canonical/evidence authority.
+Publication readiness explicitly adopted that README-only drift without reopening Candidate R1. The publication
+parent is therefore `9a993c81ce7cbc4ae5b68743642ac569c94c562c`, and its README must remain byte-identical.
+
+The source-publication transaction is authorized with subject `Core 0.0.18: add native Character Map`. Relative
+to the current remote parent, it changes exactly the ten certified Candidate paths plus the three canonical
+documents, additive `evidence/CORE_0.0.18_CHARACTER_MAP_CANDIDATE_R1_CERTIFICATION_RECEIPT_20261110.txt`, and
+regenerated `evidence/SHA256SUMS.txt`: exactly 15 paths. Save/FAT32, Hunspell, printing, appearance, tab controls,
+About/legal, bin, data, assets and LICENSE remain outside this feature publication delta.
+
+The final publication commit hash cannot be recorded inside its own tree. After source-publication PASS, Core
+0.0.18 is PUBLISHED_PENDING_CANONICAL_CONVERGENCE. A separate five-path documentation/evidence-only convergence
+must record the final commit/tree without changing `graphium/`, `tests/`, `docs/user/`, `bin/`, `data`, README,
+assets or LICENSE. Tag `v0.0.18`, GitHub Release and Debian artifact remain separate distribution actions.

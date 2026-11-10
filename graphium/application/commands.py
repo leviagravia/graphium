@@ -64,6 +64,7 @@ COMMANDS = (
     CommandSpec("paste", "Paste", "<Ctrl>V", "Edit"),
     CommandSpec("delete", "Delete", "Delete", "Edit"),
     CommandSpec("select-all", "Select All", "<Ctrl>A", "Edit"),
+    CommandSpec("character-map", "Character Map…", None, "Edit"),
     CommandSpec(
         "tab-width", "Tab Width", None, "Edit", False, None,
         (("2", "2"), ("3", "3"), ("4", "4"), ("8", "8"), ("Other…", "other")),

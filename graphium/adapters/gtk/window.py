@@ -38,6 +38,7 @@ from .dialogs import (
     GtkLifecycleUI, choose_copy_path, choose_font, choose_line_number, choose_tab_width, show_about,
     show_properties, show_statistics, show_text_document,
 )
+from .character_map import CharacterMapDialog
 from .editor_buffer import GtkTextBufferPort
 from .editor_view import GraphiumTextView
 from .external_monitor import StrongExternalFileMonitor
@@ -67,6 +68,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
         self._external_monitor_bind_source_id = 0
         self._actions: dict[str, Gio.SimpleAction] = {}
         self._print_controller = None
+        self._character_map_dialog: CharacterMapDialog | None = None
         self._search_bar: Gtk.SearchBar | None = None
         self._search_query_entry: Gtk.Entry | None = None
         self._search_replace_entry: Gtk.Entry | None = None
@@ -242,6 +244,7 @@ class GraphiumWindow(Gtk.ApplicationWindow):
             "paste": self._action_paste,
             "delete": self._action_delete,
             "select-all": self._action_select_all,
+            "character-map": self._action_character_map,
             "tab-width": self._action_tab_width,
             "insert-spaces": self._action_insert_spaces,
             "uppercase": self._action_uppercase,
@@ -881,6 +884,59 @@ class GraphiumWindow(Gtk.ApplicationWindow):
     def _action_select_all(self, *_args) -> None:
         start, end = self.buffer.get_bounds()
         self.buffer.select_range(start, end)
+
+    @staticmethod
+    def _replacement_line_edges(buffer, start_iter, end_iter) -> tuple[int, int]:
+        line_start = start_iter.copy()
+        line_start.set_line_offset(0)
+        line_end = end_iter.copy()
+        line_end.forward_to_line_end()
+        prefix = start_iter.get_offset() - line_start.get_offset()
+        suffix = line_end.get_offset() - end_iter.get_offset()
+        return prefix, suffix
+
+    def _insert_character_from_map(self, char: str) -> None:
+        if not isinstance(char, str) or len(char) != 1:
+            return
+        has_selection = self.buffer.get_has_selection()
+        if has_selection:
+            start, end = self.buffer.get_selection_bounds()
+        else:
+            start = self.buffer.get_iter_at_mark(self.buffer.get_insert())
+            end = start.copy()
+        prefix, suffix = self._replacement_line_edges(self.buffer, start, end)
+        try:
+            ensure_insert_renderable(
+                prefix_chars=prefix,
+                suffix_chars=suffix,
+                inserted_text=char,
+            )
+        except InteractiveRenderabilityError as exc:
+            self._queue_renderability_notice(str(exc))
+            return
+
+        self.buffer.begin_user_action()
+        try:
+            if has_selection:
+                self.buffer.delete_selection(True, True)
+            self.buffer.insert_at_cursor(char)
+        finally:
+            self.buffer.end_user_action()
+        self._refresh_projection()
+
+    def _on_character_map_destroyed(self, _dialog) -> None:
+        self._character_map_dialog = None
+        self.text_view.grab_focus()
+
+    def _action_character_map(self, *_args) -> None:
+        dialog = self._character_map_dialog
+        if dialog is not None:
+            dialog.present()
+            return
+        dialog = CharacterMapDialog(self, on_insert=self._insert_character_from_map)
+        dialog.connect("destroy", self._on_character_map_destroyed)
+        self._character_map_dialog = dialog
+        dialog.present()
 
     @staticmethod
     def _tab_width_action_state(width: int) -> str:

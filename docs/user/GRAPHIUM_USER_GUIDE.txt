@@ -358,7 +358,22 @@ These commands are never applied automatically on Open or Save. Uppercase uses C
 Ctrl+Shift+L, and Move Lines Up/Down use Alt+Up and Alt+Down; Duplicate Line / Selection and Trim Trailing
 Spaces remain menu-driven.
 
-20. TAB CONTROLS, APPEARANCE AND DESKTOP POLISH
+20. CHARACTER MAP
+-----------------
+Edit -> Character Map… opens Graphium's native Unicode character picker. The window opens at about
+three quarters of the editor's width and height and remains resizable. Its glyph cells stay large so
+characters remain readable without turning the picker into an oversized utility window. Selecting a
+character shows an extra-large preview together with its Unicode name, code point and category.
+
+Choose a group such as Latin, Greek, Diacritics, Cyrillic, Hebrew, Arabic, Punctuation, Currency,
+Arrows, Mathematics or Symbols. Combining marks are shown against a dotted circle so they remain visible;
+the dotted circle is display-only and is never inserted. Search accepts a literal character, Unicode name words, or a code point such
+as U+03A9. Results are paged rather than creating thousands of GTK widgets at once. Double-click a
+character, or select it and choose Insert. The insertion goes through Graphium's normal native editor
+path, is a normal Undo step, and does not create a second document or Save authority. The Character
+Map has no network service, external Unicode application or required gucharmap dependency.
+
+21. TAB CONTROLS, APPEARANCE AND DESKTOP POLISH
 ----------------------------------------------------
 Edit -> Tab Width offers 2, 3, 4, 8 and Other…; Other… accepts any width from 1 to 32. The default
 is 8. Changing Tab Width affects how literal TAB characters are displayed; it never rewrites
@@ -377,7 +392,7 @@ File -> Open. If the active document is Modified, the normal Save/Discard/Cancel
 the decision. Dropped plain text remains normal text editing. Remote URIs and directories are not
 opened as documents.
 
-21. CRASH RECOVERY
+22. CRASH RECOVERY
 ------------------
 Graphium keeps one private crash-recovery artifact for a Modified document. Recovery state is stored
 under the user's XDG state area; it never autosaves or overwrites the document being edited. The

@@ -38,9 +38,9 @@ class G16AboutIconCorrectiveTests(unittest.TestCase):
             self.assertNotIn(forbidden, source)
         self.assertFalse((ROOT / "graphium/adapters/gtk/about_icon.py").exists())
 
-    def test_current_maintenance_version_is_serial_0_0_17(self):
+    def test_current_version_is_serial_0_0_18(self):
         from graphium.product import VERSION
-        self.assertEqual(VERSION, "0.0.17")
+        self.assertEqual(VERSION, "0.0.18")
 
 
 if __name__ == "__main__":
